@@ -208,7 +208,6 @@
     <Compile Include="Collections\TransformEnumerator.cs" />
     <Compile Include="Commands\ConsoleCommandContext.cs" />
     <Compile Include="Event\EventShimAttribute.cs" />
-    <Compile Include="Extensions\LinqExtensions.cs" />
     <Compile Include="Managers\ChatManager\ChatManagerClient.cs" />
     <Compile Include="Managers\ChatManager\ChatManagerServer.cs" />
     <Compile Include="Extensions\DispatcherExtensions.cs" />
@@ -217,7 +216,6 @@
     <Compile Include="Event\EventList.cs" />
     <Compile Include="Event\EventManager.cs" />
     <Compile Include="Event\IEventList.cs" />
-    <Compile Include="Managers\KeenLogPatch.cs" />
     <Compile Include="Managers\PatchManager\AssemblyMemory.cs" />
     <Compile Include="Managers\PatchManager\DecoratedMethod.cs" />
     <Compile Include="Managers\PatchManager\EmitExtensions.cs" />
@@ -244,6 +242,7 @@
     <Compile Include="MySteamServiceWrapper.cs" />
     <Compile Include="Patches\GameAnalyticsPatch.cs" />
     <Compile Include="Patches\GameStatePatchShim.cs" />
+    <Compile Include="Patches\KeenLogPatch.cs" />
     <Compile Include="Patches\ObjectFactoryInitPatch.cs" />
     <Compile Include="Patches\PhysicsMemoryPatch.cs" />
     <Compile Include="Patches\SessionDownloadPatch.cs" />

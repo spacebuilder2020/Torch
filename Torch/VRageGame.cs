@@ -153,6 +153,7 @@ namespace Torch
             MySessionComponentExtDebug.ForceDisable = true;
             MyPerGameSettings.SendLogToKeen = false;
             // SpaceEngineersGame.SetupAnalytics();
+            MySandboxGame.InitMultithreading();
 
             MyFileSystem.ExePath = Path.GetDirectoryName(typeof(SpaceEngineersGame).Assembly.Location);
 
@@ -160,6 +161,7 @@ namespace Torch
 
             MyFileSystem.Reset();
             MyInitializer.InvokeBeforeRun(_appSteamId, _appName, _userDataPath);
+            MySandboxGame.InitMultithreading();
             // MyInitializer.InitCheckSum();
 
 
@@ -179,7 +181,7 @@ namespace Torch
                 }
                 else
                 {
-                    MyPerformanceSettings preset = MyGuiScreenOptionsGraphics.GetPreset(MyRenderQualityEnum.NORMAL);
+                    MyPerformanceSettings preset = MyGuiScreenOptionsGraphics.GetPreset(MyRenderPresetEnum.NORMAL);
                     MyRenderProxy.Settings.User = MyVideoSettingsManager.GetGraphicsSettingsFromConfig(ref preset, false)
                         .PerformanceSettings.RenderSettings;
                     MyStringId graphicsRenderer = MySandboxGame.Config.GraphicsRenderer;

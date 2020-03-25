@@ -91,8 +91,12 @@ namespace Torch.Server
         [Arg("plugins", "Starts Torch with the given plugin GUIDs (space delimited).")]
         public List<Guid> Plugins { get; set; } = new List<Guid>();
 
-        [Arg("localplugins", "Loads all pluhins from disk, ignores the plugins defined in config.")]
+        public List<Guid> DisabledPlugins { get; set; } = new List<Guid>();
+
+        [Arg("localplugins", "Loads all plugins from disk, ignores the plugins defined in config.")]
         public bool LocalPlugins { get; set; }
+        
+        public bool DownloadDependencies { get; set; } = true;
 
         [Arg("disconnect", "When server restarts, all clients are rejected to main menu to prevent auto rejoin")]
         public bool DisconnectOnRestart { get; set; }
@@ -122,6 +126,9 @@ namespace Torch.Server
 
         [Arg("optout", "Disables analytics tracking")]
         public bool OptOutAnalytics { get; set; } = false;
+
+        [Arg("asserts", "Enable Keen's assert logging.")]
+        public bool EnableAsserts { get; set; } = false;
 
         [XmlIgnore]
         private string _path;
