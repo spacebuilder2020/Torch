@@ -10,8 +10,18 @@ namespace Torch.Server
 {
     public class RichTextBoxWriter : TextWriter
     {
-        private RichTextBox textbox;
-        private StringBuilder _cache = new StringBuilder();
+        private static readonly Dictionary<ConsoleColor, SolidColorBrush> _brushes = new Dictionary<ConsoleColor, SolidColorBrush>();
+        private readonly StringBuilder _cache = new StringBuilder();
+        private readonly RichTextBox textbox;
+
+        static RichTextBoxWriter()
+        {
+            foreach (var value in (ConsoleColor[])Enum.GetValues(typeof(ConsoleColor)))
+            {
+                _brushes.Add(value, new SolidColorBrush(UnpackColor(value)));
+            }
+        }
+
         public RichTextBoxWriter(RichTextBox textbox)
         {
             this.textbox = textbox;
@@ -19,6 +29,8 @@ namespace Torch.Server
             textbox.Document.Blocks.Clear();
             textbox.Document.Blocks.Add(new Paragraph {LineHeight = 12});
         }
+
+        public override Encoding Encoding { get { return Encoding.ASCII; } }
 
         public override void Write(char value)
         {
@@ -35,11 +47,10 @@ namespace Torch.Server
                 textbox.Dispatcher.BeginInvoke(() =>
                 {
                     var p = (Paragraph)textbox.Document.Blocks.FirstBlock;
-                    p.Inlines.Add(new Run(str) { Foreground = brush });
+                    p.Inlines.Add(new Run(str) {Foreground = brush});
                     textbox.ScrollToEnd();
                 });
             }
-
         }
 
         public override void Write(string value)
@@ -48,25 +59,10 @@ namespace Torch.Server
             textbox.Dispatcher.BeginInvoke(() =>
             {
                 var p = (Paragraph)textbox.Document.Blocks.FirstBlock;
-                p.Inlines.Add(new Run(value) { Foreground = brush });
+                p.Inlines.Add(new Run(value) {Foreground = brush});
                 textbox.ScrollToEnd();
             });
         }
-
-        public override Encoding Encoding
-        {
-            get { return Encoding.ASCII; }
-        }
-
-        static RichTextBoxWriter()
-        {
-            foreach (var value in (ConsoleColor[])Enum.GetValues(typeof(ConsoleColor)))
-            {
-                _brushes.Add(value, new SolidColorBrush(UnpackColor(value)));
-            }
-        }
-
-        private static Dictionary<ConsoleColor, SolidColorBrush> _brushes = new Dictionary<ConsoleColor, SolidColorBrush>();
 
         private static Color UnpackColor(ConsoleColor color)
         {
@@ -75,7 +71,7 @@ namespace Torch.Server
             var brightness = isBright ? (byte)255 : (byte)128;
             var red = (colorByte & 0b0100) >> 2;
             var green = (colorByte & 0b0010) >> 1;
-            var blue = (colorByte & 0b0001);
+            var blue = colorByte & 0b0001;
 
             return new Color
             {

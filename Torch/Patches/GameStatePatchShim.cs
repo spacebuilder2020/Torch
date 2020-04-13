@@ -10,18 +10,12 @@ namespace Torch.Patches
     [PatchShim]
     internal static class GameStatePatchShim
     {
-#pragma warning disable 649
-        [ReflectedMethodInfo(typeof(MySandboxGame), nameof(MySandboxGame.Dispose))]
-        private static MethodInfo _sandboxGameDispose;
-        [ReflectedMethodInfo(typeof(MySandboxGame), "Initialize")]
-        private static MethodInfo _sandboxGameInit;
-#pragma warning restore 649
-
         internal static void Patch(PatchContext target)
         {
-            ConstructorInfo ctor = typeof(MySandboxGame).GetConstructor(new[] { typeof(string[]), typeof(IntPtr) });
+            var ctor = typeof(MySandboxGame).GetConstructor(new[] {typeof(string[]), typeof(IntPtr)});
             if (ctor == null)
                 throw new ArgumentException("Can't find constructor MySandboxGame(string[])");
+
             target.GetPattern(ctor).Prefixes.Add(MethodRef(PrefixConstructor));
             target.GetPattern(ctor).Suffixes.Add(MethodRef(SuffixConstructor));
             target.GetPattern(_sandboxGameInit).Prefixes.Add(MethodRef(PrefixInit));
@@ -30,7 +24,7 @@ namespace Torch.Patches
             target.GetPattern(_sandboxGameDispose).Suffixes.Add(MethodRef(SuffixDispose));
         }
 
-        private static MethodInfo MethodRef(Action a )
+        private static MethodInfo MethodRef(Action a)
         {
             return a.Method;
         }
@@ -71,5 +65,12 @@ namespace Torch.Patches
             if (TorchBase.Instance is TorchBase tb)
                 tb.GameState = TorchGameState.Unloaded;
         }
+#pragma warning disable 649
+        [ReflectedMethodInfo(typeof(MySandboxGame), nameof(MySandboxGame.Dispose))]
+        private static MethodInfo _sandboxGameDispose;
+
+        [ReflectedMethodInfo(typeof(MySandboxGame), "Initialize")]
+        private static MethodInfo _sandboxGameInit;
+#pragma warning restore 649
     }
 }

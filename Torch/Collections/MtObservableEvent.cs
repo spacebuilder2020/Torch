@@ -7,36 +7,34 @@ using System.Windows.Threading;
 namespace Torch.Collections
 {
     /// <summary>
-    /// Event that invokes handlers registered by dispatchers on dispatchers.
+    ///     Event that invokes handlers registered by dispatchers on dispatchers.
     /// </summary>
     /// <typeparam name="TEvtArgs">Event argument type</typeparam>
     /// <typeparam name="TEvtHandle">Event handler delegate type</typeparam>
     public sealed class MtObservableEvent<TEvtArgs, TEvtHandle> where TEvtArgs : EventArgs
     {
-        private delegate void DelInvokeHandler(TEvtHandle handler, object sender, TEvtArgs args);
-
         private static readonly DelInvokeHandler _invokeDirectly;
+
+        private int _observerCount = 0;
+
         static MtObservableEvent()
         {
-            MethodInfo invoke = typeof(TEvtHandle).GetMethod("Invoke", BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            var invoke = typeof(TEvtHandle).GetMethod("Invoke", BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
             Debug.Assert(invoke != null, "No invoke method on handler type");
             _invokeDirectly = (DelInvokeHandler)Delegate.CreateDelegate(typeof(DelInvokeHandler), invoke);
         }
 
         private static Dispatcher CurrentDispatcher => Dispatcher.FromThread(Thread.CurrentThread);
 
-
-        private event EventHandler<TEvtArgs> Event;
-
-        private int _observerCount = 0;
-
         /// <summary>
-        /// Determines if this event has an observers.
+        ///     Determines if this event has an observers.
         /// </summary>
         public bool IsObserved => _observerCount > 0;
 
+        private event EventHandler<TEvtArgs> Event;
+
         /// <summary>
-        /// Raises this event for the given sender, with the given args
+        ///     Raises this event for the given sender, with the given args
         /// </summary>
         /// <param name="sender">sender</param>
         /// <param name="args">args</param>
@@ -46,27 +44,29 @@ namespace Torch.Collections
         }
 
         /// <summary>
-        /// Adds the given event handler.
+        ///     Adds the given event handler.
         /// </summary>
         /// <param name="evt"></param>
         public void Add(TEvtHandle evt)
         {
             if (evt == null)
                 return;
+
             _observerCount++;
             Event += new DispatcherDelegate(evt).Invoke;
         }
 
         /// <summary>
-        /// Removes the given event handler
+        ///     Removes the given event handler
         /// </summary>
         /// <param name="evt"></param>
         public void Remove(TEvtHandle evt)
         {
             if (Event == null || evt == null)
                 return;
-            Delegate[] invokeList = Event.GetInvocationList();
-            for (int i = invokeList.Length - 1; i >= 0; i--)
+
+            var invokeList = Event.GetInvocationList();
+            for (var i = invokeList.Length - 1; i >= 0; i--)
             {
                 var wrapper = (DispatcherDelegate)invokeList[i].Target;
                 if (wrapper._delegate.Equals(evt))
@@ -77,6 +77,8 @@ namespace Torch.Collections
                 }
             }
         }
+
+        private delegate void DelInvokeHandler(TEvtHandle handler, object sender, TEvtArgs args);
 
         private struct DispatcherDelegate
         {

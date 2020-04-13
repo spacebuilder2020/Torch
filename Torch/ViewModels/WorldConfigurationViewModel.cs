@@ -14,13 +14,8 @@ namespace Torch.Server.ViewModels
             _sessionSettings = new SessionSettingsViewModel(worldConfiguration.Settings);
         }
 
-        public static implicit operator MyObjectBuilder_WorldConfiguration(WorldConfigurationViewModel model)
-        {
-            return model._worldConfiguration;
-        }
-        
         public List<MyObjectBuilder_Checkpoint.ModItem> Mods { get => _worldConfiguration.Mods; set => SetValue(ref _worldConfiguration.Mods, value); }
-        
+
         public SessionSettingsViewModel Settings
         {
             get => _sessionSettings;
@@ -29,6 +24,11 @@ namespace Torch.Server.ViewModels
                 SetValue(ref _sessionSettings, value);
                 _worldConfiguration.Settings = _sessionSettings;
             }
+        }
+
+        public static implicit operator MyObjectBuilder_WorldConfiguration(WorldConfigurationViewModel model)
+        {
+            return model._worldConfiguration;
         }
     }
 }

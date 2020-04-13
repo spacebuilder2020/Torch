@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Sandbox;
 using Sandbox.Engine.Platform;
@@ -14,18 +11,16 @@ using Sandbox.Graphics.GUI;
 using Torch.API;
 using Torch.API.Session;
 using VRage;
-using VRage.Audio;
-using VRage.Utils;
 
 namespace Torch.Patches
 {
     /// <summary>
-    /// A copy of <see cref="MyAsyncSaving"/> except with C# async support.
+    ///     A copy of <see cref="MyAsyncSaving" /> except with C# async support.
     /// </summary>
     public static class TorchAsyncSaving
     {
         /// <summary>
-        /// Saves the game asynchronously
+        ///     Saves the game asynchronously
         /// </summary>
         /// <param name="torch">Torch instance</param>
         /// <param name="timeoutMs">time in milliseconds before the save is treated as failed, or -1 to wait forever</param>
@@ -33,14 +28,16 @@ namespace Torch.Patches
         /// <returns>Async result of save operation</returns>
         public static Task<GameSaveResult> Save(ITorchBase torch, int timeoutMs = -1, string newSaveName = null)
         {
-            Task<GameSaveResult> task = SaveInternal(torch, newSaveName);
+            var task = SaveInternal(torch, newSaveName);
             if (timeoutMs == -1)
                 return task;
+
             return Task.Run(() =>
             {
                 // ReSharper disable once ConvertIfStatementToReturnStatement
                 if (timeoutMs >= 0 && !task.IsCompleted && !task.Wait(timeoutMs))
                     return GameSaveResult.TimedOut;
+
                 return task.Result;
             });
         }
@@ -53,7 +50,7 @@ namespace Torch.Patches
             var saveTaskSource = new TaskCompletionSource<GameSaveResult>();
             torch.Invoke(() =>
             {
-                bool snapshotSuccess = MySession.Static.Save(out MySessionSnapshot tmpSnapshot, newSaveName);
+                var snapshotSuccess = MySession.Static.Save(out var tmpSnapshot, newSaveName);
                 if (!snapshotSuccess)
                 {
                     saveTaskSource.SetResult(GameSaveResult.FailedToTakeSnapshot);
@@ -92,7 +89,7 @@ namespace Torch.Patches
 
         private static void TakeSaveScreenshot()
         {
-            string thumbPath = MySession.Static.ThumbPath;
+            var thumbPath = MySession.Static.ThumbPath;
             try
             {
                 if (File.Exists(thumbPath))

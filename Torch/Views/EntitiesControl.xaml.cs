@@ -1,36 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using NLog;
-using Torch.Collections;
 using Torch.Server.ViewModels;
 using Torch.Server.ViewModels.Blocks;
 using Torch.Server.ViewModels.Entities;
 using Torch.Server.Views.Blocks;
 using Torch.Server.Views.Entities;
 using VRage.Game.ModAPI;
+using GridView = Torch.Server.Views.Entities.GridView;
 
 namespace Torch.Server.Views
 {
     /// <summary>
-    /// Interaction logic for EntitiesControl.xaml
+    ///     Interaction logic for EntitiesControl.xaml
     /// </summary>
     public partial class EntitiesControl : UserControl
     {
-        public EntityTreeViewModel Entities { get; set; }
-
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public EntitiesControl()
@@ -41,14 +28,16 @@ namespace Torch.Server.Views
             Entities.Init();
             SortCombo.ItemsSource = Enum.GetNames(typeof(EntityTreeViewModel.SortEnum));
         }
-        
+
+        public EntityTreeViewModel Entities { get; set; }
+
         private void TreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is EntityViewModel vm)
             {
                 Entities.CurrentEntity = vm;
                 if (e.NewValue is GridViewModel gvm)
-                    EditorFrame.Content = new Entities.GridView {DataContext = gvm};
+                    EditorFrame.Content = new GridView {DataContext = gvm};
                 if (e.NewValue is BlockViewModel bvm)
                     EditorFrame.Content = new BlockView {DataContext = bvm};
                 if (e.NewValue is VoxelMapViewModel vvm)
@@ -67,6 +56,7 @@ namespace Torch.Server.Views
         {
             if (Entities.CurrentEntity?.Entity is IMyCharacter)
                 return;
+
             TorchBase.Instance.Invoke(() => Entities.CurrentEntity?.Delete());
         }
 
@@ -86,10 +76,10 @@ namespace Torch.Server.Views
         private void SortCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var sort = (EntityTreeViewModel.SortEnum)SortCombo.SelectedIndex;
-            
+
             var comparer = new EntityViewModel.Comparer(sort);
 
-            Task[] sortTasks = new Task[4];
+            var sortTasks = new Task[4];
 
             Entities.CurrentSort = sort;
             Entities.SortedCharacters.SetComparer(comparer);
@@ -105,7 +95,6 @@ namespace Torch.Server.Views
                 i.DescriptiveName = i.GetSortedName(sort);
             foreach (var i in Entities.SortedVoxelMaps)
                 i.DescriptiveName = i.GetSortedName(sort);
-            
         }
     }
 }

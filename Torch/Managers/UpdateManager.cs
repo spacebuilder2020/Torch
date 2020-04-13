@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.IO.Packaging;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using NLog;
 using Torch.API;
 using Torch.API.WebAPI;
@@ -16,16 +9,17 @@ using Torch.API.WebAPI;
 namespace Torch.Managers
 {
     /// <summary>
-    /// Handles updating of the DS and Torch plugins.
+    ///     Handles updating of the DS and Torch plugins.
     /// </summary>
     public class UpdateManager : Manager
     {
-        private Timer _updatePollTimer;
-        private string _torchDir = new FileInfo(typeof(UpdateManager).Assembly.Location).DirectoryName;
-        private Logger _log = LogManager.GetCurrentClassLogger();
         [Dependency]
         private FilesystemManager _fsManager;
-        
+
+        private readonly Logger _log = LogManager.GetCurrentClassLogger();
+        private readonly string _torchDir = new FileInfo(typeof(UpdateManager).Assembly.Location).DirectoryName;
+        private Timer _updatePollTimer;
+
         public UpdateManager(ITorchBase torchInstance) : base(torchInstance)
         {
             //_updatePollTimer = new Timer(TimerElapsed, this, TimeSpan.Zero, TimeSpan.FromMinutes(5));
@@ -41,7 +35,7 @@ namespace Torch.Managers
         {
             CheckAndUpdateTorch();
         }
-        
+
         private async void CheckAndUpdateTorch()
         {
             if (Torch.Config.NoUpdate || !Torch.Config.GetTorchUpdates)
@@ -55,7 +49,7 @@ namespace Torch.Managers
                     _log.Info("Failed to fetch latest version.");
                     return;
                 }
-                
+
                 if (job.Version > Torch.TorchVersion)
                 {
                     _log.Warn($"Updating Torch from version {Torch.TorchVersion} to version {job.Version}");
@@ -66,6 +60,7 @@ namespace Torch.Managers
                         _log.Warn("Failed to download new release!");
                         return;
                     }
+
                     UpdateFromZip(updateName, _torchDir);
                     File.Delete(updateName);
                     _log.Warn($"Torch version {job.Version} has been installed, please restart Torch to finish the process.");
@@ -88,7 +83,7 @@ namespace Torch.Managers
             {
                 foreach (var file in zip.Entries)
                 {
-                    if(file.Name == "NLog-user.config" && File.Exists(Path.Combine(extractPath, file.FullName)))
+                    if (file.Name == "NLog-user.config" && File.Exists(Path.Combine(extractPath, file.FullName)))
                         continue;
 
                     _log.Debug($"Unzipping {file.FullName}");

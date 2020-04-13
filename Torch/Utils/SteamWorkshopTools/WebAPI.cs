@@ -1,41 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using NLog;
 using SteamKit2;
-using System.Net.Http;
 
 namespace Torch.Utils.SteamWorkshopTools
 {
     public class WebAPI
     {
-        private static Logger Log = LogManager.GetLogger("SteamWorkshopService");
         public const uint AppID = 244850U;
-        public string Username { get; private set; }
-        private string password;
-        public bool IsReady { get; private set; }
-        public bool IsRunning { get; private set; }
-        private TaskCompletionSource<bool> logonTaskCompletionSource;
-
-        private SteamClient steamClient;
-        private CallbackManager cbManager;
-        private SteamUser steamUser;
+        private static readonly Logger Log = LogManager.GetLogger("SteamWorkshopService");
 
         private static WebAPI _instance;
-        public static WebAPI Instance
-        {
-            get
-            {
-                return _instance ?? (_instance = new WebAPI());
-            }
-        }
+        private readonly CallbackManager cbManager;
+        private TaskCompletionSource<bool> logonTaskCompletionSource;
+        private string password;
+
+        private readonly SteamClient steamClient;
+        private SteamUser steamUser;
 
         private WebAPI()
         {
@@ -44,6 +30,12 @@ namespace Torch.Utils.SteamWorkshopTools
 
             IsRunning = true;
         }
+
+        public string Username { get; private set; }
+        public bool IsReady { get; private set; }
+        public bool IsRunning { get; private set; }
+
+        public static WebAPI Instance { get { return _instance ?? (_instance = new WebAPI()); } }
 
         public async Task<bool> Logon(string user = "anonymous", string pw = "")
         {
@@ -83,15 +75,17 @@ namespace Torch.Utils.SteamWorkshopTools
 
             using (dynamic remoteStorage = SteamKit2.WebAPI.GetInterface("ISteamRemoteStorage"))
             {
-                KeyValue allFilesDetails = null ;
+                KeyValue allFilesDetails = null;
                 remoteStorage.Timeout = TimeSpan.FromSeconds(30);
-                allFilesDetails = await Task.Run(delegate {
+                allFilesDetails = await Task.Run(delegate
+                {
                     try
                     {
                         return remoteStorage.GetPublishedFileDetails1(
                             itemcount: workshopIds.Count(),
                             publishedfileids: workshopIds,
                             method: HttpMethod.Post);
+
                         // var ifaceArgs = new Dictionary<string, string>();
                         // ifaceArgs["itemcount"] = workshopIds.Count().ToString();
                         // no idea if that formatting is correct - in fact I get a 404 response
@@ -106,10 +100,11 @@ namespace Torch.Utils.SteamWorkshopTools
                 });
                 if (allFilesDetails == null)
                     return null;
+
                 //fileDetails = remoteStorage.Call(HttpMethod.Post, "GetPublishedFileDetails", 1, new Dictionary<string, string>() { { "itemcount", workshopIds.Count().ToString() }, { "publishedfileids", workshopIds.ToString() } });
                 var detailsList = allFilesDetails?.Children.Find((KeyValue kv) => kv.Name == "publishedfiledetails")?.Children;
                 var resultCount = allFilesDetails?.GetValueOrDefault<int>("resultcount");
-                if( detailsList == null || resultCount == null)
+                if (detailsList == null || resultCount == null)
                 {
                     Log.Error("Received invalid data: ");
 #if DEBUG
@@ -118,24 +113,25 @@ namespace Torch.Utils.SteamWorkshopTools
                     return null;
 #endif
                 }
-                if ( detailsList.Count != workshopIds.Count() || resultCount != workshopIds.Count())
+
+                if (detailsList.Count != workshopIds.Count() || resultCount != workshopIds.Count())
                 {
                     Log.Error($"Received unexpected number of fileDetails. Expected: {workshopIds.Count()}, Received: {resultCount}");
                     return null;
                 }
 
                 var result = new Dictionary<ulong, PublishedItemDetails>();
-                for( int i = 0; i < resultCount; i++ )
+                for (var i = 0; i < resultCount; i++)
                 {
                     var fileDetails = detailsList[i];
 
                     var tagContainer = fileDetails.Children.Find(item => item.Name == "tags");
-                    List<string> tags = new List<string>();
+                    var tags = new List<string>();
                     if (tagContainer != null)
                         foreach (var tagKv in tagContainer.Children)
                         {
                             var tag = tagKv.Children.Find(item => item.Name == "tag")?.Value;
-                            if( tag != null)
+                            if (tag != null)
                                 tags.Add(tag);
                         }
 
@@ -143,21 +139,22 @@ namespace Torch.Utils.SteamWorkshopTools
                     result[publishedFileId] = new PublishedItemDetails()
                     {
                         PublishedFileId = publishedFileId,
-                        Views           = fileDetails.GetValueOrDefault<uint>("views"),
-                        Subscriptions   = fileDetails.GetValueOrDefault<uint>("subscriptions"),
-                        TimeUpdated     = DateTimeOffset.FromUnixTimeSeconds(fileDetails.GetValueOrDefault<long>("time_updated")).DateTime,
-                        TimeCreated     = DateTimeOffset.FromUnixTimeSeconds(fileDetails.GetValueOrDefault<long>("time_created")).DateTime,
-                        Description     = fileDetails.GetValueOrDefault<string>("description"),
-                        Title           = fileDetails.GetValueOrDefault<string>("title"),
-                        FileUrl         = fileDetails.GetValueOrDefault<string>("file_url"),
-                        FileSize        = fileDetails.GetValueOrDefault<long>("file_size"),
-                        FileName        = fileDetails.GetValueOrDefault<string>("filename"),
-                        ConsumerAppId   = fileDetails.GetValueOrDefault<ulong>("consumer_app_id"),
-                        CreatorAppId    = fileDetails.GetValueOrDefault<ulong>("creator_app_id"),
-                        Creator         = fileDetails.GetValueOrDefault<ulong>("creator"),
-                        Tags            = tags.ToArray()
+                        Views = fileDetails.GetValueOrDefault<uint>("views"),
+                        Subscriptions = fileDetails.GetValueOrDefault<uint>("subscriptions"),
+                        TimeUpdated = DateTimeOffset.FromUnixTimeSeconds(fileDetails.GetValueOrDefault<long>("time_updated")).DateTime,
+                        TimeCreated = DateTimeOffset.FromUnixTimeSeconds(fileDetails.GetValueOrDefault<long>("time_created")).DateTime,
+                        Description = fileDetails.GetValueOrDefault<string>("description"),
+                        Title = fileDetails.GetValueOrDefault<string>("title"),
+                        FileUrl = fileDetails.GetValueOrDefault<string>("file_url"),
+                        FileSize = fileDetails.GetValueOrDefault<long>("file_size"),
+                        FileName = fileDetails.GetValueOrDefault<string>("filename"),
+                        ConsumerAppId = fileDetails.GetValueOrDefault<ulong>("consumer_app_id"),
+                        CreatorAppId = fileDetails.GetValueOrDefault<ulong>("creator_app_id"),
+                        Creator = fileDetails.GetValueOrDefault<ulong>("creator"),
+                        Tags = tags.ToArray()
                     };
                 }
+
                 return result;
             }
         }
@@ -168,52 +165,41 @@ namespace Torch.Utils.SteamWorkshopTools
             var fullPath = Path.Combine(dir, name);
             if (name == null)
                 name = fileDetails.FileName;
-            var expectedSize = (fileDetails.FileSize == 0) ? -1 : fileDetails.FileSize;
+            var expectedSize = fileDetails.FileSize == 0 ? -1 : fileDetails.FileSize;
 
             using (var client = new WebClient())
             {
                 try
                 {
                     var downloadTask = client.DownloadFileTaskAsync(fileDetails.FileUrl, Path.Combine(dir, name));
-                    DateTime start = DateTime.Now;
-                    for (int i = 0; i < 30; i++)
+                    var start = DateTime.Now;
+                    for (var i = 0; i < 30; i++)
                     {
                         await Task.Delay(1000);
                         if (downloadTask.IsCompleted)
                             break;
                     }
-                    if ( !downloadTask.IsCompleted )
+
+                    if (!downloadTask.IsCompleted)
                     {
                         client.CancelAsync();
                         throw new Exception("Timeout while attempting to downloading published workshop item!");
                     }
+
                     //var text = await client.DownloadStringTaskAsync(url);
                     //File.WriteAllText(fullPath, text);
                 }
                 catch (Exception e)
                 {
                     Log.Error("Failed to download workshop item! /n" +
-                        $"{e.Message} - url: {fileDetails.FileUrl}, path: {Path.Combine(dir, name)}");
+                              $"{e.Message} - url: {fileDetails.FileUrl}, path: {Path.Combine(dir, name)}");
                     throw e;
                 }
-            }
-
-        }
-
-        class Printable
-        {
-            public KeyValue Data;
-            public int Offset;
-
-            public void Print()
-            {
-                Log.Info($"{new string(' ', Offset)}{Data.Name}: {Data.Value}");
             }
         }
 
         private static void PrintKeyValue(KeyValue data)
         {
-
             var dataSet = new Stack<Printable>();
             dataSet.Push(new Printable()
             {
@@ -233,12 +219,23 @@ namespace Torch.Utils.SteamWorkshopTools
             }
         }
 
+        class Printable
+        {
+            public KeyValue Data;
+            public int Offset;
 
-#region CALLBACKS
-        private void OnConnected( SteamClient.ConnectedCallback callback)
+            public void Print()
+            {
+                Log.Info($"{new string(' ', Offset)}{Data.Name}: {Data.Value}");
+            }
+        }
+
+        #region CALLBACKS
+
+        private void OnConnected(SteamClient.ConnectedCallback callback)
         {
             Log.Info("Connected to Steam! Logging in '{0}'...", Username);
-            if( Username == "anonymous" )
+            if (Username == "anonymous")
                 steamUser.LogOnAnonymous();
             else
                 steamUser.LogOn(new SteamUser.LogOnDetails
@@ -248,19 +245,19 @@ namespace Torch.Utils.SteamWorkshopTools
                 });
         }
 
-        private void OnDisconnected( SteamClient.DisconnectedCallback callback )
+        private void OnDisconnected(SteamClient.DisconnectedCallback callback)
         {
             Log.Info("Disconnected from Steam");
             IsReady = false;
             IsRunning = false;
         }
 
-        private void OnLoggedOn( SteamUser.LoggedOnCallback callback )
+        private void OnLoggedOn(SteamUser.LoggedOnCallback callback)
         {
-            if( callback.Result != EResult.OK )
+            if (callback.Result != EResult.OK)
             {
                 string msg;
-                if( callback.Result == EResult.AccountLogonDenied )
+                if (callback.Result == EResult.AccountLogonDenied)
                 {
                     msg = "Unable to logon to Steam: This account is Steamguard protected.";
                     Log.Warn(msg);
@@ -275,17 +272,18 @@ namespace Torch.Utils.SteamWorkshopTools
                 IsRunning = false;
                 return;
             }
+
             IsReady = true;
             Log.Info("Successfully logged on!");
             logonTaskCompletionSource.SetResult(true);
         }
 
-        private void OnLoggedOff( SteamUser.LoggedOffCallback callback )
+        private void OnLoggedOff(SteamUser.LoggedOffCallback callback)
         {
             IsReady = false;
             Log.Info($"Logged off of Steam: {callback.Result}");
         }
-#endregion
 
+        #endregion
     }
 }

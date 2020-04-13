@@ -1,48 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Runtime.CompilerServices;
-using System.Windows.Threading;
-using VRage.Game;
 using NLog;
-using Torch.Server.Managers;
 using Torch.API.Managers;
-using Torch.Server.ViewModels;
-using Torch.Server.Annotations;
 using Torch.Collections;
+using Torch.Server.Annotations;
+using Torch.Server.Managers;
+using Torch.Server.ViewModels;
 using Torch.Views;
+using VRage.Game;
 
 namespace Torch.Server.Views
 {
     /// <summary>
-    /// Interaction logic for ModListControl.xaml
+    ///     Interaction logic for ModListControl.xaml
     /// </summary>
     public partial class ModListControl : UserControl, INotifyPropertyChanged
     {
-        private static Logger Log = LogManager.GetLogger(nameof(ModListControl));
-        private InstanceManager _instanceManager;
+        private static readonly Logger Log = LogManager.GetLogger(nameof(ModListControl));
         ModItemInfo _draggedMod;
         bool _hasOrderChanged = false;
+        private readonly InstanceManager _instanceManager;
         bool _isSortedByLoadOrder = true;
 
         //private List<BindingExpression> _bindingExpressions = new List<BindingExpression>();
         /// <summary>
-        /// Constructor for ModListControl 
+        ///     Constructor for ModListControl
         /// </summary>
         public ModListControl()
         {
@@ -58,6 +51,8 @@ namespace Torch.Server.Views
             //Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(ApplyStyles));
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void ModListControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             throw new NotImplementedException();
@@ -68,11 +63,11 @@ namespace Torch.Server.Views
             CollectionViewSource.GetDefaultView(ModList.ItemsSource).SortDescriptions.Clear();
         }
 
-
         private void _instanceManager_InstanceLoaded(ConfigDedicatedViewModel obj)
         {
             Log.Info("Instance loaded.");
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 DataContext = obj?.Mods ?? new MtObservableList<ModItemInfo>();
                 UpdateLayout();
                 ((MtObservableList<ModItemInfo>)DataContext).CollectionChanged += OnModlistUpdate;
@@ -91,22 +86,15 @@ namespace Torch.Server.Views
             _instanceManager.SaveConfig();
         }
 
-
         private void AddBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            if (TryExtractId(AddModIDTextBox.Text, out ulong id))
+            if (TryExtractId(AddModIDTextBox.Text, out var id))
             {
                 var mod = new ModItemInfo(new MyObjectBuilder_Checkpoint.ModItem(id));
                 //mod.PublishedFileId = id;
                 _instanceManager.DedicatedConfig.Mods.Add(mod);
                 Task.Run(mod.UpdateModInfoAsync)
-                    .ContinueWith((t) =>
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            _instanceManager.DedicatedConfig.Save();
-                        });
-                    });
+                    .ContinueWith((t) => { Dispatcher.Invoke(() => { _instanceManager.DedicatedConfig.Save(); }); });
                 AddModIDTextBox.Text = "";
             }
             else
@@ -116,9 +104,10 @@ namespace Torch.Server.Views
                 MessageBox.Show("Invalid mod id!");
             }
         }
+
         private void RemoveBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            var modList = ((MtObservableList<ModItemInfo>)DataContext);
+            var modList = (MtObservableList<ModItemInfo>)DataContext;
             if (ModList.SelectedItem is ModItemInfo mod && modList.Contains(mod))
                 modList.Remove(mod);
         }
@@ -154,7 +143,7 @@ namespace Torch.Server.Views
         {
             //return;
 
-            _draggedMod = (ModItemInfo) TryFindRowAtPoint((UIElement) sender, e.GetPosition(ModList))?.DataContext;
+            _draggedMod = (ModItemInfo)TryFindRowAtPoint((UIElement)sender, e.GetPosition(ModList))?.DataContext;
 
             //DraggedMod = (ModItemInfo) ModList.SelectedItem;
         }
@@ -175,6 +164,7 @@ namespace Torch.Server.Views
             DependencyObject parent;
             if (child == null)
                 return null;
+
             if (child is ContentElement contentElement)
             {
                 parent = ContentOperations.GetParent(contentElement);
@@ -201,7 +191,7 @@ namespace Torch.Server.Views
                 return;
 
             var targetMod = (ModItemInfo)TryFindRowAtPoint((UIElement)sender, e.GetPosition(ModList))?.DataContext;
-            if( targetMod != null && !ReferenceEquals(_draggedMod, targetMod))
+            if (targetMod != null && !ReferenceEquals(_draggedMod, targetMod))
             {
                 _hasOrderChanged = true;
                 var modList = (MtObservableList<ModItemInfo>)DataContext;
@@ -225,13 +215,13 @@ namespace Torch.Server.Views
                     MessageBox.Show(msg);
                 }
             }
+
             //if (DraggedMod != null && HasOrderChanged)
-                //Log.Info("Dragging over, saving...");
-                //_instanceManager.SaveConfig();
+            //Log.Info("Dragging over, saving...");
+            //_instanceManager.SaveConfig();
             _draggedMod = null;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -242,7 +232,7 @@ namespace Torch.Server.Views
         {
             if (_draggedMod != null)
                 ModList.SelectedItem = _draggedMod;
-            else if( e.AddedCells.Count > 0)
+            else if (e.AddedCells.Count > 0)
                 ModList.SelectedItem = e.AddedCells[0].Item;
         }
 
@@ -267,6 +257,7 @@ namespace Torch.Server.Views
                     modList.Add(mod);
                 }
             }
+
             _instanceManager.DedicatedConfig.Mods.Clear();
             foreach (var mod in modList)
                 _instanceManager.DedicatedConfig.Mods.Add(mod);
@@ -274,11 +265,7 @@ namespace Torch.Server.Views
             if (tasks.Any())
                 Task.WaitAll(tasks.ToArray());
 
-            Dispatcher.Invoke(() =>
-                              {
-                                  _instanceManager.DedicatedConfig.Save();
-                              });
-
+            Dispatcher.Invoke(() => { _instanceManager.DedicatedConfig.Save(); });
         }
-    } 
+    }
 }

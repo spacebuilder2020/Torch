@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-using System.Linq;
 using NLog;
 using SteamKit2;
 
@@ -17,16 +11,17 @@ namespace Torch.Utils.SteamWorkshopTools
 
         public static T GetValueOrDefault<T>(this KeyValue kv, string key)
         {
-            kv.TryGetValueOrDefault<T>(key, out T result);
+            kv.TryGetValueOrDefault<T>(key, out var result);
             return result;
         }
+
         public static bool TryGetValueOrDefault<T>(this KeyValue kv, string key, out T typedValue)
         {
             var match = kv.Children?.Find((KeyValue item) => item.Name == key);
             object result = default(T);
             if (match == null)
             {
-                typedValue = (T) result;
+                typedValue = (T)result;
                 return false;
             }
 

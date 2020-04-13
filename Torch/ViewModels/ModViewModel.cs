@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VRage.Game;
+﻿using VRage.Game;
 
 namespace Torch
 {
     public class ModViewModel
     {
-        public MyObjectBuilder_Checkpoint.ModItem ModItem { get; }
-        public string Name => ModItem.Name;
-        public string FriendlyName => ModItem.FriendlyName;
-        public ulong PublishedFileId => ModItem.PublishedFileId;
-        public string Description { get; }
-
         public ModViewModel(MyObjectBuilder_Checkpoint.ModItem item, string description = "")
         {
             ModItem = item;
             Description = description;
         }
+
+        public MyObjectBuilder_Checkpoint.ModItem ModItem { get; }
+        public string Name => ModItem.Name;
+        public string FriendlyName => ModItem.FriendlyName;
+        public ulong PublishedFileId => ModItem.PublishedFileId;
+        public string Description { get; }
 
         public static implicit operator MyObjectBuilder_Checkpoint.ModItem(ModViewModel item)
         {

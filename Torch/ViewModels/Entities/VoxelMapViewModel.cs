@@ -1,15 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Sandbox.Game.Entities;
+using Torch.Collections;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
-using System.Threading.Tasks;
-using Torch.Collections;
 
 namespace Torch.Server.ViewModels.Entities
 {
     public class VoxelMapViewModel : EntityViewModel
     {
+        public VoxelMapViewModel(MyVoxelBase e, EntityTreeViewModel tree) : base(e, tree) { }
+
+        public VoxelMapViewModel() { }
+
         private MyVoxelBase Voxel => (MyVoxelBase)Entity;
 
         public override string Name => string.IsNullOrEmpty(Voxel.StorageName) ? "UnnamedProcedural" : Voxel.StorageName;
@@ -37,16 +41,6 @@ namespace Torch.Server.ViewModels.Entities
 
                 AttachedGrids.Add(gridModel);
             }
-        }
-
-        public VoxelMapViewModel(MyVoxelBase e, EntityTreeViewModel tree) : base(e, tree)
-        {
-
-        }
-
-        public VoxelMapViewModel()
-        {
-            
         }
     }
 }

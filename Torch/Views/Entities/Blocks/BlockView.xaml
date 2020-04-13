@@ -13,17 +13,17 @@
     </UserControl.DataContext>
     <Grid Margin="3">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
             <Label Content="{Binding FullName}" FontSize="16" />
             <StackPanel Orientation="Horizontal">
-                <Label Content="Built By: "/>
-                <TextBox Text="{Binding BuiltBy}" HorizontalAlignment="Stretch" Margin="3"/>
+                <Label Content="Built By: " />
+                <TextBox Text="{Binding BuiltBy}" HorizontalAlignment="Stretch" Margin="3" />
             </StackPanel>
-            <Label Content="Properties"/>
+            <Label Content="Properties" />
         </StackPanel>
         <Expander Grid.Row="1" Header="Block Properties" IsExpanded="true">
             <ListView ItemsSource="{Binding Properties}" Margin="3" IsEnabled="True">
@@ -35,17 +35,17 @@
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" />
+                                Value="Stretch" />
                         <Setter Property="VerticalContentAlignment"
-                            Value="Center" />
-                        <Setter Property="Focusable" 
-                            Value="false" />
+                                Value="Center" />
+                        <Setter Property="Focusable"
+                                Value="false" />
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
         </Expander>
         <ScrollViewer Grid.Row="2" Margin="3" VerticalScrollBarVisibility="Auto">
-            <entities:EntityControlsView DataContext="{Binding}"/>
+            <entities:EntityControlsView DataContext="{Binding}" />
         </ScrollViewer>
     </Grid>
 </UserControl>

@@ -9,13 +9,13 @@
         mc:Ignorable="d"
         Title="PluginBrowser" Height="400" Width="600"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    
+
     <Window.Resources>
         <Style TargetType="FlowDocument" x:Key="DocumentStyle">
-        <Setter Property="FontFamily"
-                Value="Calibri" />
-        <Setter Property="TextAlignment"
-                Value="Left" />
+            <Setter Property="FontFamily"
+                    Value="Calibri" />
+            <Setter Property="TextAlignment"
+                    Value="Left" />
         </Style>
 
         <Style x:Key="H1Style"
@@ -66,27 +66,27 @@
 
         <Style x:Key="ImageStyle"
                TargetType="Image">
-          <Setter Property="RenderOptions.BitmapScalingMode"
-                  Value="NearestNeighbor" />
-          <Style.Triggers>
-              <Trigger Property="Tag"
-                       Value="imageright">
-                  <Setter Property="Margin" 
-                          Value="20,0,0,0" />
-              </Trigger>
-          </Style.Triggers>
-      </Style>
+            <Setter Property="RenderOptions.BitmapScalingMode"
+                    Value="NearestNeighbor" />
+            <Style.Triggers>
+                <Trigger Property="Tag"
+                         Value="imageright">
+                    <Setter Property="Margin"
+                            Value="20,0,0,0" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
-      <Style x:Key="SeparatorStyle"
-             TargetType="Line">
-          <Setter Property="X2"
-                  Value="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=FlowDocumentScrollViewer}}" />
-          <Setter Property="Stroke"
-                  Value="#99000000" />
-          <Setter Property="StrokeThickness"
-                  Value="2" />
-      </Style>
-    <local:Markdown x:Key="Markdown"
+        <Style x:Key="SeparatorStyle"
+               TargetType="Line">
+            <Setter Property="X2"
+                    Value="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=FlowDocumentScrollViewer}}" />
+            <Setter Property="Stroke"
+                    Value="#99000000" />
+            <Setter Property="StrokeThickness"
+                    Value="2" />
+        </Style>
+        <local:Markdown x:Key="Markdown"
                         DocumentStyle="{StaticResource DocumentStyle}"
                         Heading1Style="{StaticResource H1Style}"
                         Heading2Style="{StaticResource H2Style}"
@@ -95,30 +95,30 @@
                         LinkStyle="{StaticResource LinkStyle}"
                         ImageStyle="{StaticResource ImageStyle}"
                         SeparatorStyle="{StaticResource SeparatorStyle}"
-                        AssetPathRoot="{x:Static system:Environment.CurrentDirectory}"/>
-    
-            <local:TextToFlowDocumentConverter x:Key="TextToFlowDocumentConverter" 
-Markdown="{StaticResource Markdown}"/>
-    
+                        AssetPathRoot="{x:Static system:Environment.CurrentDirectory}" />
+
+        <local:TextToFlowDocumentConverter x:Key="TextToFlowDocumentConverter"
+                                           Markdown="{StaticResource Markdown}" />
+
     </Window.Resources>
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition />
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ListView Name="PluginsList" Width="150" Height="Auto" Margin="3" ItemsSource="{Binding Plugins}" SelectionChanged="PluginsList_SelectionChanged">
-                
-            </ListView>
-            <Button Name="DownloadButton" Grid.Row ="1" Content="Download" Margin="3" Height="30" Click="DownloadButton_OnClick" IsEnabled="False"/>
+            <ListView Name="PluginsList" Width="150" Height="Auto" Margin="3" ItemsSource="{Binding Plugins}"
+                      SelectionChanged="PluginsList_SelectionChanged" />
+            <Button Name="DownloadButton" Grid.Row="1" Content="Download" Margin="3" Height="30"
+                    Click="DownloadButton_OnClick" IsEnabled="False" />
         </Grid>
-        <FlowDocumentScrollViewer Grid.Column="1" Name="MarkdownFlow" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="3" Document="{Binding CurrentDescription, Converter={StaticResource TextToFlowDocumentConverter}}"/>
+        <FlowDocumentScrollViewer Grid.Column="1" Name="MarkdownFlow" VerticalAlignment="Stretch"
+                                  HorizontalAlignment="Stretch" Margin="3"
+                                  Document="{Binding CurrentDescription, Converter={StaticResource TextToFlowDocumentConverter}}" />
     </Grid>
 </Window>
-    
-    

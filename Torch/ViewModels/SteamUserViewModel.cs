@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Steamworks;
+﻿using Steamworks;
 
 namespace Torch.Server.ViewModels
 {
     public class SteamUserViewModel : ViewModel
     {
-        public string Name { get; }
-        public ulong SteamId { get; }
-
         public SteamUserViewModel(ulong id)
         {
             SteamId = id;
@@ -19,5 +11,7 @@ namespace Torch.Server.ViewModels
         }
 
         public SteamUserViewModel() : this(0) { }
+        public string Name { get; }
+        public ulong SteamId { get; }
     }
 }

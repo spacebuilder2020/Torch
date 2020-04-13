@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using NLog;
 using Sandbox;
 using Sandbox.Game.Multiplayer;
@@ -19,7 +20,7 @@ using Torch.Server.Commands;
 using Torch.Server.Managers;
 using Torch.Utils;
 using VRage;
-using Timer = System.Threading.Timer;
+using Timer = System.Timers.Timer;
 
 #pragma warning disable 618
 
@@ -27,21 +28,19 @@ namespace Torch.Server
 {
     public class TorchServer : TorchBase, ITorchServer
     {
-        private bool _hasRun;
         private bool _canRun;
         private TimeSpan _elapsedPlayTime;
+        private bool _hasRun;
         private bool _isRunning;
+        private MultiplayerManagerDedicated _multiplayerManagerDedicated;
+        private int _players;
+        private bool _simDirty;
         private float _simRatio;
+
+        private readonly Timer _simUpdateTimer = new Timer(200);
         private ServerState _state;
         private Stopwatch _uptime;
-        private Timer _watchdog;
-        private int _players;
-        private MultiplayerManagerDedicated _multiplayerManagerDedicated;
-        
-        public bool FatalException { get; set; }
-
-        private System.Timers.Timer _simUpdateTimer = new System.Timers.Timer(200);
-        private bool _simDirty;
+        private System.Threading.Timer _watchdog;
 
         /// <inheritdoc />
         public TorchServer(TorchConfig config = null)
@@ -54,7 +53,7 @@ namespace Torch.Server
 
             var sessionManager = Managers.GetManager<ITorchSessionManager>();
             sessionManager.AddFactory(x => new MultiplayerManagerDedicated(this));
-            
+
             // Needs to be done at some point after MyVRageWindows.Init
             // where the debug listeners are registered
             if (!((TorchConfig)Config).EnableAsserts)
@@ -63,18 +62,10 @@ namespace Torch.Server
             _simUpdateTimer.Start();
         }
 
-        private void SimUpdateElapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            if (_simDirty)
-            {
-                OnPropertyChanged(nameof(SimulationRatio));
-                _simDirty = false;
-            }
-        }
+        public bool FatalException { get; set; }
 
         public bool HasRun { get => _hasRun; set => SetValue(ref _hasRun, value); }
 
-        
         /// <inheritdoc />
         public float SimulationRatio
         {
@@ -89,9 +80,6 @@ namespace Torch.Server
                 //SetValue(ref _simRatio, value);
             }
         }
-
-        /// <inheritdoc />
-        public TimeSpan ElapsedPlayTime { get => _elapsedPlayTime; set => SetValue(ref _elapsedPlayTime, value); }
 
         /// <inheritdoc />
         public Thread GameThread { get; private set; }
@@ -113,6 +101,11 @@ namespace Torch.Server
         /// <inheritdoc />
         protected override string SteamAppName => "SpaceEngineersDedicated";
 
+        public int OnlinePlayers { get => _players; private set => SetValue(ref _players, value); }
+
+        /// <inheritdoc />
+        public TimeSpan ElapsedPlayTime { get => _elapsedPlayTime; set => SetValue(ref _elapsedPlayTime, value); }
+
         /// <inheritdoc />
         public ServerState State { get => _state; private set => SetValue(ref _state, value); }
 
@@ -121,13 +114,11 @@ namespace Torch.Server
         /// <inheritdoc />
         public string InstancePath => Config?.InstancePath;
 
-        public int OnlinePlayers { get => _players; private set => SetValue(ref _players, value); }
-
         /// <inheritdoc />
         public override void Init()
         {
             Log.Info("Initializing server");
-            MySandboxGame.IsDedicated = true;
+            Sandbox.Engine.Platform.Game.IsDedicated = true;
             base.Init();
             Managers.GetManager<ITorchSessionManager>().SessionStateChanged += OnSessionStateChanged;
             GetManager<InstanceManager>().LoadInstance(Config.InstancePath);
@@ -197,13 +188,22 @@ namespace Torch.Server
                 var config = (TorchConfig)torch.Config;
                 LogManager.Flush();
 
-                string exe = Assembly.GetExecutingAssembly().Location;
+                var exe = Assembly.GetExecutingAssembly().Location;
                 Debug.Assert(exe != null);
                 config.WaitForPID = Process.GetCurrentProcess().Id.ToString();
                 config.Autostart = true;
                 Process.Start(exe, config.ToString());
 
                 Process.GetCurrentProcess().Kill();
+            }
+        }
+
+        private void SimUpdateElapsed(object sender, ElapsedEventArgs e)
+        {
+            if (_simDirty)
+            {
+                OnPropertyChanged(nameof(SimulationRatio));
+                _simDirty = false;
             }
         }
 
@@ -247,7 +247,7 @@ namespace Torch.Server
             if (_watchdog == null && Config.TickTimeout > 0)
             {
                 Log.Info("Starting server watchdog.");
-                _watchdog = new Timer(CheckServerResponding, this, TimeSpan.Zero,
+                _watchdog = new System.Threading.Timer(CheckServerResponding, this, TimeSpan.Zero,
                     TimeSpan.FromSeconds(Config.TickTimeout));
             }
         }
@@ -285,13 +285,13 @@ namespace Torch.Server
             var totalSize = 0;
             for (var i = 0; i < traces; i++)
             {
-                string dump = DumpStack(thread).ToString();
+                var dump = DumpStack(thread).ToString();
                 totalSize += dump.Length;
                 stacks.Add(dump);
                 Thread.Sleep(pause);
             }
 
-            string commonPrefix = StringUtils.CommonSuffix(stacks);
+            var commonPrefix = StringUtils.CommonSuffix(stacks);
             // Advance prefix to include the line terminator.
             commonPrefix = commonPrefix.Substring(commonPrefix.IndexOf('\n') + 1);
 

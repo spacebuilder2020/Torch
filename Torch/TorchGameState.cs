@@ -1,45 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Sandbox;
+﻿using Sandbox;
 
 namespace Torch.API
 {
     /// <summary>
-    /// Represents the state of a <see cref="MySandboxGame"/>
+    ///     Represents the state of a <see cref="MySandboxGame" />
     /// </summary>
     public enum TorchGameState
     {
         /// <summary>
-        /// The game is currently being created.
+        ///     The game is currently being created.
         /// </summary>
         Creating,
+
         /// <summary>
-        /// The game has been created and is ready to begin loading.
+        ///     The game has been created and is ready to begin loading.
         /// </summary>
         Created,
+
         /// <summary>
-        /// The game is currently loading.
+        ///     The game is currently loading.
         /// </summary>
         Loading,
+
         /// <summary>
-        /// The game is fully loaded and ready to start sessions
+        ///     The game is fully loaded and ready to start sessions
         /// </summary>
         Loaded,
+
         /// <summary>
-        /// The game is beginning the unload sequence
+        ///     The game is beginning the unload sequence
         /// </summary>
         Unloading,
+
         /// <summary>
-        /// The game has been shutdown and is no longer active
+        ///     The game has been shutdown and is no longer active
         /// </summary>
         Unloaded
     }
-    
+
     /// <summary>
-    /// Callback raised when a game's state changes
+    ///     Callback raised when a game's state changes
     /// </summary>
     /// <param name="game">The game who had a state change</param>
     /// <param name="newState">The game's new state</param>

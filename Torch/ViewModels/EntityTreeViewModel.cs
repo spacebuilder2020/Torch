@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Character;
-using Torch.Server.ViewModels.Entities;
-using VRage.Game.ModAPI;
-using VRage.ModAPI;
 using System.Windows.Threading;
 using NLog;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
 using Torch.Collections;
-using Torch.Server.Views.Entities;
+using Torch.Server.ViewModels.Entities;
+using VRage.Game.Entity;
 
 namespace Torch.Server.ViewModels
 {
@@ -27,7 +21,25 @@ namespace Torch.Server.ViewModels
             BlockCount,
             DistFromCenter,
         }
+
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
+        private readonly UserControl _control;
+
+        private EntityViewModel _currentEntity;
+        private SortEnum _currentSort;
+
+        // I hate you today WPF
+        public EntityTreeViewModel() : this(null) { }
+
+        public EntityTreeViewModel(UserControl control)
+        {
+            _control = control;
+            var comparer = new EntityViewModel.Comparer(_currentSort);
+            SortedGrids = new SortedView<GridViewModel>(Grids.Values, comparer);
+            SortedCharacters = new SortedView<CharacterViewModel>(Characters.Values, comparer);
+            SortedFloatingObjects = new SortedView<EntityViewModel>(FloatingObjects.Values, comparer);
+            SortedVoxelMaps = new SortedView<VoxelMapViewModel>(VoxelMaps.Values, comparer);
+        }
 
         //TODO: these should be sorted sets for speed
         public MtObservableSortedDictionary<long, GridViewModel> Grids { get; set; } = new MtObservableSortedDictionary<long, GridViewModel>();
@@ -41,36 +53,17 @@ namespace Torch.Server.ViewModels
         public SortedView<EntityViewModel> SortedFloatingObjects { get; }
         public SortedView<VoxelMapViewModel> SortedVoxelMaps { get; }
 
-        private EntityViewModel _currentEntity;
-        private SortEnum _currentSort;
-        private UserControl _control;
-
         public EntityViewModel CurrentEntity
         {
             get => _currentEntity;
-            set { _currentEntity = value; OnPropertyChanged(nameof(CurrentEntity)); }
+            set
+            {
+                _currentEntity = value;
+                OnPropertyChanged(nameof(CurrentEntity));
+            }
         }
 
-        public SortEnum CurrentSort
-        {
-            get => _currentSort;
-            set => SetValue(ref _currentSort, value);
-        }
-
-        // I hate you today WPF
-        public EntityTreeViewModel() : this(null)
-        {
-        }
-
-        public EntityTreeViewModel(UserControl control)
-        {
-            _control = control;
-            var comparer = new EntityViewModel.Comparer(_currentSort);
-            SortedGrids = new SortedView<GridViewModel>(Grids.Values, comparer);
-            SortedCharacters = new SortedView<CharacterViewModel>(Characters.Values, comparer);
-            SortedFloatingObjects = new SortedView<EntityViewModel>(FloatingObjects.Values, comparer);
-            SortedVoxelMaps = new SortedView<VoxelMapViewModel>(VoxelMaps.Values, comparer);
-        }
+        public SortEnum CurrentSort { get => _currentSort; set => SetValue(ref _currentSort, value); }
 
         public void Init()
         {
@@ -78,7 +71,7 @@ namespace Torch.Server.ViewModels
             MyEntities.OnEntityRemove += MyEntities_OnEntityRemove;
         }
 
-        private void MyEntities_OnEntityRemove(VRage.Game.Entity.MyEntity obj)
+        private void MyEntities_OnEntityRemove(MyEntity obj)
         {
             try
             {
@@ -105,7 +98,7 @@ namespace Torch.Server.ViewModels
             }
         }
 
-        private void MyEntities_OnEntityAdd(VRage.Game.Entity.MyEntity obj)
+        private void MyEntities_OnEntityAdd(MyEntity obj)
         {
             try
             {

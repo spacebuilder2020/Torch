@@ -18,12 +18,12 @@
         <DockPanel Grid.Row="0">
             <Label Content="Theme:" DockPanel.Dock="Left" />
             <ComboBox ItemsSource="{Binding Themes}"
-                      SelectionChanged="Selector_OnSelectionChanged">
-            </ComboBox>
+                      SelectionChanged="Selector_OnSelectionChanged" />
         </DockPanel>
 
-        <TextBlock Width="Auto" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Name="LegalshtuffBlock">
-            <Hyperlink  Name="LegalshtuffLink" RequestNavigate="Hyperlink_RequestNavigate">
+        <TextBlock Width="Auto" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                   Name="LegalshtuffBlock">
+            <Hyperlink Name="LegalshtuffLink" RequestNavigate="Hyperlink_RequestNavigate">
                 Theme License
             </Hyperlink>
         </TextBlock>

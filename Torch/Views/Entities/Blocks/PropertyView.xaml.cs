@@ -1,24 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Torch.Server.ViewModels.Blocks;
 using Torch.Server.Views.Converters;
 
 namespace Torch.Server.Views.Blocks
 {
     /// <summary>
-    /// Interaction logic for PropertyView.xaml
+    ///     Interaction logic for PropertyView.xaml
     /// </summary>
     public partial class PropertyView : UserControl
     {
@@ -33,8 +24,8 @@ namespace Torch.Server.Views.Blocks
 
         public void UpdateResourceDict(ResourceDictionary dictionary)
         {
-            this.Resources.MergedDictionaries.Clear();
-            this.Resources.MergedDictionaries.Add(dictionary);
+            Resources.MergedDictionaries.Clear();
+            Resources.MergedDictionaries.Add(dictionary);
         }
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs args)
@@ -55,25 +46,24 @@ namespace Torch.Server.Views.Blocks
 
         private void InitStringBuilder()
         {
-            var textBox = new TextBox { VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Stretch };
-            var binding = new Binding("Value") { Source = DataContext, Converter = new StringBuilderConverter()};
+            var textBox = new TextBox {VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Stretch};
+            var binding = new Binding("Value") {Source = DataContext, Converter = new StringBuilderConverter()};
             textBox.SetBinding(TextBox.TextProperty, binding);
             Frame.Content = textBox;
-
         }
 
         private void InitBool()
         {
             var checkBox = new CheckBox {VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left};
-            var binding = new Binding("Value") { Source = DataContext };
-            checkBox.SetBinding(CheckBox.IsCheckedProperty, binding);
+            var binding = new Binding("Value") {Source = DataContext};
+            checkBox.SetBinding(ToggleButton.IsCheckedProperty, binding);
             Frame.Content = checkBox;
         }
 
         private void InitDefault()
         {
-            var textBox = new TextBox { VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Stretch};
-            var binding = new Binding("Value") { Source = DataContext };
+            var textBox = new TextBox {VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Stretch};
+            var binding = new Binding("Value") {Source = DataContext};
             textBox.SetBinding(TextBox.TextProperty, binding);
             Frame.Content = textBox;
         }

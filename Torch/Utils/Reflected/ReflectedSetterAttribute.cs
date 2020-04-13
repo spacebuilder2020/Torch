@@ -3,10 +3,10 @@ using System;
 namespace Torch.Utils
 {
     /// <summary>
-    /// Indicates that this field should contain a delegate capable of setting the value of a field.
+    ///     Indicates that this field should contain a delegate capable of setting the value of a field.
     /// </summary>
     /// <example>
-    /// <code>
+    ///     <code>
     /// <![CDATA[
     /// [ReflectedSetterAttribute(Name="_instanceField")]
     /// private static Action<Example, int> _instanceSetter;
@@ -22,7 +22,5 @@ namespace Torch.Utils
     /// </code>
     /// </example>
     [AttributeUsage(AttributeTargets.Field)]
-    public class ReflectedSetterAttribute : ReflectedMemberAttribute
-    {
-    }
+    public class ReflectedSetterAttribute : ReflectedMemberAttribute { }
 }

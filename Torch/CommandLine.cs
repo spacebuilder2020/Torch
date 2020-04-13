@@ -7,7 +7,7 @@ using NLog;
 namespace Torch
 {
     /// <summary>
-    /// Base class that adds tools for setting type properties through the command line.
+    ///     Base class that adds tools for setting type properties through the command line.
     /// </summary>
     public abstract class CommandLine
     {
@@ -53,6 +53,7 @@ namespace Torch
                     var str = (string)prop.Value.GetValue(this);
                     if (string.IsNullOrEmpty(str))
                         continue;
+
                     args.Add($"{_argPrefix}{attr.Name} \"{str}\"");
                 }
             }
@@ -98,15 +99,17 @@ namespace Torch
                                 var l = new List<Guid>(16);
                                 while (i < args.Length && !args[i].StartsWith(_argPrefix))
                                 {
-                                    if (Guid.TryParse(args[i], out Guid g))
+                                    if (Guid.TryParse(args[i], out var g))
                                     {
                                         l.Add(g);
                                         _log.Info($"added plugin {g}");
                                     }
                                     else
                                         _log.Warn($"Failed to parse GUID {args[i]}");
+
                                     i++;
                                 }
+
                                 property.Value.SetValue(this, l);
                             }
                         }
@@ -119,18 +122,18 @@ namespace Torch
             }
 
             return true;
-
         }
 
         public class ArgAttribute : Attribute
         {
-            public string Name { get; }
-            public string Description { get; }
             public ArgAttribute(string name, string description)
             {
                 Name = name;
                 Description = description;
             }
+
+            public string Name { get; }
+            public string Description { get; }
         }
     }
 }

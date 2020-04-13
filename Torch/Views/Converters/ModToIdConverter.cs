@@ -1,28 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Windows.Data;
-using System.Threading.Tasks;
-using Torch.Server.ViewModels;
-using NLog;
 using Torch.Collections;
+using Torch.Server.ViewModels;
 
 namespace Torch.Server.Views.Converters
 {
     /// <summary>
-    /// A converter to get the index of a ModItemInfo object within a collection of ModItemInfo objects
+    ///     A converter to get the index of a ModItemInfo object within a collection of ModItemInfo objects
     /// </summary>
     public class ModToListIdConverter : IMultiValueConverter
     {
         /// <summary>
-        /// Converts a ModItemInfo object into its index within a Collection of ModItemInfo objects
+        ///     Converts a ModItemInfo object into its index within a Collection of ModItemInfo objects
         /// </summary>
         /// <param name="values">
-        /// Expected to contain a ModItemInfo object at index 0
-        /// and a Collection of ModItemInfo objects at index 1
+        ///     Expected to contain a ModItemInfo object at index 0
+        ///     and a Collection of ModItemInfo objects at index 1
         /// </param>
         /// <param name="targetType">This parameter will be ignored</param>
         /// <param name="parameter">This parameter will be ignored</param>
@@ -43,7 +37,7 @@ namespace Torch.Server.Views.Converters
         }
 
         /// <summary>
-        /// It is not supported to reverse this converter
+        ///     It is not supported to reverse this converter
         /// </summary>
         /// <param name="values"></param>
         /// <param name="targetType"></param>

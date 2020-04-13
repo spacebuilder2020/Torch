@@ -1,38 +1,28 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using NLog;
 using NLog.Targets.Wrappers;
-using Sandbox;
 using Torch.API;
 using Torch.API.Managers;
 using Torch.Server.Managers;
-using MessageBoxResult = System.Windows.MessageBoxResult;
 
 namespace Torch.Server
 {
     /// <summary>
-    /// Interaction logic for TorchUI.xaml
+    ///     Interaction logic for TorchUI.xaml
     /// </summary>
     public partial class TorchUI : Window
     {
-        private TorchServer _server;
-        private TorchConfig _config;
-
         private bool _autoscrollLog = true;
+        private TorchConfig _config;
+        private readonly TorchServer _server;
 
         public TorchUI(TorchServer server)
         {
@@ -60,7 +50,7 @@ namespace Torch.Server
             Themes.uiSource = this;
             Themes.SetConfig(_config);
             Title = $"{_config.InstanceName} - Torch {server.TorchVersion}, SE {server.GameVersion}";
-            
+
             Loaded += TorchUI_Loaded;
         }
 
@@ -79,6 +69,7 @@ namespace Torch.Server
                 var wrapped = LogManager.Configuration.FindTargetByName<WrapperTargetBase>(target);
                 doc = (wrapped?.WrappedTarget as FlowDocumentTarget)?.Document;
             }
+
             ConsoleText.Document = doc ?? new FlowDocument(new Paragraph(new Run("No target!")));
             ConsoleText.TextChanged += ConsoleText_OnTextChanged;
         }
@@ -86,21 +77,22 @@ namespace Torch.Server
         public static T FindDescendant<T>(DependencyObject obj) where T : DependencyObject
         {
             if (obj == null) return default(T);
-            int numberChildren = VisualTreeHelper.GetChildrenCount(obj);
+
+            var numberChildren = VisualTreeHelper.GetChildrenCount(obj);
             if (numberChildren == 0) return default(T);
 
-            for (int i = 0; i < numberChildren; i++)
+            for (var i = 0; i < numberChildren; i++)
             {
-                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                var child = VisualTreeHelper.GetChild(obj, i);
                 if (child is T)
                 {
                     return (T)child;
                 }
             }
 
-            for (int i = 0; i < numberChildren; i++)
+            for (var i = 0; i < numberChildren; i++)
             {
-                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                var child = VisualTreeHelper.GetChild(obj, i);
                 var potentialMatch = FindDescendant<T>(child);
                 if (potentialMatch != default(T))
                 {
@@ -113,14 +105,14 @@ namespace Torch.Server
 
         private void ConsoleText_OnTextChanged(object sender, TextChangedEventArgs args)
         {
-            var textBox = (RichTextBox) sender;
+            var textBox = (RichTextBox)sender;
             if (_autoscrollLog)
                 ConsoleText.ScrollToEnd();
         }
-        
+
         private void ConsoleText_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            var scrollViewer = (ScrollViewer) sender;
+            var scrollViewer = (ScrollViewer)sender;
             if (e.ExtentHeightChange == 0)
             {
                 // User change.

@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using NLog;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
-using NLog;
 
 namespace Torch.Server.ViewModels.Blocks
 {
     public static class BlockViewModelGenerator
     {
-        private static Dictionary<Type, Type> _cache = new Dictionary<Type, Type>();
-        private static AssemblyName _asmName;
-        private static ModuleBuilder _mb;
-        private static AssemblyBuilder _ab;
-        private static Logger _log = LogManager.GetLogger("Generator");
+        private static readonly Dictionary<Type, Type> _cache = new Dictionary<Type, Type>();
+        private static readonly AssemblyName _asmName;
+        private static readonly ModuleBuilder _mb;
+        private static readonly AssemblyBuilder _ab;
+        private static readonly Logger _log = LogManager.GetLogger("Generator");
 
         static BlockViewModelGenerator()
         {
@@ -34,6 +34,7 @@ namespace Torch.Server.ViewModels.Blocks
                     GenerateModel(type);
                 }
             }
+
             _ab.Save("Generated.dll", PortableExecutableKinds.ILOnly, ImageFileMachine.AMD64);
         }
 

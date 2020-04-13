@@ -2,17 +2,19 @@
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using Torch.Server.Managers;
 using Torch.API.Managers;
+using Torch.Server.Managers;
 using Torch.Server.ViewModels.Entities;
 
 namespace Torch.Server.Views.Entities
 {
     /// <summary>
-    /// Interaction logic for EntityControlHost.xaml
+    ///     Interaction logic for EntityControlHost.xaml
     /// </summary>
     public partial class EntityControlHost : UserControl
     {
+        private Control _currentControl;
+
         public EntityControlHost()
         {
             InitializeComponent();
@@ -24,8 +26,8 @@ namespace Torch.Server.Views.Entities
 
         public void UpdateResourceDict(ResourceDictionary dictionary)
         {
-            this.Resources.MergedDictionaries.Clear();
-            this.Resources.MergedDictionaries.Add(dictionary);
+            Resources.MergedDictionaries.Clear();
+            Resources.MergedDictionaries.Add(dictionary);
         }
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -34,10 +36,12 @@ namespace Torch.Server.Views.Entities
             {
                 vmo.PropertyChanged -= DataContext_OnPropertyChanged;
             }
+
             if (e.NewValue is ViewModel vmn)
             {
                 vmn.PropertyChanged += DataContext_OnPropertyChanged;
             }
+
             RefreshControl();
         }
 
@@ -49,8 +53,6 @@ namespace Torch.Server.Views.Entities
                 RefreshVisibility();
         }
 
-        private Control _currentControl;
-
         private void RefreshControl()
         {
             if (Dispatcher.Thread != Thread.CurrentThread)
@@ -60,8 +62,8 @@ namespace Torch.Server.Views.Entities
             }
 
             _currentControl = DataContext is EntityControlViewModel ecvm
-                ? TorchBase.Instance?.Managers.GetManager<EntityControlManager>()?.CreateControl(ecvm)
-                : null;
+                                  ? TorchBase.Instance?.Managers.GetManager<EntityControlManager>()?.CreateControl(ecvm)
+                                  : null;
             Content = _currentControl;
             RefreshVisibility();
         }
@@ -73,9 +75,10 @@ namespace Torch.Server.Views.Entities
                 Dispatcher.InvokeAsync(RefreshVisibility);
                 return;
             }
-            Visibility = (DataContext is EntityControlViewModel ecvm) && !ecvm.Hide && _currentControl != null
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+
+            Visibility = DataContext is EntityControlViewModel ecvm && !ecvm.Hide && _currentControl != null
+                             ? Visibility.Visible
+                             : Visibility.Collapsed;
         }
     }
 }

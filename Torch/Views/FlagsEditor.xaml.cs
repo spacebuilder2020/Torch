@@ -1,38 +1,24 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using NLog;
-using Torch.Collections;
 
 namespace Torch.Views
 {
     /// <summary>
-    /// Interaction logic for FlagsEditorDialog.xaml
+    ///     Interaction logic for FlagsEditorDialog.xaml
     /// </summary>
     public partial class FlagsEditorDialog : Window
     {
+        private List<Flag> _flags;
+        private object _obj;
+        private PropertyInfo _property;
+
         public FlagsEditorDialog()
         {
             InitializeComponent();
         }
 
-        private List<Flag> _flags;
-        private PropertyInfo _property;
-        private object _obj;
-        
         public void EditEnum(PropertyInfo prop, object obj)
         {
             if (!prop.PropertyType.IsEnum || prop.PropertyType.GetCustomAttribute<FlagsAttribute>() == null)
@@ -70,11 +56,11 @@ namespace Torch.Views
                 if (item.IsChecked)
                     final |= item.Value;
             }
-            
+
             _property.SetValue(_obj, Enum.ToObject(_property.PropertyType, final));
             Close();
         }
-        
+
         private class Flag
         {
             public bool IsChecked { get; set; }

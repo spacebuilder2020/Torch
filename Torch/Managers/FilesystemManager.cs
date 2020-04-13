@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NLog;
 using Torch.API;
 
@@ -12,15 +8,6 @@ namespace Torch.Managers
     public class FilesystemManager : Manager
     {
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
-        /// <summary>
-        /// Temporary directory for Torch that is cleared every time the program is started.
-        /// </summary>
-        public string TempDirectory { get; }
-
-        /// <summary>
-        /// Directory that contains the current Torch assemblies.
-        /// </summary>
-        public string TorchDirectory { get; }
 
         public FilesystemManager(ITorchBase torchInstance) : base(torchInstance)
         {
@@ -31,6 +18,16 @@ namespace Torch.Managers
             _log.Debug($"Clearing tmp directory at {TempDirectory}");
             ClearTemp();
         }
+
+        /// <summary>
+        ///     Temporary directory for Torch that is cleared every time the program is started.
+        /// </summary>
+        public string TempDirectory { get; }
+
+        /// <summary>
+        ///     Directory that contains the current Torch assemblies.
+        /// </summary>
+        public string TorchDirectory { get; }
 
         private void ClearTemp()
         {
@@ -52,17 +49,19 @@ namespace Torch.Managers
         }
 
         /// <summary>
-        /// Move the given file (if it exists) to a temporary directory that will be cleared the next time the application starts.
+        ///     Move the given file (if it exists) to a temporary directory that will be cleared the next time the application
+        ///     starts.
         /// </summary>
         public void SoftDelete(string path, string file)
         {
-            string source = Path.Combine(path, file);
+            var source = Path.Combine(path, file);
             if (!File.Exists(source))
                 return;
+
             var rand = Path.GetRandomFileName();
             var dest = Path.Combine(TempDirectory, rand);
             File.Move(source, rand);
-            string rsource = Path.Combine(path, rand);
+            var rsource = Path.Combine(path, rand);
             File.Move(rsource, dest);
         }
     }

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using NLog;
 using Sandbox.Engine.Multiplayer;
-using Torch.API;
-using Torch.API.Managers;
 using VRage.Network;
 using VRageMath;
 
@@ -13,10 +11,10 @@ namespace Torch.Managers
     public static class NetworkManager
     {
         private static Logger _log = LogManager.GetCurrentClassLogger();
-        
+
         #region Network Injection
 
-        private static Dictionary<MethodInfo, Delegate> _delegateCache = new Dictionary<MethodInfo, Delegate>();
+        private static readonly Dictionary<MethodInfo, Delegate> _delegateCache = new Dictionary<MethodInfo, Delegate>();
 
         private static Func<T, TA> GetDelegate<T, TA>(MethodInfo method) where TA : class
         {
@@ -38,7 +36,7 @@ namespace Torch.Managers
 
         public static void RaiseEvent<T1, T2>(T1 instance, MethodInfo method, T2 arg1, EndpointId target = default(EndpointId)) where T1 : IMyEventOwner
         {
-            var del = GetDelegate<T1, Action<T2>> (method);
+            var del = GetDelegate<T1, Action<T2>>(method);
 
             MyMultiplayer.RaiseEvent(instance, del, arg1, target);
         }
@@ -98,7 +96,7 @@ namespace Torch.Managers
 
             MyMultiplayer.RaiseStaticEvent(del, arg1, arg2, target, position);
         }
-        
+
         public static void RaiseStaticEvent<T1, T2, T3>(MethodInfo method, T1 arg1, T2 arg2, T3 arg3, EndpointId target = default(EndpointId), Vector3D? position = null)
         {
             var del = GetDelegate<IMyEventOwner, Action<T1, T2, T3>>(method);
@@ -126,8 +124,7 @@ namespace Torch.Managers
 
             MyMultiplayer.RaiseStaticEvent(del, arg1, arg2, arg3, arg4, arg5, arg6, target, position);
         }
+
         #endregion
-
-
     }
 }

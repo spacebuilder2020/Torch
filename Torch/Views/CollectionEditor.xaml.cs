@@ -4,36 +4,27 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Torch.Views
 {
     /// <summary>
-    /// Interaction logic for CollectionEditor.xaml
+    ///     Interaction logic for CollectionEditor.xaml
     /// </summary>
     public partial class CollectionEditor : Window
     {
         private static readonly Dictionary<Type, MethodInfo> MethodCache = new Dictionary<Type, MethodInfo>();
         private static readonly MethodInfo EditMethod;
 
-        public CollectionEditor()
-        {
-            InitializeComponent();
-        }
-
         static CollectionEditor()
         {
             var m = typeof(CollectionEditor).GetMethods();
             EditMethod = m.First(mt => mt.Name == "Edit" && mt.GetGenericArguments().Length == 1);
+        }
+
+        public CollectionEditor()
+        {
+            InitializeComponent();
         }
 
         public void Edit(ICollection collection, string name)
@@ -75,7 +66,6 @@ namespace Torch.Views
             collection.Clear();
             foreach (var item in parsed)
                 collection.Add(item);
-
         }
 
         private void OkButton_OnClick(object sender, RoutedEventArgs e)

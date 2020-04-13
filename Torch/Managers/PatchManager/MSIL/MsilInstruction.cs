@@ -6,8 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using System.Windows.Documents;
-using Torch.Managers.PatchManager.Transpile;
 using Torch.Utils;
 
 namespace Torch.Managers.PatchManager.MSIL
@@ -17,6 +15,18 @@ namespace Torch.Managers.PatchManager.MSIL
     /// </summary>
     public class MsilInstruction
     {
+        private static readonly ConcurrentDictionary<Type, PropertyInfo> _setterInfoForInlines = new ConcurrentDictionary<Type, PropertyInfo>();
+
+#pragma warning disable 649
+        [ReflectedMethod(Name = "StackChange")]
+        private static Func<OpCode, int> _stackChange;
+#pragma warning restore 649
+
+        /// <summary>
+        ///     The try catch operations performed here, in order from first to last.
+        /// </summary>
+        public readonly List<MsilTryCatchOperation> TryCatchOperations = new List<MsilTryCatchOperation>();
+
         /// <summary>
         ///     Creates a new instruction with the given opcode.
         /// </summary>
@@ -103,7 +113,7 @@ namespace Torch.Managers.PatchManager.MSIL
         public HashSet<MsilLabel> Labels { get; } = new HashSet<MsilLabel>();
 
         /// <summary>
-        /// The try catch operation that is performed here.
+        ///     The try catch operation that is performed here.
         /// </summary>
         [Obsolete("Since instructions can have multiple try catch operations you need to be using TryCatchOperations")]
         public MsilTryCatchOperation TryCatchOperation
@@ -118,11 +128,9 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// The try catch operations performed here, in order from first to last.
+        ///     Gets the maximum amount of space this instruction will use.
         /// </summary>
-        public readonly List<MsilTryCatchOperation> TryCatchOperations = new List<MsilTryCatchOperation>();
-
-        private static readonly ConcurrentDictionary<Type, PropertyInfo> _setterInfoForInlines = new ConcurrentDictionary<Type, PropertyInfo>();
+        public int MaxBytes => 2 + (Operand?.MaxBytes ?? 0);
 
         /// <summary>
         ///     Sets the inline value for this instruction.
@@ -132,12 +140,12 @@ namespace Torch.Managers.PatchManager.MSIL
         /// <returns>This instruction</returns>
         public MsilInstruction InlineValue<T>(T o)
         {
-            Type type = typeof(T);
+            var type = typeof(T);
             while (type != null)
             {
-                if (!_setterInfoForInlines.TryGetValue(type, out PropertyInfo target))
+                if (!_setterInfoForInlines.TryGetValue(type, out var target))
                 {
-                    Type genType = typeof(MsilOperandInline<>).MakeGenericType(type);
+                    var genType = typeof(MsilOperandInline<>).MakeGenericType(type);
                     target = genType.GetProperty(nameof(MsilOperandInline<int>.Value));
                     _setterInfoForInlines[type] = target;
                 }
@@ -152,12 +160,12 @@ namespace Torch.Managers.PatchManager.MSIL
                 type = type.BaseType;
             }
 
-            ((MsilOperandInline<T>) Operand).Value = o;
+            ((MsilOperandInline<T>)Operand).Value = o;
             return this;
         }
 
         /// <summary>
-        /// Makes a copy of the instruction with a new opcode.
+        ///     Makes a copy of the instruction with a new opcode.
         /// </summary>
         /// <param name="newOpcode">The new opcode</param>
         /// <returns>The copy</returns>
@@ -165,7 +173,7 @@ namespace Torch.Managers.PatchManager.MSIL
         {
             var result = new MsilInstruction(newOpcode);
             Operand?.CopyTo(result.Operand);
-            foreach (MsilLabel x in Labels)
+            foreach (var x in Labels)
                 result.Labels.Add(x);
             foreach (var op in TryCatchOperations)
                 result.TryCatchOperations.Add(op);
@@ -173,7 +181,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Adds the given label to this instruction
+        ///     Adds the given label to this instruction
         /// </summary>
         /// <param name="label">Label to add</param>
         /// <returns>this instruction</returns>
@@ -190,7 +198,7 @@ namespace Torch.Managers.PatchManager.MSIL
         /// <returns>This instruction</returns>
         public MsilInstruction InlineTarget(MsilLabel label)
         {
-            ((MsilOperandBrTarget) Operand).Target = label;
+            ((MsilOperandBrTarget)Operand).Target = label;
             return this;
         }
 
@@ -198,31 +206,26 @@ namespace Torch.Managers.PatchManager.MSIL
         public override string ToString()
         {
             var sb = new StringBuilder();
-            foreach (MsilLabel label in Labels)
+            foreach (var label in Labels)
                 sb.Append(label).Append(": ");
             sb.Append(OpCode.Name).Append("\t").Append(Operand);
             return sb.ToString();
         }
 
-
-#pragma warning disable 649
-        [ReflectedMethod(Name = "StackChange")]
-        private static Func<OpCode, int> _stackChange;
-#pragma warning restore 649
-
         /// <summary>
-        /// Estimates the stack delta for this instruction.
+        ///     Estimates the stack delta for this instruction.
         /// </summary>
         /// <returns>Stack delta</returns>
         public int StackChange()
         {
-            int num = _stackChange.Invoke(OpCode);
+            var num = _stackChange.Invoke(OpCode);
             if ((OpCode == OpCodes.Call || OpCode == OpCodes.Callvirt || OpCode == OpCodes.Newobj) &&
                 Operand is MsilOperandInline<MethodBase> inline)
             {
-                MethodBase op = inline.Value;
+                var op = inline.Value;
                 if (op == null)
                     return num;
+
                 if (op is MethodInfo mi && mi.ReturnType != typeof(void))
                     num++;
                 num -= op.GetParameters().Length;
@@ -232,10 +235,5 @@ namespace Torch.Managers.PatchManager.MSIL
 
             return num;
         }
-
-        /// <summary>
-        /// Gets the maximum amount of space this instruction will use.
-        /// </summary>
-        public int MaxBytes => 2 + (Operand?.MaxBytes ?? 0);
     }
 }

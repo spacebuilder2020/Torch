@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using Torch.API;
 using Torch.API.Managers;
 using Torch.API.Plugins;
@@ -8,11 +7,11 @@ namespace Torch.Commands
 {
     public class ConsoleCommandContext : CommandContext
     {
-        public List<TorchChatMessage> Responses = new List<TorchChatMessage>();
         private bool _flag;
-        
+        public List<TorchChatMessage> Responses = new List<TorchChatMessage>();
+
         /// <inheritdoc />
-        public ConsoleCommandContext(ITorchBase torch, ITorchPlugin plugin, ulong steamIdSender, string rawArgs = null, List<string> args = null) 
+        public ConsoleCommandContext(ITorchBase torch, ITorchPlugin plugin, ulong steamIdSender, string rawArgs = null, List<string> args = null)
             : base(torch, plugin, steamIdSender, rawArgs, args) { }
 
         /// <inheritdoc />
@@ -23,7 +22,7 @@ namespace Torch.Commands
                 sender = null;
                 font = null;
             }
-            
+
             Responses.Add(new TorchChatMessage(sender ?? TorchBase.Instance.Config.ChatName, message, font ?? TorchBase.Instance.Config.ChatColor));
         }
     }

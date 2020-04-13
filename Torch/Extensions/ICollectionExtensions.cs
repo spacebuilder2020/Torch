@@ -4,34 +4,36 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Windows.Threading;
 
 namespace Torch
 {
     public static class ICollectionExtensions
     {
         /// <summary>
-        /// Returns a read-only wrapped <see cref="ICollection{T}"/>
+        ///     Returns a read-only wrapped <see cref="ICollection{T}" />
         /// </summary>
         public static IReadOnlyCollection<T> AsReadOnly<T>(this ICollection<T> source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+
             return source as IReadOnlyCollection<T> ?? new ReadOnlyCollectionAdapter<T>(source);
         }
 
         /// <summary>
-        /// Returns a read-only wrapped <see cref="IList{T}"/>
+        ///     Returns a read-only wrapped <see cref="IList{T}" />
         /// </summary>
         public static IReadOnlyList<T> AsReadOnly<T>(this IList<T> source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+
             return source as IReadOnlyList<T> ?? new ReadOnlyCollection<T>(source);
         }
 
         /// <summary>
-        /// Returns a read-only wrapped <see cref="IList{T}"/> and proxies its <see cref="INotifyPropertyChanged"/> and <see cref="INotifyCollectionChanged"/> events.
+        ///     Returns a read-only wrapped <see cref="IList{T}" /> and proxies its <see cref="INotifyPropertyChanged" /> and
+        ///     <see cref="INotifyCollectionChanged" /> events.
         /// </summary>
         public static IReadOnlyList<T> AsReadOnlyObservable<T>(this IList<T> source)
         {
@@ -45,17 +47,19 @@ namespace Torch
         }
 
         /// <summary>
-        /// Returns a read-only wrapped <see cref="IDictionary{TKey, TValue}"/>
+        ///     Returns a read-only wrapped <see cref="IDictionary{TKey, TValue}" />
         /// </summary>
         public static IReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+
             return source as IReadOnlyDictionary<TKey, TValue> ?? new ReadOnlyDictionary<TKey, TValue>(source);
         }
 
         /// <summary>
-        /// Returns a read-only wrapped <see cref="IDictionary{TKey,TValue}"/> and proxies its <see cref="INotifyPropertyChanged"/> and <see cref="INotifyCollectionChanged"/> events.
+        ///     Returns a read-only wrapped <see cref="IDictionary{TKey,TValue}" /> and proxies its
+        ///     <see cref="INotifyPropertyChanged" /> and <see cref="INotifyCollectionChanged" /> events.
         /// </summary>
         public static IReadOnlyDictionary<TKey, TValue> AsReadOnlyObservable<TKey, TValue>(this IDictionary<TKey, TValue> source)
         {
@@ -70,7 +74,7 @@ namespace Torch
 
         sealed class ObservableReadOnlyList<T> : ViewModel, IReadOnlyList<T>, IDisposable
         {
-            private IList<T> _list;
+            private readonly IList<T> _list;
 
             public ObservableReadOnlyList(IList<T> list)
             {
@@ -92,16 +96,6 @@ namespace Torch
                     c.CollectionChanged -= OnCollectionChanged;
             }
 
-            private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-            {
-                OnCollectionChanged(e);
-            }
-
-            private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-            {
-                OnPropertyChanged(e.PropertyName);
-            }
-
             /// <inheritdoc />
             public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
 
@@ -113,6 +107,16 @@ namespace Torch
 
             /// <inheritdoc />
             public T this[int index] => _list[index];
+
+            private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+            {
+                OnCollectionChanged(e);
+            }
+
+            private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                OnPropertyChanged(e.PropertyName);
+            }
         }
 
         sealed class ObservableReadOnlyDictionary<TKey, TValue> : ViewModel, IReadOnlyDictionary<TKey, TValue>, IDisposable
@@ -139,16 +143,6 @@ namespace Torch
                     c.CollectionChanged -= OnCollectionChanged;
             }
 
-            private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-            {
-                OnCollectionChanged(e);
-            }
-
-            private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-            {
-                OnPropertyChanged(e.PropertyName);
-            }
-
             /// <inheritdoc />
             public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _dictionary.GetEnumerator();
 
@@ -172,6 +166,16 @@ namespace Torch
 
             /// <inheritdoc />
             public IEnumerable<TValue> Values => _dictionary.Values;
+
+            private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+            {
+                OnCollectionChanged(e);
+            }
+
+            private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                OnPropertyChanged(e.PropertyName);
+            }
         }
 
         sealed class ReadOnlyCollectionAdapter<T> : IReadOnlyCollection<T>

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using NLog;
 
 namespace Torch.Utils
@@ -11,6 +8,8 @@ namespace Torch.Utils
     public static class Reflection
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+        private static readonly string[] _backingFieldForEvent = {"{0}", "<backing_store>{0}"};
 
         public static bool HasMethod(Type type, string methodName, Type[] argTypes = null)
         {
@@ -34,7 +33,7 @@ namespace Torch.Utils
                 }
                 else
                 {
-                    MethodInfo method = type.GetMethod(methodName, argTypes);
+                    var method = type.GetMethod(methodName, argTypes);
                     if (method == null)
                         method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy, Type.DefaultBinder, argTypes, null);
                     if (method == null && type.BaseType != null)
@@ -66,6 +65,7 @@ namespace Torch.Utils
             {
                 if (string.IsNullOrEmpty(fieldName))
                     return false;
+
                 var field = type.GetField(fieldName);
                 if (field == null)
                     field = type.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
@@ -76,6 +76,7 @@ namespace Torch.Utils
                     Log.Error("Failed to find field '{0}' in type '{1}'", fieldName, type.FullName);
                     return false;
                 }
+
                 return true;
             }
             catch (Exception ex)
@@ -91,6 +92,7 @@ namespace Torch.Utils
             {
                 if (string.IsNullOrEmpty(propertyName))
                     return false;
+
                 var prop = type.GetProperty(propertyName);
                 if (prop == null)
                     prop = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
@@ -101,6 +103,7 @@ namespace Torch.Utils
                     Log.Error("Failed to find property '{0}' in type '{1}'", propertyName, type.FullName);
                     return false;
                 }
+
                 return true;
             }
             catch (Exception ex)
@@ -111,7 +114,7 @@ namespace Torch.Utils
         }
 
         /// <summary>
-        /// Invokes the static method of the given type, with the given arguments.
+        ///     Invokes the static method of the given type, with the given arguments.
         /// </summary>
         /// <param name="type">Type the method is contained in</param>
         /// <param name="methodName">Method name</param>
@@ -130,7 +133,7 @@ namespace Torch.Utils
         }
 
         /// <summary>
-        /// Invokes the private method with the given arguments on the instance.  Includes base types of instance.
+        ///     Invokes the private method with the given arguments on the instance.  Includes base types of instance.
         /// </summary>
         /// <param name="instance"></param>
         /// <param name="methodName"></param>
@@ -138,12 +141,13 @@ namespace Torch.Utils
         /// <returns>the return value of the method, or null if it failed</returns>
         public static object InvokePrivateMethod(object instance, string methodName, params object[] args)
         {
-            Type type = instance.GetType();
+            var type = instance.GetType();
             while (type != null)
             {
-                MethodInfo method = type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                var method = type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 if (method != null)
                     return method.Invoke(instance, args);
+
                 type = type.BaseType;
             }
 
@@ -152,7 +156,7 @@ namespace Torch.Utils
         }
 
         /// <summary>
-        /// Gets the value of a private field in an instance.
+        ///     Gets the value of a private field in an instance.
         /// </summary>
         /// <typeparam name="T">The type of the private field</typeparam>
         /// <param name="obj">The instance</param>
@@ -164,21 +168,23 @@ namespace Torch.Utils
             var type = obj.GetType();
             while (type != null)
             {
-                FieldInfo field = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                var field = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
                 if (field != null)
                     return (T)field
-                                  .GetValue(obj);
+                        .GetValue(obj);
 
                 if (!recurse)
                     break;
+
                 type = type.BaseType;
             }
+
             Log.Error($"Field {fieldName} not found in type {obj.GetType().FullName}" + (recurse ? " or its parents" : ""));
             return default(T);
         }
 
         /// <summary>
-        /// Gets the list of all delegates registered in the named static event
+        ///     Gets the list of all delegates registered in the named static event
         /// </summary>
         /// <param name="type">The type (or child type) that contains the event</param>
         /// <param name="eventName">Name of the event</param>
@@ -189,7 +195,7 @@ namespace Torch.Utils
         }
 
         /// <summary>
-        /// Gets the list of all delegates registered in the named event
+        ///     Gets the list of all delegates registered in the named event
         /// </summary>
         /// <param name="instance">Instance to retrieve the event list for</param>
         /// <param name="eventName">Name of the event</param>
@@ -199,24 +205,24 @@ namespace Torch.Utils
             return GetEventsInternal(instance, eventName);
         }
 
-        private static readonly string[] _backingFieldForEvent = { "{0}", "<backing_store>{0}" };
         private static IEnumerable<Delegate> GetEventsInternal(object instance, string eventName, Type baseType = null)
         {
-            BindingFlags bindingFlags = BindingFlags.NonPublic |
+            var bindingFlags = BindingFlags.NonPublic |
                                (instance == null ? BindingFlags.Static : BindingFlags.Instance);
 
             FieldInfo eventField = null;
             baseType = baseType ?? instance?.GetType();
-            Type type = baseType;
+            var type = baseType;
             while (type != null && eventField == null)
             {
                 for (var i = 0; i < _backingFieldForEvent.Length && eventField == null; i++)
                     eventField = type.GetField(string.Format(_backingFieldForEvent[i], eventName), bindingFlags);
                 type = type.BaseType;
             }
+
             if (eventField?.GetValue(instance) is MulticastDelegate eventDel)
             {
-                foreach (Delegate handle in eventDel.GetInvocationList())
+                foreach (var handle in eventDel.GetInvocationList())
                     yield return handle;
             }
             else

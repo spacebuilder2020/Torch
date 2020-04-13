@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Torch.API
 {
     /// <summary>
-    /// Version in the form v#.#.#.#-branch
+    ///     Version in the form v#.#.#.#-branch
     /// </summary>
     public class InformationalVersion
     {
@@ -18,15 +14,15 @@ namespace Torch.API
         {
             version = default(InformationalVersion);
             var trim = input.TrimStart('v');
-            var info = trim.Split(new[]{'-'}, 2);
-            if (!Version.TryParse(info[0], out Version result))
+            var info = trim.Split(new[] {'-'}, 2);
+            if (!Version.TryParse(info[0], out var result))
                 return false;
 
-            version = new InformationalVersion { Version = result };
+            version = new InformationalVersion {Version = result};
 
             if (info.Length > 1)
                 version.Branch = info[1];
-            
+
             return true;
         }
 
@@ -41,7 +37,7 @@ namespace Torch.API
 
         public static explicit operator InformationalVersion(Version v)
         {
-            return new InformationalVersion { Version = v };
+            return new InformationalVersion {Version = v};
         }
 
         public static implicit operator Version(InformationalVersion v)

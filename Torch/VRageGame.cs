@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Havok;
 using NLog;
-using NLog.Fluent;
 using Sandbox;
-using Sandbox.Engine.Analytics;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Platform.VideoMode;
@@ -25,7 +18,6 @@ using SpaceEngineers.Game.GUI;
 using Torch.Utils;
 using VRage;
 using VRage.Audio;
-using VRage.Dedicated;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Game.ObjectBuilder;
@@ -35,50 +27,14 @@ using VRage.Plugins;
 using VRage.Steam;
 using VRage.Utils;
 using VRageRender;
+using Game = Sandbox.Engine.Platform.Game;
 using MyRenderProfiler = VRage.Profiler.MyRenderProfiler;
+using Parallel = ParallelTasks.Parallel;
 
 namespace Torch
 {
     public class VRageGame
     {
-        private static readonly ILogger _log = LogManager.GetCurrentClassLogger();
-
-#pragma warning disable 649
-        [ReflectedGetter(Name = "m_plugins", Type = typeof(MyPlugins))]
-        private static readonly Func<List<IPlugin>> _getVRagePluginList;
-
-        [ReflectedGetter(Name = "Static", TypeName = "Sandbox.Game.Audio.MyMusicController, Sandbox.Game")]
-        private static readonly Func<object> _getMusicControllerStatic;
-
-
-        [ReflectedSetter(Name = "Static", TypeName = "Sandbox.Game.Audio.MyMusicController, Sandbox.Game")]
-        private static readonly Action<object> _setMusicControllerStatic;
-
-
-        [ReflectedMethod(Name = "Unload", TypeName = "Sandbox.Game.Audio.MyMusicController, Sandbox.Game")]
-        private static readonly Action<object> _musicControllerUnload;
-
-//        [ReflectedGetter(Name = "UpdateLayerDescriptors", Type = typeof(MyReplicationServer))]
-//        private static readonly Func<MyReplicationServer.UpdateLayerDesc[]> _layerSettings;
-
-#pragma warning restore 649
-
-        private readonly TorchBase _torch;
-        private readonly Action _tweakGameSettings;
-        private readonly string _userDataPath;
-        private readonly string _appName;
-        private readonly uint _appSteamId;
-        private readonly string[] _runArgs;
-        private SpaceEngineersGame _game;
-        private readonly Thread _updateThread;
-
-        private bool _startGame = false;
-        private readonly AutoResetEvent _commandChanged = new AutoResetEvent(false);
-        private bool _destroyGame = false;
-
-        private readonly AutoResetEvent _stateChangedEvent = new AutoResetEvent(false);
-        private GameState _state;
-
         public enum GameState
         {
             Creating,
@@ -87,8 +43,31 @@ namespace Torch
             Destroyed
         }
 
+        private static readonly ILogger _log = LogManager.GetCurrentClassLogger();
+
+#pragma warning disable 649
+        [ReflectedMethod(Name = "StartServer")]
+        private static Action<MySession, MyMultiplayerBase> _hostServerForSession;
+#pragma warning restore 649
+        private readonly string _appName;
+        private readonly uint _appSteamId;
+        private readonly AutoResetEvent _commandChanged = new AutoResetEvent(false);
+        private readonly string[] _runArgs;
+
+        private readonly AutoResetEvent _stateChangedEvent = new AutoResetEvent(false);
+
+        private readonly TorchBase _torch;
+        private readonly Action _tweakGameSettings;
+        private readonly Thread _updateThread;
+        private readonly string _userDataPath;
+        private bool _destroyGame = false;
+        private SpaceEngineersGame _game;
+
+        private bool _startGame = false;
+        private GameState _state;
+
         internal VRageGame(TorchBase torch, Action tweakGameSettings, string appName, uint appSteamId,
-            string userDataPath, string[] runArgs)
+                           string userDataPath, string[] runArgs)
         {
             _torch = torch;
             _tweakGameSettings = tweakGameSettings;
@@ -104,6 +83,7 @@ namespace Torch
         {
             if (_state == s)
                 return;
+
             _state = s;
             _stateChangedEvent.Set();
         }
@@ -135,7 +115,7 @@ namespace Torch
 
         private void Create()
         {
-            bool dedicated = Sandbox.Engine.Platform.Game.IsDedicated;
+            var dedicated = Game.IsDedicated;
             Environment.SetEnvironmentVariable("SteamAppId", _appSteamId.ToString());
             var service = MySteamServiceWrapper.Init(dedicated, _appSteamId);
             MyServiceManager.Instance.AddService<IMyGameService>(service);
@@ -163,7 +143,6 @@ namespace Torch
             MySandboxGame.InitMultithreading();
             // MyInitializer.InitCheckSum();
 
-
             // Hook into the VRage plugin system for updates.
             _getVRagePluginList().Add(_torch);
 
@@ -180,10 +159,10 @@ namespace Torch
                 }
                 else
                 {
-                    MyPerformanceSettings preset = MyGuiScreenOptionsGraphics.GetPreset(MyRenderPresetEnum.NORMAL);
+                    var preset = MyGuiScreenOptionsGraphics.GetPreset(MyRenderPresetEnum.NORMAL);
                     MyRenderProxy.Settings.User = MyVideoSettingsManager.GetGraphicsSettingsFromConfig(ref preset, false)
-                        .PerformanceSettings.RenderSettings;
-                    MyStringId graphicsRenderer = MySandboxGame.Config.GraphicsRenderer;
+                                                                        .PerformanceSettings.RenderSettings;
+                    var graphicsRenderer = MySandboxGame.Config.GraphicsRenderer;
                     if (graphicsRenderer == MySandboxGame.DirectX11RendererKey)
                     {
                         renderer = new MyDX11Render(new MyRenderSettings?(MyRenderProxy.Settings));
@@ -194,14 +173,17 @@ namespace Torch
                             renderer = null;
                         }
                     }
+
                     if (renderer == null)
                     {
                         throw new MyRenderException(
                             "The current version of the game requires a Dx11 card. \\n For more information please see : http://blog.marekrosa.org/2016/02/space-engineers-news-full-source-code_26.html",
                             MyRenderExceptionEnum.GpuNotSupported);
                     }
+
                     MySandboxGame.Config.GraphicsRenderer = graphicsRenderer;
                 }
+
                 MyRenderProxy.Initialize(renderer);
                 MyRenderProfiler.SetAutocommit(false);
                 //This broke services?
@@ -240,6 +222,7 @@ namespace Torch
             {
                 throw new InvalidOperationException("Failed to start sandbox game: see Keen log for details");
             }
+
             try
             {
                 StateChange(GameState.Running);
@@ -262,23 +245,18 @@ namespace Torch
             }
         }
 
-
-#pragma warning disable 649
-        [ReflectedMethod(Name = "StartServer")]
-        private static Action<MySession, MyMultiplayerBase> _hostServerForSession;
-#pragma warning restore 649
-
         private void DoLoadSession(string sessionPath)
         {
             if (!Path.IsPathRooted(sessionPath))
                 sessionPath = Path.Combine(MyFileSystem.SavesPath, sessionPath);
 
-            if (!Sandbox.Engine.Platform.Game.IsDedicated)
+            if (!Game.IsDedicated)
             {
                 MySessionLoader.LoadSingleplayerSession(sessionPath);
                 return;
             }
-            MyObjectBuilder_Checkpoint checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out ulong checkpointSize);
+
+            var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out var checkpointSize);
             if (MySession.IsCompatibleVersion(checkpoint))
             {
                 if (MyWorkshop.DownloadWorldModsBlocking(checkpoint.Mods, null).Success)
@@ -292,7 +270,7 @@ namespace Torch
             }
             else
                 MyLog.Default.WriteLineAndConsole(MyTexts.Get(MyCommonTexts.DialogTextIncompatibleWorldVersion)
-                    .ToString());
+                                                         .ToString());
         }
 
         private void DoJoinSession(ulong lobbyId)
@@ -302,16 +280,18 @@ namespace Torch
 
         private void DoUnloadSession()
         {
-            if (!Sandbox.Engine.Platform.Game.IsDedicated)
+            if (!Game.IsDedicated)
             {
                 MyScreenManager.CloseAllScreensExcept(null);
                 MyGuiSandbox.Update(16);
             }
+
             if (MySession.Static != null)
             {
                 MySession.Static.Unload();
                 MySession.Static = null;
             }
+
             {
                 var musicCtl = _getMusicControllerStatic();
                 if (musicCtl != null)
@@ -325,7 +305,8 @@ namespace Torch
             {
                 MyMultiplayer.Static.Dispose();
             }
-            if (!Sandbox.Engine.Platform.Game.IsDedicated)
+
+            if (!Game.IsDedicated)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.MainMenu));
             }
@@ -333,12 +314,12 @@ namespace Torch
 
         private void DoStop()
         {
-            ParallelTasks.Parallel.Scheduler.WaitForTasksToFinish(TimeSpan.FromSeconds(10.0));
+            Parallel.Scheduler.WaitForTasksToFinish(TimeSpan.FromSeconds(10.0));
             MySandboxGame.Static.Exit();
         }
 
         /// <summary>
-        /// Signals the game to stop itself.
+        ///     Signals the game to stop itself.
         /// </summary>
         public void SignalStop()
         {
@@ -347,7 +328,7 @@ namespace Torch
         }
 
         /// <summary>
-        /// Signals the game to start itself
+        ///     Signals the game to start itself
         /// </summary>
         public void SignalStart()
         {
@@ -356,7 +337,7 @@ namespace Torch
         }
 
         /// <summary>
-        /// Signals the game to destroy itself
+        ///     Signals the game to destroy itself
         /// </summary>
         public void SignalDestroy()
         {
@@ -367,12 +348,12 @@ namespace Torch
 
         public Task LoadSession(string path)
         {
-            return _torch.InvokeAsync(()=>DoLoadSession(path));
+            return _torch.InvokeAsync(() => DoLoadSession(path));
         }
 
         public Task JoinSession(ulong lobbyId)
         {
-            return _torch.InvokeAsync(()=>DoJoinSession(lobbyId));
+            return _torch.InvokeAsync(() => DoJoinSession(lobbyId));
         }
 
         public Task UnloadSession()
@@ -381,7 +362,7 @@ namespace Torch
         }
 
         /// <summary>
-        /// Waits for the game to transition to the given state
+        ///     Waits for the game to transition to the given state
         /// </summary>
         /// <param name="state">State to transition to</param>
         /// <param name="timeout">Timeout</param>
@@ -392,7 +373,7 @@ namespace Torch
             if (Thread.CurrentThread == _updateThread)
                 return _state == state;
 
-            DateTime? end = timeout.HasValue ? (DateTime?) (DateTime.Now + timeout.Value) : null;
+            var end = timeout.HasValue ? (DateTime?)(DateTime.Now + timeout.Value) : null;
             while (_state != state && (!end.HasValue || end > DateTime.Now + TimeSpan.FromSeconds(1)))
                 if (end.HasValue)
                     _stateChangedEvent.WaitOne(end.Value - DateTime.Now);
@@ -400,5 +381,23 @@ namespace Torch
                     _stateChangedEvent.WaitOne();
             return _state == state;
         }
+
+#pragma warning disable 649
+        [ReflectedGetter(Name = "m_plugins", Type = typeof(MyPlugins))]
+        private static readonly Func<List<IPlugin>> _getVRagePluginList;
+
+        [ReflectedGetter(Name = "Static", TypeName = "Sandbox.Game.Audio.MyMusicController, Sandbox.Game")]
+        private static readonly Func<object> _getMusicControllerStatic;
+
+        [ReflectedSetter(Name = "Static", TypeName = "Sandbox.Game.Audio.MyMusicController, Sandbox.Game")]
+        private static readonly Action<object> _setMusicControllerStatic;
+
+        [ReflectedMethod(Name = "Unload", TypeName = "Sandbox.Game.Audio.MyMusicController, Sandbox.Game")]
+        private static readonly Action<object> _musicControllerUnload;
+
+        //        [ReflectedGetter(Name = "UpdateLayerDescriptors", Type = typeof(MyReplicationServer))]
+        //        private static readonly Func<MyReplicationServer.UpdateLayerDesc[]> _layerSettings;
+
+#pragma warning restore 649
     }
 }

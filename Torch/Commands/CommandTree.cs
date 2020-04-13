@@ -2,22 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Torch.API;
 using VRage.Collections;
-using VRage.Library.Collections;
 
 namespace Torch.Commands
 {
     public class CommandTree
     {
-        public DictionaryReader<string, CommandNode> Root { get; }
         private readonly Dictionary<string, CommandNode> _root = new Dictionary<string, CommandNode>();
 
         public CommandTree()
         {
             Root = new DictionaryReader<string, CommandNode>(_root);
         }
+
+        public DictionaryReader<string, CommandNode> Root { get; }
 
         public bool AddCommand(Command command)
         {
@@ -52,7 +50,7 @@ namespace Torch.Commands
         }
 
         /// <summary>
-        /// Get a command node from the tree.
+        ///     Get a command node from the tree.
         /// </summary>
         /// <param name="path">Path to the command node.</param>
         /// <param name="commandNode"></param>
@@ -89,15 +87,15 @@ namespace Torch.Commands
         public Command GetCommand(List<string> path, out List<string> args)
         {
             args = new List<string>();
-            var skip = GetNode(path, out CommandNode node);
+            var skip = GetNode(path, out var node);
             args.AddRange(path.Skip(skip));
             return node.Command;
         }
 
         public Command GetCommand(string commandText, out string argText)
         {
-            var split = commandText.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries).ToList();
-            var skip = GetNode(split, out CommandNode node);
+            var split = commandText.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var skip = GetNode(split, out var node);
             if (skip == -1)
             {
                 argText = "";
@@ -148,6 +146,7 @@ namespace Torch.Commands
                 node.Parent.RemoveNode(node);
                 return true;
             }
+
             if (node.Command?.Path != null)
                 return _root.Remove(node.Command.Path.First());
 
@@ -169,14 +168,7 @@ namespace Torch.Commands
 
         public class CommandNode
         {
-            public CommandNode Parent { get; private set; }
-            public DictionaryReader<string, CommandNode> Subcommands { get; }
             private readonly Dictionary<string, CommandNode> _subcommands = new Dictionary<string, CommandNode>();
-
-            public string Name { get; }
-            public Command Command { get; set; }
-            public bool IsCommand => Command != null;
-            public bool IsEmpty => !IsCommand && _subcommands.Count == 0;
 
             public CommandNode(string name)
             {
@@ -189,6 +181,14 @@ namespace Torch.Commands
                 Name = command.Name;
                 Command = command;
             }
+
+            public CommandNode Parent { get; private set; }
+            public DictionaryReader<string, CommandNode> Subcommands { get; }
+
+            public string Name { get; }
+            public Command Command { get; set; }
+            public bool IsCommand => Command != null;
+            public bool IsEmpty => !IsCommand && _subcommands.Count == 0;
 
             public bool TryGetChild(string name, out CommandNode node)
             {

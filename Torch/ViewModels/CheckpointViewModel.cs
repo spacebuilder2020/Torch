@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Torch.Collections;
 using VRage;
 using VRage.Game;
 using VRage.Game.ModAPI;
@@ -15,18 +11,13 @@ namespace Torch.Server.ViewModels
 {
     public class CheckpointViewModel : ViewModel
     {
-        private MyObjectBuilder_Checkpoint _checkpoint;
+        private readonly MyObjectBuilder_Checkpoint _checkpoint;
         //private SessionSettingsViewModel _sessionSettings;
 
         public CheckpointViewModel(MyObjectBuilder_Checkpoint checkpoint)
         {
             _checkpoint = checkpoint;
             //_sessionSettings = new SessionSettingsViewModel(_checkpoint.Settings);
-        }
-
-        public static implicit operator MyObjectBuilder_Checkpoint(CheckpointViewModel model)
-        {
-            return model._checkpoint;
         }
 
         public Vector3I CurrentSector { get => _checkpoint.CurrentSector; set => SetValue(ref _checkpoint.CurrentSector, value); }
@@ -128,5 +119,10 @@ namespace Torch.Server.ViewModels
         public string CustomSkybox { get => _checkpoint.CustomSkybox; set => SetValue(ref _checkpoint.CustomSkybox, value); }
 
         public int RequiresDX { get => _checkpoint.RequiresDX; set => SetValue(ref _checkpoint.RequiresDX, value); }
+
+        public static implicit operator MyObjectBuilder_Checkpoint(CheckpointViewModel model)
+        {
+            return model._checkpoint;
+        }
     }
 }

@@ -1,26 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Torch.API;
 using Torch.API.Managers;
 
 namespace Torch.Managers
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class ManagerAttribute : Attribute
-    {
-        
-    }
+    public class ManagerAttribute : Attribute { }
 
     public abstract class Manager : IManager
     {
+        protected Manager(ITorchBase torchInstance)
+        {
+            Torch = torchInstance;
+        }
+
+        protected ITorchBase Torch { get; }
+
+        public virtual void Attach() { }
+
+        public virtual void Detach() { }
+
         /// <summary>
-        /// Indicates a field is a dependency of this parent manager.
+        ///     Indicates a field is a dependency of this parent manager.
         /// </summary>
         /// <example>
-        /// <code>
+        ///     <code>
         /// public class NetworkManager : Manager { }
         /// public class ChatManager : Manager {
         ///     [Dependency(Optional = false)]
@@ -32,45 +36,28 @@ namespace Torch.Managers
         public class DependencyAttribute : Attribute
         {
             /// <summary>
-            /// If this dependency isn't required.
+            ///     If this dependency isn't required.
             /// </summary>
             /// <remarks>
-            /// The tagged field can be null if, and only if, this is true.
+            ///     The tagged field can be null if, and only if, this is true.
             /// </remarks>
             public bool Optional { get; set; } = false;
 
             /// <summary>
-            /// Dependency must be loaded before and unloaded after the containing manager.
+            ///     Dependency must be loaded before and unloaded after the containing manager.
             /// </summary>
             /// <example>
-            /// <code>
+            ///     <code>
             /// public class NetworkManager : Manager { }
             /// public class ChatManager : Manager {
             ///     [Dependency(Ordered = true)]
             ///     private NetworkManager _network;
             /// }
             /// </code>
-            /// Load order will be NetworkManager, then ChatManager.
-            /// Unload order will be ChatManager, then NetworkManager
+            ///     Load order will be NetworkManager, then ChatManager.
+            ///     Unload order will be ChatManager, then NetworkManager
             /// </example>
             public bool Ordered { get; set; } = true;
-        }
-
-        protected ITorchBase Torch { get; }
-
-        protected Manager(ITorchBase torchInstance)
-        {
-            Torch = torchInstance;
-        }
-
-        public virtual void Attach()
-        {
-            
-        }
-
-        public virtual void Detach()
-        {
-            
         }
     }
 }

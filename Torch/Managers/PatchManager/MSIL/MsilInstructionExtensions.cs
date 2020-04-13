@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Torch.Managers.PatchManager.MSIL
 {
     /// <summary>
-    /// Various methods to make composing MSIL easier
+    ///     Various methods to make composing MSIL easier
     /// </summary>
     public static class MsilInstructionExtensions
     {
         #region Local Utils
+
         /// <summary>
-        /// Is this instruction a local load-by-value instruction.
+        ///     Is this instruction a local load-by-value instruction.
         /// </summary>
         public static bool IsLocalLoad(this MsilInstruction me)
         {
@@ -23,7 +19,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Is this instruction a local load-by-reference instruction.
+        ///     Is this instruction a local load-by-reference instruction.
         /// </summary>
         public static bool IsLocalLoadByRef(this MsilInstruction me)
         {
@@ -31,7 +27,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Is this instruction a local store instruction.
+        ///     Is this instruction a local store instruction.
         /// </summary>
         public static bool IsLocalStore(this MsilInstruction me)
         {
@@ -39,7 +35,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Is this instruction a local load-by-value instruction.
+        ///     Is this instruction a local load-by-value instruction.
         /// </summary>
         public static bool IsLocalLoad(this OpCode opcode)
         {
@@ -48,7 +44,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Is this instruction a local load-by-reference instruction.
+        ///     Is this instruction a local load-by-reference instruction.
         /// </summary>
         public static bool IsLocalLoadByRef(this OpCode opcode)
         {
@@ -56,7 +52,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Is this instruction a local store instruction.
+        ///     Is this instruction a local store instruction.
         /// </summary>
         public static bool IsLocalStore(this OpCode opcode)
         {
@@ -65,7 +61,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// For a local referencing opcode, get the local it is referencing.
+        ///     For a local referencing opcode, get the local it is referencing.
         /// </summary>
         public static MsilLocal GetReferencedLocal(this MsilInstruction me)
         {
@@ -79,10 +75,12 @@ namespace Torch.Managers.PatchManager.MSIL
                 return new MsilLocal(2);
             if (me.OpCode == OpCodes.Stloc_3 || me.OpCode == OpCodes.Ldloc_3)
                 return new MsilLocal(3);
+
             throw new ArgumentException($"Can't get referenced local in instruction {me}");
         }
+
         /// <summary>
-        /// Gets an instruction representing a load-by-value from the given local.
+        ///     Gets an instruction representing a load-by-value from the given local.
         /// </summary>
         /// <param name="local">Local to load</param>
         /// <returns>Loading instruction</returns>
@@ -104,7 +102,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Gets an instruction representing a store-by-value to the given local.
+        ///     Gets an instruction representing a store-by-value to the given local.
         /// </summary>
         /// <param name="local">Local to write to</param>
         /// <returns>Loading instruction</returns>
@@ -126,7 +124,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Gets an instruction representing a load-by-reference from the given local.
+        ///     Gets an instruction representing a load-by-reference from the given local.
         /// </summary>
         /// <param name="local">Local to load</param>
         /// <returns>Loading instruction</returns>
@@ -134,11 +132,13 @@ namespace Torch.Managers.PatchManager.MSIL
         {
             return new MsilInstruction(local.Index < 0xFF ? OpCodes.Ldloca_S : OpCodes.Ldloca).InlineValue(local);
         }
+
         #endregion
 
         #region Argument Utils
+
         /// <summary>
-        /// Is this instruction an argument load-by-value instruction.
+        ///     Is this instruction an argument load-by-value instruction.
         /// </summary>
         public static bool IsArgumentLoad(this MsilInstruction me)
         {
@@ -147,7 +147,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Is this instruction an argument load-by-reference instruction.
+        ///     Is this instruction an argument load-by-reference instruction.
         /// </summary>
         public static bool IsArgumentLoadByRef(this MsilInstruction me)
         {
@@ -155,7 +155,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Is this instruction an argument store instruction.
+        ///     Is this instruction an argument store instruction.
         /// </summary>
         public static bool IsArgumentStore(this MsilInstruction me)
         {
@@ -163,7 +163,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// For an argument referencing opcode, get the index of the local it is referencing.
+        ///     For an argument referencing opcode, get the index of the local it is referencing.
         /// </summary>
         public static MsilArgument GetReferencedArgument(this MsilInstruction me)
         {
@@ -177,11 +177,12 @@ namespace Torch.Managers.PatchManager.MSIL
                 return new MsilArgument(2);
             if (me.OpCode == OpCodes.Ldarg_3)
                 return new MsilArgument(3);
+
             throw new ArgumentException($"Can't get referenced argument in instruction {me}");
         }
 
         /// <summary>
-        /// Gets an instruction representing a load-by-value from the given argument.
+        ///     Gets an instruction representing a load-by-value from the given argument.
         /// </summary>
         /// <param name="argument">argument to load</param>
         /// <returns>Load instruction</returns>
@@ -203,7 +204,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Gets an instruction representing a store-by-value to the given argument.
+        ///     Gets an instruction representing a store-by-value to the given argument.
         /// </summary>
         /// <param name="argument">argument to write to</param>
         /// <returns>Store instruction</returns>
@@ -213,7 +214,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         /// <summary>
-        /// Gets an instruction representing a load-by-reference from the given argument.
+        ///     Gets an instruction representing a load-by-reference from the given argument.
         /// </summary>
         /// <param name="argument">argument to load</param>
         /// <returns>Reference load instruction</returns>
@@ -221,11 +222,13 @@ namespace Torch.Managers.PatchManager.MSIL
         {
             return new MsilInstruction(argument.Position < 0xFF ? OpCodes.Ldarga_S : OpCodes.Ldarga).InlineValue(argument);
         }
+
         #endregion
 
         #region Constant Utils
+
         /// <summary>
-        /// Determines if this instruction is a constant int load instruction.
+        ///     Determines if this instruction is a constant int load instruction.
         /// </summary>
         /// <param name="m">Instruction</param>
         /// <returns>True if this instruction pushes a constant int onto the stack</returns>
@@ -253,11 +256,12 @@ namespace Torch.Managers.PatchManager.MSIL
                 return true;
             if (m.OpCode == OpCodes.Ldc_I4)
                 return true;
+
             return m.OpCode == OpCodes.Ldc_I4_S;
         }
 
         /// <summary>
-        /// Gets the constant int this instruction pushes onto the stack.
+        ///     Gets the constant int this instruction pushes onto the stack.
         /// </summary>
         /// <param name="m">Instruction</param>
         /// <returns>The constant int</returns>
@@ -284,11 +288,13 @@ namespace Torch.Managers.PatchManager.MSIL
             if (m.OpCode == OpCodes.Ldc_I4_M1)
                 return -1;
             if (m.OpCode == OpCodes.Ldc_I4)
-                return ((MsilOperandInline<int>) m.Operand).Value;
+                return ((MsilOperandInline<int>)m.Operand).Value;
             if (m.OpCode == OpCodes.Ldc_I4_S)
                 return ((MsilOperandInline<byte>)m.Operand).Value;
+
             throw new ArgumentException($"Can't get constant int from instruction {m}");
         }
+
         #endregion
     }
 }

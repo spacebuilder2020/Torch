@@ -11,9 +11,7 @@ namespace Torch.Managers.PatchManager.MSIL
     /// </summary>
     public class MsilOperandSwitch : MsilOperand
     {
-        internal MsilOperandSwitch(MsilInstruction instruction) : base(instruction)
-        {
-        }
+        internal MsilOperandSwitch(MsilInstruction instruction) : base(instruction) { }
 
         /// <summary>
         ///     The target labels for this switch
@@ -27,6 +25,7 @@ namespace Torch.Managers.PatchManager.MSIL
             var lt = operand as MsilOperandSwitch;
             if (lt == null)
                 throw new ArgumentException($"Target {operand?.GetType().Name} must be of same type {GetType().Name}", nameof(operand));
+
             if (Labels == null)
                 lt.Labels = null;
             else
@@ -35,10 +34,11 @@ namespace Torch.Managers.PatchManager.MSIL
                 Array.Copy(Labels, lt.Labels, Labels.Length);
             }
         }
+
         internal override void Read(MethodContext context, BinaryReader reader)
         {
-            int length = reader.ReadInt32();
-            int offset = (int) reader.BaseStream.Position + 4 * length;
+            var length = reader.ReadInt32();
+            var offset = (int)reader.BaseStream.Position + 4 * length;
             Labels = new MsilLabel[length];
             for (var i = 0; i < Labels.Length; i++)
                 Labels[i] = context.LabelAt(offset + reader.ReadInt32());

@@ -6,7 +6,8 @@
         mc:Ignorable="d"
         Title="Edit Collection" Height="300" Width="300">
     <DockPanel>
-        <Button Content="Done" Margin="3" Click="OkButton_OnClick" DockPanel.Dock="Bottom"/>
-        <TextBox x:Name="ItemList" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="3"/>
+        <Button Content="Done" Margin="3" Click="OkButton_OnClick" DockPanel.Dock="Bottom" />
+        <TextBox x:Name="ItemList" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                 Margin="3" />
     </DockPanel>
 </Window>

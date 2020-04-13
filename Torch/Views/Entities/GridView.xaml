@@ -12,25 +12,25 @@
     </UserControl.DataContext>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <Label Content="Name" Width="100"/>
-            <TextBox Text="{Binding Name}" Margin="3"/>
+            <Label Content="Name" Width="100" />
+            <TextBox Text="{Binding Name}" Margin="3" />
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <Label Content="Position" Width="100"/>
+            <Label Content="Position" Width="100" />
             <TextBox Text="{Binding Position}" Margin="3" />
         </StackPanel>
         <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <Label Content="EntityID" Width="100"/>
+            <Label Content="EntityID" Width="100" />
             <TextBox Text="{Binding Id, Mode=OneWay}" Margin="3" />
         </StackPanel>
         <ScrollViewer Grid.Row="3" Margin="3" VerticalScrollBarVisibility="Auto">
-            <local:EntityControlsView DataContext="{Binding}"/>
+            <local:EntityControlsView DataContext="{Binding}" />
         </ScrollViewer>
     </Grid>
 </UserControl>

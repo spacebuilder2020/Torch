@@ -6,6 +6,6 @@
         xmlns:local="clr-namespace:Torch.Views"
         mc:Ignorable="d"
         Height="400" Width="400" Title="Edit Object">
-    
-        <local:PropertyGrid x:Name="PGrid" />
+
+    <local:PropertyGrid x:Name="PGrid" />
 </Window>

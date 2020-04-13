@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Sandbox.Game.Multiplayer;
+﻿using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 
 namespace Torch
@@ -12,12 +7,13 @@ namespace Torch
     {
         public static MyPlayer TryGetPlayerBySteamId(this MyPlayerCollection collection, ulong steamId, int serialId = 0)
         {
-            long identity = collection.TryGetIdentityId(steamId, serialId);
+            var identity = collection.TryGetIdentityId(steamId, serialId);
             if (identity == 0)
                 return null;
-            if (!collection.TryGetPlayerId(identity, out MyPlayer.PlayerId playerId))
+            if (!collection.TryGetPlayerId(identity, out var playerId))
                 return null;
-            return collection.TryGetPlayerById(playerId, out MyPlayer player) ? player : null;
+
+            return collection.TryGetPlayerById(playerId, out var player) ? player : null;
         }
     }
 }

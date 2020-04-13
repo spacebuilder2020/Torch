@@ -7,7 +7,7 @@ namespace Torch.Utils
     public static class ColorUtils
     {
         /// <summary>
-        /// Convert the old "font" or a RGB hex code to a Color.
+        ///     Convert the old "font" or a RGB hex code to a Color.
         /// </summary>
         public static Color TranslateColor(string font)
         {
@@ -31,7 +31,7 @@ namespace Torch.Utils
             else
             {
                 // VRage color doesn't have its own hex code parser and I don't want to write one
-                var conv = (System.Windows.Media.Color)(ColorConverter.ConvertFromString(font) ?? 
+                var conv = (System.Windows.Media.Color)(ColorConverter.ConvertFromString(font) ??
                                                         System.Windows.Media.Color.FromRgb(255, 255, 255));
                 return new Color(conv.R, conv.G, conv.B);
             }

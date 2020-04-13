@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Sandbox.Game.World;
 using VRage.Game.ModAPI;
 
@@ -66,7 +63,7 @@ namespace Torch.Commands.Permissions
         {
             foreach (var name in Enum.GetNames(typeof(MyPromoteLevel)))
             {
-                 Groups.Add(name, new PermissionGroup());
+                Groups.Add(name, new PermissionGroup());
             }
         }
     }

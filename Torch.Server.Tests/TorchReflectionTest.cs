@@ -8,19 +8,11 @@ namespace Torch.Tests
 #warning Disabled reflection tests because of seemingly random failures
     public class TorchReflectionTest
     {
+        private static ReflectionTestManager _manager;
+
         static TorchReflectionTest()
         {
             TestUtils.Init();
-        }
-
-        private static ReflectionTestManager _manager;
-
-        private static ReflectionTestManager Manager()
-        {
-            if (_manager != null)
-                return _manager;
-
-            return _manager = new ReflectionTestManager().Init(typeof(TorchBase).Assembly);
         }
 
         public static IEnumerable<object[]> Getters => Manager().Getters;
@@ -33,13 +25,23 @@ namespace Torch.Tests
 
         public static IEnumerable<object[]> Events => Manager().Events;
 
+        private static ReflectionTestManager Manager()
+        {
+            if (_manager != null)
+                return _manager;
+
+            return _manager = new ReflectionTestManager().Init(typeof(TorchBase).Assembly);
+        }
+
         #region Binding
+
         //[Theory]
         [MemberData(nameof(Getters))]
         public void TestBindingGetter(ReflectionTestManager.FieldRef field)
         {
             if (field.Field == null)
                 return;
+
             Assert.True(ReflectedManager.Process(field.Field));
             if (field.Field.IsStatic)
                 Assert.NotNull(field.Field.GetValue(null));
@@ -51,6 +53,7 @@ namespace Torch.Tests
         {
             if (field.Field == null)
                 return;
+
             Assert.True(ReflectedManager.Process(field.Field));
             if (field.Field.IsStatic)
                 Assert.NotNull(field.Field.GetValue(null));
@@ -62,6 +65,7 @@ namespace Torch.Tests
         {
             if (field.Field == null)
                 return;
+
             Assert.True(ReflectedManager.Process(field.Field));
             if (field.Field.IsStatic)
                 Assert.NotNull(field.Field.GetValue(null));
@@ -73,6 +77,7 @@ namespace Torch.Tests
         {
             if (field.Field == null)
                 return;
+
             Assert.True(ReflectedManager.Process(field.Field));
             if (field.Field.IsStatic)
                 Assert.NotNull(field.Field.GetValue(null));
@@ -84,10 +89,12 @@ namespace Torch.Tests
         {
             if (field.Field == null)
                 return;
+
             Assert.True(ReflectedManager.Process(field.Field));
             if (field.Field.IsStatic)
                 ((Func<ReflectedEventReplacer>)field.Field.GetValue(null)).Invoke();
         }
+
         #endregion
     }
 }

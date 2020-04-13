@@ -1,32 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace Torch.Collections
 {
     public class BinaryMinHeap<TKey, TValue> where TKey : IComparable
     {
-        private struct HeapItem
-        {
-            public TKey Key { get; }
-            public TValue Value { get; }
-
-            public HeapItem(TKey key, TValue value)
-            {
-                Key = key;
-                Value = value;
-            }
-        }
-
-        private HeapItem[] _store;
         private readonly IComparer<TKey> _comparer;
 
-        public int Capacity { get; private set; }
-        public int Count { get; private set; }
-
-        public bool Full => Count == Capacity;
+        private HeapItem[] _store;
 
         public BinaryMinHeap(int initialCapacity = 32, IComparer<TKey> comparer = null)
         {
@@ -35,6 +17,11 @@ namespace Torch.Collections
             Capacity = initialCapacity;
             _comparer = comparer ?? Comparer<TKey>.Default;
         }
+
+        public int Capacity { get; private set; }
+        public int Count { get; private set; }
+
+        public bool Full => Count == Capacity;
 
         public void Insert(TValue value, TKey key)
         {
@@ -60,7 +47,7 @@ namespace Torch.Collections
 
         public TValue RemoveMin()
         {
-            TValue toReturn = _store[0].Value;
+            var toReturn = _store[0].Value;
 
             if (Count != 1)
             {
@@ -95,12 +82,13 @@ namespace Torch.Collections
                     maxItem = c;
                 }
             }
-            
+
             if (maxIndex != Count)
             {
                 SwapIndices(Count - 1, maxIndex);
                 Up(maxIndex);
             }
+
             Count--;
 
             return maxItem.Value;
@@ -127,7 +115,7 @@ namespace Torch.Collections
 
             if (itemIndex != Count && itemIndex != -1)
             {
-                TValue removed = _store[itemIndex].Value;
+                var removed = _store[itemIndex].Value;
 
                 SwapIndices(Count - 1, itemIndex);
                 Up(itemIndex);
@@ -180,8 +168,9 @@ namespace Torch.Collections
         {
             if (index == 0)
                 return;
-            int parentIndex = (index - 1) / 2;
-            HeapItem swap = _store[index];
+
+            var parentIndex = (index - 1) / 2;
+            var swap = _store[index];
             if (_comparer.Compare(_store[parentIndex].Key, swap.Key) <= 0)
                 return;
 
@@ -192,6 +181,7 @@ namespace Torch.Collections
 
                 if (index == 0)
                     break;
+
                 parentIndex = (index - 1) / 2;
                 if (_comparer.Compare(_store[parentIndex].Key, swap.Key) <= 0)
                     break;
@@ -205,10 +195,10 @@ namespace Torch.Collections
             if (Count == index + 1)
                 return;
 
-            int left = index * 2 + 1;
-            int right = left + 1;
+            var left = index * 2 + 1;
+            var right = left + 1;
 
-            HeapItem swap = _store[index];
+            var swap = _store[index];
 
             while (right <= Count) // While the current node has children
             {
@@ -258,7 +248,7 @@ namespace Torch.Collections
                 return;
 
             //double capacity until we reach the minimum requested capacity (or greater)
-            int newcap = Capacity * 2;
+            var newcap = Capacity * 2;
             while (newcap < capacity)
                 newcap *= 2;
 
@@ -267,6 +257,18 @@ namespace Torch.Collections
 
             _store = newArray;
             Capacity = newcap;
+        }
+
+        private struct HeapItem
+        {
+            public TKey Key { get; }
+            public TValue Value { get; }
+
+            public HeapItem(TKey key, TValue value)
+            {
+                Key = key;
+                Value = value;
+            }
         }
     }
 }

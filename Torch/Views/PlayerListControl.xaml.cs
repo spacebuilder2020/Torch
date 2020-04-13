@@ -1,45 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using NLog;
-using Torch;
-using Sandbox;
-using Sandbox.Engine.Multiplayer;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
-using Sandbox.ModAPI;
 using Torch.API;
 using Torch.API.Managers;
 using Torch.API.Session;
-using Torch.Managers;
 using Torch.Server.Managers;
-using Torch.Utils;
 using Torch.ViewModels;
 using VRage.Game.ModAPI;
 
 namespace Torch.Server
 {
     /// <summary>
-    /// Interaction logic for PlayerListControl.xaml
+    ///     Interaction logic for PlayerListControl.xaml
     /// </summary>
     public partial class PlayerListControl : UserControl
     {
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
+        private IMultiplayerManagerServer _mpServer;
 
         private ITorchServer _server;
-        private IMultiplayerManagerServer _mpServer;
 
         public PlayerListControl()
         {
@@ -82,7 +63,7 @@ namespace Torch.Server
         {
             if (PlayerList.SelectedItem == null)
                 return;
-            
+
             var player = (KeyValuePair<ulong, PlayerViewModel>)PlayerList.SelectedItem;
             try
             {
@@ -98,7 +79,7 @@ namespace Torch.Server
         {
             if (PlayerList.SelectedItem == null)
                 return;
-            
+
             var player = (KeyValuePair<ulong, PlayerViewModel>)PlayerList.SelectedItem;
             try
             {
@@ -114,7 +95,7 @@ namespace Torch.Server
         {
             if (PlayerList.SelectedItem == null)
                 return;
-            
+
             var player = (KeyValuePair<ulong, PlayerViewModel>)PlayerList.SelectedItem;
             try
             {
@@ -130,7 +111,7 @@ namespace Torch.Server
         {
             if (PlayerList.SelectedItem == null)
                 return;
-            
+
             var player = (KeyValuePair<ulong, PlayerViewModel>)PlayerList.SelectedItem;
             try
             {

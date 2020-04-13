@@ -1,17 +1,12 @@
-﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace Torch.Collections
 {
     public class RollingAverage
     {
         private readonly double[] _array;
-        private int _idx;
         private bool _full;
+        private int _idx;
 
         public RollingAverage(int size)
         {
@@ -19,7 +14,7 @@ namespace Torch.Collections
         }
 
         /// <summary>
-        /// Adds a new value and removes the oldest if necessary.
+        ///     Adds a new value and removes the oldest if necessary.
         /// </summary>
         /// <param name="value"></param>
         public void Add(double value)
@@ -36,11 +31,11 @@ namespace Torch.Collections
 
         public double GetAverage()
         {
-            return _array.Sum() / (_full ? _array.Length : (_idx + 1));
+            return _array.Sum() / (_full ? _array.Length : _idx + 1);
         }
 
         /// <summary>
-        /// Resets the rolling average.
+        ///     Resets the rolling average.
         /// </summary>
         public void Clear()
         {

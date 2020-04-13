@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using ProtoBuf;
 using Sandbox.ModAPI;
 using VRage.ModAPI;
@@ -14,8 +12,7 @@ namespace Torch.Mod.Messages
         [ProtoMember(201)]
         public long[] EntityId;
 
-        public VoxelResetMessage()
-        { }
+        public VoxelResetMessage() { }
 
         public VoxelResetMessage(long[] entityId)
         {

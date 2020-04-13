@@ -4,27 +4,25 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using NLog;
-using NLog.Fluent;
 
 namespace Torch.Views
 {
     /// <summary>
-    /// Interaction logic for EmbeddedCollectionEditor.xaml
+    ///     Interaction logic for EmbeddedCollectionEditor.xaml
     /// </summary>
     public partial class EmbeddedCollectionEditor : UserControl
     {
+        private static readonly Dictionary<Type, MethodInfo> MethodCache = new Dictionary<Type, MethodInfo>();
+        private static readonly MethodInfo EditMethod;
+
+        static EmbeddedCollectionEditor()
+        {
+            var m = typeof(EmbeddedCollectionEditor).GetMethods();
+            EditMethod = m.First(mt => mt.Name == "Edit" && mt.GetGenericArguments().Length == 1);
+        }
+
         public EmbeddedCollectionEditor()
         {
             InitializeComponent();
@@ -37,16 +35,6 @@ namespace Torch.Views
             //var c = DataContext as ICollection;
             if (c != null)
                 Edit(c);
-        }
-
-        private static readonly Dictionary<Type, MethodInfo> MethodCache = new Dictionary<Type, MethodInfo>();
-        private static readonly MethodInfo EditMethod;
-
-
-        static EmbeddedCollectionEditor()
-        {
-            var m = typeof(EmbeddedCollectionEditor).GetMethods();
-            EditMethod = m.First(mt => mt.Name == "Edit" && mt.GetGenericArguments().Length == 1);
         }
 
         public void Edit(ICollection collection)
@@ -66,7 +54,7 @@ namespace Torch.Views
                 return;
             }
 
-            if (!MethodCache.TryGetValue(gt, out MethodInfo gm))
+            if (!MethodCache.TryGetValue(gt, out var gm))
             {
                 gm = EditMethod.MakeGenericMethod(gt);
                 MethodCache.Add(gt, gm);
@@ -80,11 +68,11 @@ namespace Torch.Views
             var oc = collection as ObservableCollection<T> ?? new ObservableCollection<T>(collection);
 
             AddButton.Click += (sender, args) =>
-                               {
-                                   var t = new T();
-                                   oc.Add(t);
-                                   ElementList.SelectedItem = t;
-                               };
+            {
+                var t = new T();
+                oc.Add(t);
+                ElementList.SelectedItem = t;
+            };
 
             RemoveButton.Click += RemoveButton_OnClick<T>;
             ElementList.SelectionChanged += ElementsList_OnSelected;
@@ -123,4 +111,3 @@ namespace Torch.Views
         }
     }
 }
-

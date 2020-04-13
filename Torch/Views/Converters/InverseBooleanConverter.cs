@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Windows.Data;
 
 namespace Torch.Server.Views.Converters
@@ -9,13 +10,13 @@ namespace Torch.Server.Views.Converters
         #region IValueConverter Members
 
         public object Convert(object value, Type targetType, object parameter,
-            System.Globalization.CultureInfo culture)
+                              CultureInfo culture)
         {
             return !(bool)value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter,
-            System.Globalization.CultureInfo culture)
+                                  CultureInfo culture)
         {
             throw new NotSupportedException();
         }

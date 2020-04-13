@@ -1,21 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using VRage.Game;
-
-namespace Torch.Server.ViewModels
+﻿namespace Torch.Server.ViewModels
 {
     public class BlockLimitViewModel : ViewModel
     {
-        private SessionSettingsViewModel _sessionSettings;
         private string _blockType;
         private short _limit;
-
-        public string BlockType { get => _blockType; set { _blockType = value; OnPropertyChanged(); } }
-        public short Limit { get => _limit; set { _limit = value; OnPropertyChanged(); } }
+        private SessionSettingsViewModel _sessionSettings;
 
         //public CommandBinding Delete { get; } = new CommandBinding(new DeleteCommand());
 
@@ -24,6 +13,26 @@ namespace Torch.Server.ViewModels
             _sessionSettings = sessionSettings;
             _blockType = blockType;
             _limit = limit;
+        }
+
+        public string BlockType
+        {
+            get => _blockType;
+            set
+            {
+                _blockType = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public short Limit
+        {
+            get => _limit;
+            set
+            {
+                _limit = value;
+                OnPropertyChanged();
+            }
         }
 
         /* TODO: figure out how WPF commands work

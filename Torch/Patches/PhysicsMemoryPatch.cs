@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Havok;
@@ -19,12 +16,12 @@ namespace Torch.Patches
     [PatchShim]
     public static class PhysicsMemoryPatch
     {
+        public static bool NotifiedFailure { get; private set; }
+
         public static void Patch(PatchContext ctx)
         {
             ctx.GetPattern(typeof(MyPhysics).GetMethod("StepWorldsInternal", BindingFlags.NonPublic | BindingFlags.Instance)).Prefixes.Add(typeof(PhysicsMemoryPatch).GetMethod(nameof(PrefixPhysics)));
         }
-
-        public static bool NotifiedFailure { get; private set; }
 
         public static bool PrefixPhysics()
         {
@@ -40,13 +37,13 @@ namespace Torch.Patches
             MySession.Static.Save();
             //pause the game, for funsies
             MySandboxGame.IsPaused = true;
-            
+
             //nasty hack
             Task.Run(() =>
-                     {
-                         Thread.Sleep(TimeSpan.FromSeconds(30));
-                         TorchBase.Instance.Restart();
-                     });
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(30));
+                TorchBase.Instance.Restart();
+            });
 
             return false;
         }

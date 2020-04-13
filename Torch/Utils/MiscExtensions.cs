@@ -41,7 +41,7 @@ namespace Torch.Utils
             {
                 if (buffer.Length == streamPosition)
                     Array.Resize(ref buffer, Math.Max((int)stream.LengthSafe(), buffer.Length * 2));
-                int count = stream.Read(buffer, streamPosition, buffer.Length - streamPosition);
+                var count = stream.Read(buffer, streamPosition, buffer.Length - streamPosition);
                 if (count == 0)
                     break;
 

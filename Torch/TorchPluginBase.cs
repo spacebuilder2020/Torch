@@ -1,13 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using NLog;
 using Torch.API;
 using Torch.API.Plugins;
 
@@ -17,10 +8,10 @@ namespace Torch
     {
         public string StoragePath { get; internal set; }
         public PluginManifest Manifest { get; internal set; }
+        public ITorchBase Torch { get; internal set; }
         public Guid Id => Manifest.Guid;
         public string Version => Manifest.Version;
         public string Name => Manifest.Name;
-        public ITorchBase Torch { get; internal set; }
 
         public virtual void Init(ITorchBase torch)
         {

@@ -10,26 +10,24 @@ using Torch.API;
 using Torch.API.Managers;
 using Torch.API.Plugins;
 using Torch.Managers;
-using Torch.Utils;
-using VRage.Game;
-using VRage.Game.ModAPI;
-using VRage.Network;
 
 namespace Torch.Commands
 {
     public class CommandManager : Manager
     {
-        public char Prefix { get; set; }
-
-        public CommandTree Commands { get; set; } = new CommandTree();
-        private Logger _log = LogManager.GetCurrentClassLogger();
         [Dependency]
         private IChatManagerServer _chatManager;
+
+        private readonly Logger _log = LogManager.GetCurrentClassLogger();
 
         public CommandManager(ITorchBase torch, char prefix = '!') : base(torch)
         {
             Prefix = prefix;
         }
+
+        public char Prefix { get; set; }
+
+        public CommandTree Commands { get; set; } = new CommandTree();
 
         public override void Attach()
         {
@@ -85,9 +83,10 @@ namespace Torch.Commands
         public List<TorchChatMessage> HandleCommandFromServer(string message)
         {
             var cmdText = new string(message.Skip(1).ToArray());
-            var command = Commands.GetCommand(cmdText, out string argText);
+            var command = Commands.GetCommand(cmdText, out var argText);
             if (command == null)
                 return null;
+
             var cmdPath = string.Join(".", command.Path);
 
             var splitArgs = Regex.Matches(argText, "(\"[^\"]+\"|\\S+)").Cast<Match>().Select(x => x.ToString().Replace("\"", "")).ToList();
@@ -108,7 +107,6 @@ namespace Torch.Commands
 
         public void HandleCommand(string message, ulong steamId, ref bool consumed, bool serverConsole = false)
         {
-
             if (message.Length < 1 || message[0] != Prefix)
                 return;
 
@@ -122,7 +120,7 @@ namespace Torch.Commands
             }
 
             var cmdText = new string(message.Skip(1).ToArray());
-            var command = Commands.GetCommand(cmdText, out string argText);
+            var command = Commands.GetCommand(cmdText, out var argText);
 
             if (command != null)
             {

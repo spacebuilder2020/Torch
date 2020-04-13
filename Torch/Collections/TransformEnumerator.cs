@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Torch.Collections
 {
     /// <summary>
-    /// Enumerator that transforms from one enumeration into another.
+    ///     Enumerator that transforms from one enumeration into another.
     /// </summary>
     /// <typeparam name="TIn">Input type</typeparam>
     /// <typeparam name="TOut">Output type</typeparam>
-    public class TransformEnumerator<TIn,TOut> : IEnumerator<TOut>
+    public class TransformEnumerator<TIn, TOut> : IEnumerator<TOut>
     {
         private readonly IEnumerator<TIn> _input;
         private readonly Func<TIn, TOut> _transform;
 
         /// <summary>
-        /// Creates a new transform enumerator with the given transform function
+        ///     Creates a new transform enumerator with the given transform function
         /// </summary>
         /// <param name="input">Input to proxy enumerator</param>
         /// <param name="transform">Transform function</param>
@@ -28,28 +25,28 @@ namespace Torch.Collections
             _transform = transform;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void Dispose()
         {
             _input.Dispose();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public bool MoveNext()
         {
             return _input.MoveNext();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void Reset()
         {
             _input.Reset();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public TOut Current => _transform(_input.Current);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         object IEnumerator.Current => Current;
     }
 }

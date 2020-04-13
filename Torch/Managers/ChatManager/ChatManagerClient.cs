@@ -1,46 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 using NLog;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.ModAPI;
-using SteamKit2.Unified.Internal;
 using Torch.API;
 using Torch.API.Managers;
 using Torch.Utils;
 using VRage.Game;
 using VRageMath;
-using Color = VRageMath.Color;
+using Game = Sandbox.Engine.Platform.Game;
 
 namespace Torch.Managers.ChatManager
 {
     public class ChatManagerClient : Manager, IChatManagerClient
     {
+        private const string _hudChatMessageReceivedName = "Multiplayer_ChatMessageReceived";
+        private const string _hudChatScriptedMessageReceivedName = "multiplayer_ScriptedChatMessageReceived";
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
+
+        [ReflectedMethod(Name = _hudChatMessageReceivedName)]
+        private static Action<MyHudChat, ulong, string, ChatChannel, long, string> _hudChatMessageReceived;
+
+        [ReflectedMethod(Name = _hudChatScriptedMessageReceivedName)]
+        private static Action<MyHudChat, string, string, string, Color> _hudChatScriptedMessageReceived;
+
+        [ReflectedEventReplace(typeof(MyMultiplayerBase), nameof(MyMultiplayerBase.ChatMessageReceived), typeof(MyHudChat), _hudChatMessageReceivedName)]
+        private static Func<ReflectedEventReplacer> _chatMessageReceivedFactory;
+
+        [ReflectedEventReplace(typeof(MyMultiplayerBase), nameof(MyMultiplayerBase.ScriptedChatMessageReceived), typeof(MyHudChat), _hudChatScriptedMessageReceivedName)]
+        private static Func<ReflectedEventReplacer> _scriptedChatMessageReceivedFactory;
+
+        private ReflectedEventReplacer _chatMessageRecievedReplacer;
+        private ReflectedEventReplacer _scriptedChatMessageRecievedReplacer;
 
         /// <inheritdoc />
         public ChatManagerClient(ITorchBase torchInstance) : base(torchInstance) { }
+
+        protected static bool HasHud => !Game.IsDedicated;
 
         /// <inheritdoc />
         public event MessageRecievedDel MessageRecieved;
 
         /// <inheritdoc />
         public event MessageSendingDel MessageSending;
-        
+
         /// <inheritdoc />
         public void SendMessageAsSelf(string message)
         {
             if (MyMultiplayer.Static != null)
             {
-                if (Sandbox.Engine.Platform.Game.IsDedicated)
+                if (Game.IsDedicated)
                 {
                     var scripted = new ScriptedChatMsg()
                     {
@@ -48,7 +60,7 @@ namespace Torch.Managers.ChatManager
                         Text = message,
                         Target = 0
                     };
-                    
+
                     var color = Torch.Config.ChatColor;
                     if (StringUtils.IsFontEnum(color))
                         scripted.Font = color;
@@ -56,12 +68,13 @@ namespace Torch.Managers.ChatManager
                         scripted.Font = MyFontEnum.White;
 
                     scripted.Color = ColorUtils.TranslateColor(color);
-                    
+
                     MyMultiplayerBase.SendScriptedChatMessage(ref scripted);
                 }
                 else
                     throw new NotImplementedException("Chat system changes broke this");
-                    //MyMultiplayer.Static.SendChatMessage(message);
+
+                //MyMultiplayer.Static.SendChatMessage(message);
             }
             else if (HasHud)
                 MyHud.Chat.ShowMessage(MySession.Static.LocalHumanPlayer?.DisplayName ?? "Player", message);
@@ -74,7 +87,7 @@ namespace Torch.Managers.ChatManager
                 MyHud.Chat?.ShowMessage(author, message, font);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override void Attach()
         {
             base.Attach();
@@ -94,7 +107,7 @@ namespace Torch.Managers.ChatManager
             }
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override void Detach()
         {
             MyAPIUtilities.Static.MessageEntered -= OnMessageEntered;
@@ -107,7 +120,7 @@ namespace Torch.Managers.ChatManager
         }
 
         /// <summary>
-        /// Callback used to process offline messages.
+        ///     Callback used to process offline messages.
         /// </summary>
         /// <param name="msg"></param>
         /// <returns>true if the message was consumed</returns>
@@ -120,8 +133,9 @@ namespace Torch.Managers.ChatManager
         {
             if (!sendToOthers)
                 return;
+
             var torchMsg = new TorchChatMessage(MySession.Static.LocalHumanPlayer?.DisplayName ?? "Player", Sync.MyId, messageText, ChatChannel.Global, 0);
-            bool consumed = RaiseMessageRecieved(torchMsg);
+            var consumed = RaiseMessageRecieved(torchMsg);
             if (!consumed)
                 consumed = OfflineMessageProcessor(torchMsg);
             sendToOthers = !consumed;
@@ -131,16 +145,16 @@ namespace Torch.Managers.ChatManager
         {
             if (!sendToOthers)
                 return;
+
             var consumed = false;
             MessageSending?.Invoke(messageText, ref consumed);
             sendToOthers = !consumed;
         }
 
-
         private void Multiplayer_ChatMessageReceived(ulong steamUserId, string messageText, ChatChannel channel, long targetId, string customAuthorName)
         {
             var torchMsg = new TorchChatMessage(steamUserId, messageText, channel, targetId,
-                (steamUserId == MyGameService.UserId) ? MyFontEnum.DarkBlue : MyFontEnum.Blue);
+                steamUserId == MyGameService.UserId ? MyFontEnum.DarkBlue : MyFontEnum.Blue);
             if (!RaiseMessageRecieved(torchMsg) && HasHud)
                 _hudChatMessageReceived.Invoke(MyHud.Chat, steamUserId, messageText, channel, targetId, customAuthorName);
         }
@@ -158,23 +172,5 @@ namespace Torch.Managers.ChatManager
             MessageRecieved?.Invoke(msg, ref consumed);
             return consumed;
         }
-
-        private const string _hudChatMessageReceivedName = "Multiplayer_ChatMessageReceived";
-        private const string _hudChatScriptedMessageReceivedName = "multiplayer_ScriptedChatMessageReceived";
-        
-        protected static bool HasHud => !Sandbox.Engine.Platform.Game.IsDedicated;
-
-        [ReflectedMethod(Name = _hudChatMessageReceivedName)]
-        private static Action<MyHudChat, ulong, string, ChatChannel, long, string> _hudChatMessageReceived;
-        [ReflectedMethod(Name = _hudChatScriptedMessageReceivedName)]
-        private static Action<MyHudChat, string, string, string, Color> _hudChatScriptedMessageReceived;
-
-        [ReflectedEventReplace(typeof(MyMultiplayerBase), nameof(MyMultiplayerBase.ChatMessageReceived), typeof(MyHudChat), _hudChatMessageReceivedName)]
-        private static Func<ReflectedEventReplacer> _chatMessageReceivedFactory;
-        [ReflectedEventReplace(typeof(MyMultiplayerBase), nameof(MyMultiplayerBase.ScriptedChatMessageReceived), typeof(MyHudChat), _hudChatScriptedMessageReceivedName)]
-        private static Func<ReflectedEventReplacer> _scriptedChatMessageReceivedFactory;
-
-        private ReflectedEventReplacer _chatMessageRecievedReplacer;
-        private ReflectedEventReplacer _scriptedChatMessageRecievedReplacer;
     }
 }

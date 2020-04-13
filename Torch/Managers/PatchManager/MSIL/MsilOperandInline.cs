@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Torch.Managers.PatchManager.Transpile;
-using Torch.Utils;
 
 namespace Torch.Managers.PatchManager.MSIL
 {
@@ -15,9 +13,7 @@ namespace Torch.Managers.PatchManager.MSIL
     /// <typeparam name="T">The type of the inline value</typeparam>
     public abstract class MsilOperandInline<T> : MsilOperand
     {
-        internal MsilOperandInline(MsilInstruction instruction) : base(instruction)
-        {
-        }
+        internal MsilOperandInline(MsilInstruction instruction) : base(instruction) { }
 
         /// <summary>
         ///     Inline value
@@ -29,6 +25,7 @@ namespace Torch.Managers.PatchManager.MSIL
             var lt = operand as MsilOperandInline<T>;
             if (lt == null)
                 throw new ArgumentException($"Target {operand?.GetType().Name} must be of same type {GetType().Name}", nameof(operand));
+
             lt.Value = Value;
             ;
         }
@@ -50,9 +47,7 @@ namespace Torch.Managers.PatchManager.MSIL
         /// </summary>
         public class MsilOperandInt32 : MsilOperandInline<int>
         {
-            internal MsilOperandInt32(MsilInstruction instruction) : base(instruction)
-            {
-            }
+            internal MsilOperandInt32(MsilInstruction instruction) : base(instruction) { }
 
             public override int MaxBytes => Instruction.OpCode.OperandType == OperandType.InlineI ? 4 : 1;
 
@@ -87,7 +82,7 @@ namespace Torch.Managers.PatchManager.MSIL
                     default:
                         throw new InvalidBranchException(
                             $"OpCode {Instruction.OpCode}, operand type {Instruction.OpCode.OperandType} doesn't match {GetType().Name}");
-                }   
+                }
             }
         }
 
@@ -96,9 +91,7 @@ namespace Torch.Managers.PatchManager.MSIL
         /// </summary>
         public class MsilOperandSingle : MsilOperandInline<float>
         {
-            internal MsilOperandSingle(MsilInstruction instruction) : base(instruction)
-            {
-            }
+            internal MsilOperandSingle(MsilInstruction instruction) : base(instruction) { }
 
             public override int MaxBytes => 4;
 
@@ -136,9 +129,7 @@ namespace Torch.Managers.PatchManager.MSIL
         /// </summary>
         public class MsilOperandDouble : MsilOperandInline<double>
         {
-            internal MsilOperandDouble(MsilInstruction instruction) : base(instruction)
-            {
-            }
+            internal MsilOperandDouble(MsilInstruction instruction) : base(instruction) { }
 
             public override int MaxBytes => 8;
 
@@ -176,9 +167,7 @@ namespace Torch.Managers.PatchManager.MSIL
         /// </summary>
         public class MsilOperandInt64 : MsilOperandInline<long>
         {
-            internal MsilOperandInt64(MsilInstruction instruction) : base(instruction)
-            {
-            }
+            internal MsilOperandInt64(MsilInstruction instruction) : base(instruction) { }
 
             public override int MaxBytes => 8;
 
@@ -216,9 +205,7 @@ namespace Torch.Managers.PatchManager.MSIL
         /// </summary>
         public class MsilOperandString : MsilOperandInline<string>
         {
-            internal MsilOperandString(MsilInstruction instruction) : base(instruction)
-            {
-            }
+            internal MsilOperandString(MsilInstruction instruction) : base(instruction) { }
 
             public override int MaxBytes => 4;
 
@@ -256,9 +243,7 @@ namespace Torch.Managers.PatchManager.MSIL
         /// </summary>
         public class MsilOperandSignature : MsilOperandInline<SignatureHelper>
         {
-            internal MsilOperandSignature(MsilInstruction instruction) : base(instruction)
-            {
-            }
+            internal MsilOperandSignature(MsilInstruction instruction) : base(instruction) { }
 
             public override int MaxBytes => throw new NotImplementedException();
 
@@ -294,9 +279,7 @@ namespace Torch.Managers.PatchManager.MSIL
         /// </summary>
         public class MsilOperandArgument : MsilOperandInline<MsilArgument>
         {
-            internal MsilOperandArgument(MsilInstruction instruction) : base(instruction)
-            {
-            }
+            internal MsilOperandArgument(MsilInstruction instruction) : base(instruction) { }
 
             public override int MaxBytes => Instruction.OpCode.OperandType == OperandType.ShortInlineVar ? 1 : 2;
 
@@ -319,6 +302,7 @@ namespace Torch.Managers.PatchManager.MSIL
 
                 if (id == 0 && !context.Method.IsStatic)
                     throw new ArgumentException("Haven't figured out how to ldarg with the \"this\" argument");
+
                 // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                 if (context.Method == null)
                     Value = new MsilArgument(id);
@@ -332,7 +316,7 @@ namespace Torch.Managers.PatchManager.MSIL
                 switch (Instruction.OpCode.OperandType)
                 {
                     case OperandType.ShortInlineVar:
-                        generator.Emit(Instruction.OpCode, (byte) Value.Position);
+                        generator.Emit(Instruction.OpCode, (byte)Value.Position);
                         break;
                     case OperandType.InlineVar:
                         generator.Emit(Instruction.OpCode, (short)Value.Position);
@@ -349,9 +333,7 @@ namespace Torch.Managers.PatchManager.MSIL
         /// </summary>
         public class MsilOperandLocal : MsilOperandInline<MsilLocal>
         {
-            internal MsilOperandLocal(MsilInstruction instruction) : base(instruction)
-            {
-            }
+            internal MsilOperandLocal(MsilInstruction instruction) : base(instruction) { }
 
             public override int MaxBytes => 2;
 
@@ -371,6 +353,7 @@ namespace Torch.Managers.PatchManager.MSIL
                         throw new InvalidBranchException(
                             $"OpCode {Instruction.OpCode}, operand type {Instruction.OpCode.OperandType} doesn't match {GetType().Name}");
                 }
+
                 // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                 if (context.MethodBody == null)
                     Value = new MsilLocal(id);
@@ -402,10 +385,8 @@ namespace Torch.Managers.PatchManager.MSIL
         /// <typeparam name="TY">Actual member type</typeparam>
         public class MsilOperandReflected<TY> : MsilOperandInline<TY> where TY : class
         {
-            internal MsilOperandReflected(MsilInstruction instruction) : base(instruction)
-            {
-            }
-            
+            internal MsilOperandReflected(MsilInstruction instruction) : base(instruction) { }
+
             public override int MaxBytes => 4;
 
             internal override void Read(MethodContext context, BinaryReader reader)
@@ -429,6 +410,7 @@ namespace Torch.Managers.PatchManager.MSIL
                         throw new InvalidBranchException(
                             $"OpCode {Instruction.OpCode}, operand type {Instruction.OpCode.OperandType} doesn't match {GetType().Name}");
                 }
+
                 if (value is TY vty)
                     Value = vty;
                 else if (value == null)
@@ -439,7 +421,6 @@ namespace Torch.Managers.PatchManager.MSIL
 
             internal override void Emit(LoggingIlGenerator generator)
             {
-
                 switch (Instruction.OpCode.OperandType)
                 {
                     case OperandType.InlineTok:

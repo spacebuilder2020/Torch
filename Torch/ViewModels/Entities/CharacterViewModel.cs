@@ -1,10 +1,12 @@
 ﻿using Sandbox.Game.Entities.Character;
+using Sandbox.Game.World;
 
 namespace Torch.Server.ViewModels.Entities
 {
     public class CharacterViewModel : EntityViewModel
     {
-        private MyCharacter _character;
+        private readonly MyCharacter _character;
+
         public CharacterViewModel(MyCharacter character, EntityTreeViewModel tree) : base(character, tree)
         {
             _character = character;
@@ -12,16 +14,14 @@ namespace Torch.Server.ViewModels.Entities
             character.ControllerInfo.ControlReleased += ControllerInfo_ControlAcquired;
         }
 
-        private void ControllerInfo_ControlAcquired(Sandbox.Game.World.MyEntityController obj)
+        public CharacterViewModel() { }
+
+        public override bool CanDelete => _character.ControllerInfo?.Controller?.Player == null;
+
+        private void ControllerInfo_ControlAcquired(MyEntityController obj)
         {
             OnPropertyChanged(nameof(Name));
             OnPropertyChanged(nameof(CanDelete));
         }
-
-        public CharacterViewModel()
-        {
-        }
-
-        public override bool CanDelete => _character.ControllerInfo?.Controller?.Player == null;
     }
 }

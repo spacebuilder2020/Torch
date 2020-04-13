@@ -10,18 +10,17 @@ namespace Torch.Managers.PatchManager.MSIL
     /// </summary>
     public class MsilOperandBrTarget : MsilOperand
     {
-        internal MsilOperandBrTarget(MsilInstruction instruction) : base(instruction)
-        {
-        }
+        internal MsilOperandBrTarget(MsilInstruction instruction) : base(instruction) { }
 
         /// <summary>
         ///     Branch target
         /// </summary>
         public MsilLabel Target { get; set; }
 
+        public override int MaxBytes => 4; // Long branch
+
         internal override void Read(MethodContext context, BinaryReader reader)
         {
-
             long offset;
 
             // ReSharper disable once SwitchStatementMissingSomeCases
@@ -54,16 +53,14 @@ namespace Torch.Managers.PatchManager.MSIL
                     throw new InvalidBranchException(
                         $"OpCode {Instruction.OpCode}, operand type {Instruction.OpCode.OperandType} doesn't match {GetType().Name}");
             }
-
         }
-
-        public override int MaxBytes => 4; // Long branch
 
         internal override void CopyTo(MsilOperand operand)
         {
             var lt = operand as MsilOperandBrTarget;
             if (lt == null)
                 throw new ArgumentException($"Target {operand?.GetType().Name} must be of same type {GetType().Name}", nameof(operand));
+
             lt.Target = Target;
         }
 

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using NLog;
-using Torch.API;
 using Torch.API.Plugins;
 using Torch.Commands.Permissions;
 using VRage.Game;
@@ -17,20 +16,11 @@ namespace Torch.Commands
     {
         public delegate void CommandAction(CommandContext context, object[] arguments);
 
-        public MyPromoteLevel MinimumPromoteLevel { get; }
-        public string Name { get; }
-        public string Description { get; }
-        public string HelpText { get; }
-        public CommandAction Action { get; }
-        public Type Module { get; }
-        public List<string> Path { get; } = new List<string>();
-        public ITorchPlugin Plugin { get; }
-        public string SyntaxHelp { get; }
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly MethodInfo _method;
-        private ParameterInfo[] _parameters;
-        private int? _requiredParamCount;
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly ParameterInfo[] _parameters;
+        private readonly int? _requiredParamCount;
 
         public Command(string name, string description, CommandAction action, ITorchPlugin plugin, MyPromoteLevel? minimumPromoteLevel = null, string helpText = null, int requiredParamCount = 0)
         {
@@ -77,6 +67,7 @@ namespace Torch.Commands
             {
                 Path.AddRange(moduleAttribute.Path);
             }
+
             Path.AddRange(commandAttribute.Path);
 
             Name = commandAttribute.Name;
@@ -109,6 +100,16 @@ namespace Torch.Commands
             SyntaxHelp = sb.ToString();
         }
 
+        public MyPromoteLevel MinimumPromoteLevel { get; }
+        public string Name { get; }
+        public string Description { get; }
+        public string HelpText { get; }
+        public CommandAction Action { get; }
+        public Type Module { get; }
+        public List<string> Path { get; } = new List<string>();
+        public ITorchPlugin Plugin { get; }
+        public string SyntaxHelp { get; }
+
         public bool TryInvoke(CommandContext context)
         {
             try
@@ -126,7 +127,7 @@ namespace Torch.Commands
                     //Convert args from string
                     for (var i = 0; i < _parameters.Length && i < context.Args.Count; i++)
                     {
-                        if (context.Args[i].TryConvert(_parameters[i].ParameterType, out object obj))
+                        if (context.Args[i].TryConvert(_parameters[i].ParameterType, out var obj))
                             parameters[i] = obj;
                         else
                             return false;
@@ -143,7 +144,8 @@ namespace Torch.Commands
                     moduleInstance.Context = context;
                     _method.Invoke(moduleInstance, parameters);
                     return true;
-                } else
+                }
+                else
                 {
                     parameters = new object[context.Args.Count];
 
@@ -196,7 +198,6 @@ namespace Torch.Commands
                 val = default(T);
                 return false;
             }
-
         }
     }
 }

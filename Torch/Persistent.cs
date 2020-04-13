@@ -1,26 +1,32 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 using NLog;
 
 namespace Torch
 {
     /// <summary>
-    /// Simple class that manages saving <see cref="Persistent{T}.Data"/> to disk using XML serialization.
-    /// Can automatically save on changes by implementing <see cref="INotifyPropertyChanged"/> in the data class.
+    ///     Simple class that manages saving <see cref="Persistent{T}.Data" /> to disk using XML serialization.
+    ///     Can automatically save on changes by implementing <see cref="INotifyPropertyChanged" /> in the data class.
     /// </summary>
     /// <typeparam name="T">Data class type</typeparam>
     public sealed class Persistent<T> : IDisposable where T : new()
     {
-        private static Logger _log = LogManager.GetCurrentClassLogger();
-        public string Path { get; set; }
+        private static readonly Logger _log = LogManager.GetCurrentClassLogger();
         private T _data;
+
+        private Timer _saveConfigTimer;
+
+        public Persistent(string path, T data = default(T))
+        {
+            Path = path;
+            Data = data;
+        }
+
+        public string Path { get; set; }
+
         public T Data
         {
             get => _data;
@@ -34,18 +40,25 @@ namespace Torch
             }
         }
 
+        public void Dispose()
+        {
+            try
+            {
+                if (Data is INotifyPropertyChanged npc)
+                    npc.PropertyChanged -= OnPropertyChanged;
+                _saveConfigTimer?.Dispose();
+                Save();
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
         ~Persistent()
         {
             Dispose();
         }
-
-        public Persistent(string path, T data = default(T))
-        {
-            Path = path;
-            Data = data;
-        }
-        
-        private Timer _saveConfigTimer;
 
         private void SaveAsync()
         {
@@ -94,6 +107,7 @@ namespace Torch
                     config = null;
                 }
             }
+
             if (config == null)
                 config = new Persistent<T>(path, new T());
             if (!File.Exists(path) && saveIfNew)
@@ -101,21 +115,5 @@ namespace Torch
 
             return config;
         }
-
-        public void Dispose()
-        {
-            try
-            {
-                if (Data is INotifyPropertyChanged npc)
-                    npc.PropertyChanged -= OnPropertyChanged;
-                _saveConfigTimer?.Dispose();
-                Save();
-            }
-            catch
-            {
-                // ignored
-            }
-        }
     }
-
 }

@@ -16,16 +16,14 @@ using VRage.Game.ModAPI;
 namespace Torch.Server.Views
 {
     /// <summary>
-    /// Interaction logic for ConfigControl.xaml
+    ///     Interaction logic for ConfigControl.xaml
     /// </summary>
     public partial class ConfigControl : UserControl, INotifyPropertyChanged
     {
-        private InstanceManager _instanceManager;
+        private readonly List<BindingExpression> _bindingExpressions = new List<BindingExpression>();
 
         private bool _configValid;
-        public bool ConfigValid { get => _configValid; private set { _configValid = value; OnPropertyChanged(); } }
-
-        private List<BindingExpression> _bindingExpressions = new List<BindingExpression>();
+        private readonly InstanceManager _instanceManager;
 
         public ConfigControl()
         {
@@ -37,6 +35,18 @@ namespace Torch.Server.Views
             // Gets called once all children are loaded
             Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(ApplyStyles));
         }
+
+        public bool ConfigValid
+        {
+            get => _configValid;
+            private set
+            {
+                _configValid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private void CheckValid()
         {
@@ -109,8 +119,6 @@ namespace Torch.Server.Views
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -119,7 +127,7 @@ namespace Torch.Server.Views
 
         private void NewWorld_OnClick(object sender, RoutedEventArgs e)
         {
-            var c  = new WorldGeneratorDialog(_instanceManager);
+            var c = new WorldGeneratorDialog(_instanceManager);
             c.Show();
         }
 
@@ -135,7 +143,7 @@ namespace Torch.Server.Views
                 MessageBox.Show("A world is not selected.");
                 return;
             }
-            
+
             d.Edit(w.Checkpoint.PromotedUsers.Dictionary);
             _instanceManager.DedicatedConfig.Administrators = w.Checkpoint.PromotedUsers.Dictionary.Where(k => k.Value >= MyPromoteLevel.Admin).Select(k => k.Key.ToString()).ToList();
         }

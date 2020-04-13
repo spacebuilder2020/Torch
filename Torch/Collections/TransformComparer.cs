@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Torch.Collections
 {
     /// <summary>
-    /// Comparer that uses a delegate to select the key to compare on.
+    ///     Comparer that uses a delegate to select the key to compare on.
     /// </summary>
     /// <typeparam name="TIn">Input to this comparer</typeparam>
     /// <typeparam name="TCompare">Type of comparison key</typeparam>
@@ -17,7 +14,7 @@ namespace Torch.Collections
         private readonly Func<TIn, TCompare> _selector;
 
         /// <summary>
-        /// Creates a new transforming comparer that uses the given key selector, and the given key comparer.
+        ///     Creates a new transforming comparer that uses the given key selector, and the given key comparer.
         /// </summary>
         /// <param name="transform">Key selector</param>
         /// <param name="comparer">Key comparer</param>
@@ -27,7 +24,7 @@ namespace Torch.Collections
             _comparer = comparer ?? Comparer<TCompare>.Default;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public int Compare(TIn x, TIn y)
         {
             return _comparer.Compare(_selector(x), _selector(y));

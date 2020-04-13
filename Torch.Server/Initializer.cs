@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -8,42 +7,38 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 using NLog;
-using NLog.Targets;
 using Sandbox.Engine.Utils;
-using Torch.Utils;
 using VRage.FileSystem;
 
 namespace Torch.Server
 {
     public class Initializer
     {
-        private static readonly Logger Log = LogManager.GetLogger(nameof(Initializer));
-        private bool _init;
         private const string STEAMCMD_DIR = "steamcmd";
         private const string STEAMCMD_ZIP = "temp.zip";
-        private static readonly string STEAMCMD_PATH = $"{STEAMCMD_DIR}\\steamcmd.exe";
-        private static readonly string RUNSCRIPT_PATH = $"{STEAMCMD_DIR}\\runscript.txt";
 
         private const string RUNSCRIPT = @"force_install_dir ../
 login anonymous
 app_update 298740
 quit";
 
-        private TorchConfig _config;
-        private TorchServer _server;
+        private static readonly Logger Log = LogManager.GetLogger(nameof(Initializer));
+        private static readonly string STEAMCMD_PATH = $"{STEAMCMD_DIR}\\steamcmd.exe";
+        private static readonly string RUNSCRIPT_PATH = $"{STEAMCMD_DIR}\\runscript.txt";
         private string _basePath;
 
-        public TorchConfig Config => _config;
-        public TorchServer Server => _server;
+        private bool _init;
 
         public Initializer(string basePath)
         {
             _basePath = basePath;
         }
+
+        public TorchConfig Config { get; private set; }
+
+        public TorchServer Server { get; private set; }
 
         public bool Initialize(string[] args)
         {
@@ -80,29 +75,29 @@ quit";
                 File.Delete(apiTarget);
                 File.Copy(apiSource, apiTarget);
             }
-            
+
             var havokSource = Path.Combine(basePath, "DedicatedServer64", "Havok.dll");
             var havokTarget = Path.Combine(basePath, "Havok.dll");
 
             if (!File.Exists(havokTarget))
             {
-                File.Copy(havokSource, havokTarget);   
+                File.Copy(havokSource, havokTarget);
             }
             else if (File.GetLastWriteTime(havokTarget) < File.GetLastWriteTime(havokSource))
-            {   
+            {
                 File.Delete(havokTarget);
                 File.Copy(havokSource, havokTarget);
             }
 
-            _config = InitConfig();
-            if (!_config.Parse(args))
+            Config = InitConfig();
+            if (!Config.Parse(args))
                 return false;
 
-            if (!string.IsNullOrEmpty(_config.WaitForPID))
+            if (!string.IsNullOrEmpty(Config.WaitForPID))
             {
                 try
                 {
-                    var pid = int.Parse(_config.WaitForPID);
+                    var pid = int.Parse(Config.WaitForPID);
                     var waitProc = Process.GetProcessById(pid);
                     Log.Info("Continuing in 5 seconds.");
                     Log.Warn($"Waiting for process {pid} to close");
@@ -124,34 +119,34 @@ quit";
 
         public void Run()
         {
-            _server = new TorchServer(_config);
+            Server = new TorchServer(Config);
 
-            if (_config.NoGui)
+            if (Config.NoGui)
             {
-                _server.Init();
-                _server.Start();
+                Server.Init();
+                Server.Start();
             }
             else
             {
 #if !DEBUG
-                if (!_config.IndependentConsole)
+                if (!Config.IndependentConsole)
                 {
                     Console.SetOut(TextWriter.Null);
                     NativeMethods.FreeConsole();
                 }
 #endif
-                
+
                 var gameThread = new Thread(() =>
                 {
-                    _server.Init();
-                    
-                    if (_config.Autostart)
-                        _server.Start();
+                    Server.Init();
+
+                    if (Config.Autostart)
+                        Server.Start();
                 });
-                
+
                 gameThread.Start();
-                
-                var ui = new TorchUI(_server);
+
+                var ui = new TorchUI(Server);
                 ui.ShowDialog();
             }
         }
@@ -215,7 +210,7 @@ quit";
                 StandardOutputEncoding = Encoding.ASCII
             };
             var cmd = Process.Start(steamCmdProc);
-            
+
             // ReSharper disable once PossibleNullReferenceException
             while (!cmd.HasExited)
             {
@@ -233,9 +228,9 @@ quit";
 
                 return;
             }
-            
+
             Log.Fatal(ex);
-            
+
             if (ex is ReflectionTypeLoadException extl)
             {
                 foreach (var exl in extl.LoaderExceptions)
@@ -243,7 +238,7 @@ quit";
 
                 return;
             }
-            
+
             if (ex.InnerException != null)
             {
                 LogException(ex.InnerException);
@@ -252,25 +247,26 @@ quit";
 
         private void HandleException(object sender, UnhandledExceptionEventArgs e)
         {
-            _server.FatalException = true;
+            Server.FatalException = true;
             var ex = (Exception)e.ExceptionObject;
             LogException(ex);
             if (MyFakes.ENABLE_MINIDUMP_SENDING)
             {
-                string path = Path.Combine(MyFileSystem.UserDataPath, "Minidump.dmp");
+                var path = Path.Combine(MyFileSystem.UserDataPath, "Minidump.dmp");
                 Log.Info($"Generating minidump at {path}");
                 Log.Error("Keen broke the minidump, sorry.");
                 //MyMiniDump.Options options = MyMiniDump.Options.WithProcessThreadData | MyMiniDump.Options.WithThreadInfo;
                 //MyMiniDump.Write(path, options, MyMiniDump.ExceptionInfo.Present);
             }
+
             LogManager.Flush();
-            if (_config.RestartOnCrash)
+            if (Config.RestartOnCrash)
             {
                 Console.WriteLine("Restarting in 5 seconds.");
                 Thread.Sleep(5000);
                 var exe = typeof(Program).Assembly.Location;
-                _config.WaitForPID = Process.GetCurrentProcess().Id.ToString();
-                Process.Start(exe, _config.ToString());
+                Config.WaitForPID = Process.GetCurrentProcess().Id.ToString();
+                Process.Start(exe, Config.ToString());
             }
             else
             {

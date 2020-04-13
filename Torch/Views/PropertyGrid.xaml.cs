@@ -1,48 +1,35 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using NLog;
-using NLog.Fluent;
-using VRage.Game;
 using VRage.Serialization;
 
 namespace Torch.Views
 {
     /// <summary>
-    /// Interaction logic for PropertyGrid.xaml
+    ///     Interaction logic for PropertyGrid.xaml
     /// </summary>
     public partial class PropertyGrid : UserControl
     {
-        private Dictionary<Type, Grid> _viewCache = new Dictionary<Type, Grid>();
-
         public static readonly DependencyProperty IgnoreDisplayProperty = DependencyProperty.Register("IgnoreDisplay", typeof(bool), typeof(PropertyGrid));
 
-        public bool IgnoreDisplay
-        {
-            get => (bool)base.GetValue(IgnoreDisplayProperty);
-            set => base.SetValue(IgnoreDisplayProperty, value);
-        }
+        private int _lastActiveRow;
+        private readonly Dictionary<Type, Grid> _viewCache = new Dictionary<Type, Grid>();
 
         public PropertyGrid()
         {
             InitializeComponent();
             DataContextChanged += OnDataContextChanged;
         }
+
+        public bool IgnoreDisplay { get => (bool)GetValue(IgnoreDisplayProperty); set => SetValue(IgnoreDisplayProperty, value); }
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -68,8 +55,8 @@ namespace Torch.Views
 
             var grid = new Grid();
             grid.MouseMove += Grid_MouseMove;
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition {Width = new GridLength(1, GridUnitType.Auto)});
+            grid.ColumnDefinitions.Add(new ColumnDefinition {Width = new GridLength(2, GridUnitType.Star)});
 
             var categories = new Dictionary<string, List<PropertyInfo>>();
             var descriptors = new Dictionary<PropertyInfo, DisplayAttribute>(properties.Length);
@@ -83,14 +70,16 @@ namespace Torch.Views
                     a = property.GetCustomAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
                 if (a?.Visible == false)
                     continue;
-                descriptors[property] = a;
-                string category = a?.GroupName ?? "Misc";
 
-                if (!categories.TryGetValue(category, out List<PropertyInfo> l))
+                descriptors[property] = a;
+                var category = a?.GroupName ?? "Misc";
+
+                if (!categories.TryGetValue(category, out var l))
                 {
                     l = new List<PropertyInfo>();
                     categories[category] = l;
                 }
+
                 l.Add(property);
             }
 
@@ -99,10 +88,10 @@ namespace Torch.Views
             {
                 grid.RowDefinitions.Add(new RowDefinition());
                 var cl = new TextBlock
-                         {
-                             Text = c.Key,
-                             VerticalAlignment = VerticalAlignment.Center
-                         };
+                {
+                    Text = c.Key,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
                 cl.SetValue(Grid.ColumnProperty, 0);
                 cl.SetValue(Grid.ColumnSpanProperty, 2);
                 cl.SetValue(Grid.RowProperty, curRow);
@@ -112,12 +101,13 @@ namespace Torch.Views
                 curRow++;
 
                 c.Value.Sort((a, b) =>
-                             {
-                                 var c1 = descriptors[a]?.Order.CompareTo(descriptors[b]?.Order);
-                                 if (c1.HasValue && c1.Value != 0)
-                                     return c1.Value;
-                                 return string.Compare((descriptors[a]?.Name ?? a.Name), descriptors[b]?.Name ?? b.Name, StringComparison.Ordinal);
-                             });
+                {
+                    var c1 = descriptors[a]?.Order.CompareTo(descriptors[b]?.Order);
+                    if (c1.HasValue && c1.Value != 0)
+                        return c1.Value;
+
+                    return string.Compare(descriptors[a]?.Name ?? a.Name, descriptors[b]?.Name ?? b.Name, StringComparison.Ordinal);
+                });
 
                 foreach (var property in c.Value)
                 {
@@ -132,11 +122,11 @@ namespace Torch.Views
                     var propertyType = property.PropertyType;
 
                     var text = new TextBlock
-                               {
-                                   Text = displayName ?? property.Name,
-                                   ToolTip = descriptor?.ToolTip ?? displayName,
-                                   VerticalAlignment = VerticalAlignment.Center
-                               };
+                    {
+                        Text = displayName ?? property.Name,
+                        ToolTip = descriptor?.ToolTip ?? displayName,
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
                     text.SetValue(Grid.ColumnProperty, 0);
                     text.SetValue(Grid.RowProperty, curRow);
                     text.Margin = new Thickness(3);
@@ -149,21 +139,21 @@ namespace Torch.Views
                     if (descriptor?.EditorType != null)
                     {
                         valueControl = (FrameworkElement)Activator.CreateInstance(descriptor.EditorType);
-                        valueControl.SetBinding(FrameworkElement.DataContextProperty, property.Name);
+                        valueControl.SetBinding(DataContextProperty, property.Name);
                     }
-                    else if (property.GetSetMethod() == null && !(propertyType.IsGenericType && typeof(ICollection).IsAssignableFrom(propertyType.GetGenericTypeDefinition()))|| descriptor?.ReadOnly == true)
+                    else if (property.GetSetMethod() == null && !(propertyType.IsGenericType && typeof(ICollection).IsAssignableFrom(propertyType.GetGenericTypeDefinition())) || descriptor?.ReadOnly == true)
                     {
                         valueControl = new TextBlock();
                         var binding = new Binding(property.Name)
-                                      {
-                                          Mode = BindingMode.OneWay
-                                      };
+                        {
+                            Mode = BindingMode.OneWay
+                        };
                         valueControl.SetBinding(TextBlock.TextProperty, binding);
                     }
                     else if (propertyType == typeof(bool) || propertyType == typeof(bool?))
                     {
                         valueControl = new CheckBox();
-                        valueControl.SetBinding(CheckBox.IsCheckedProperty, property.Name);
+                        valueControl.SetBinding(ToggleButton.IsCheckedProperty, property.Name);
                     }
                     else if (propertyType.IsEnum)
                     {
@@ -175,7 +165,7 @@ namespace Torch.Views
                             {
                                 Content = "Edit Flags"
                             };
-                            button.SetBinding(Button.DataContextProperty, property.Name);
+                            button.SetBinding(DataContextProperty, property.Name);
                             button.Click += EditFlags;
 
                             valueControl = button;
@@ -186,16 +176,16 @@ namespace Torch.Views
                             {
                                 ItemsSource = Enum.GetValues(property.PropertyType)
                             };
-                            valueControl.SetBinding(ComboBox.SelectedItemProperty, property.Name);
+                            valueControl.SetBinding(Selector.SelectedItemProperty, property.Name);
                         }
                     }
                     else if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                     {
                         var button = new Button
-                                     {
-                                         Content = "Edit Collection"
-                                     };
-                        button.SetBinding(Button.DataContextProperty, property.Name);
+                        {
+                            Content = "Edit Collection"
+                        };
+                        button.SetBinding(DataContextProperty, property.Name);
                         button.Click += (sender, args) => EditDictionary(((Button)sender).DataContext);
 
                         valueControl = button;
@@ -203,10 +193,10 @@ namespace Torch.Views
                     else if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
                     {
                         var button = new Button
-                                     {
-                                         Content = "Edit Collection"
-                                     };
-                        button.SetBinding(Button.DataContextProperty, $"{property.Name}.Dictionary");
+                        {
+                            Content = "Edit Collection"
+                        };
+                        button.SetBinding(DataContextProperty, $"{property.Name}.Dictionary");
                         button.Click += (sender, args) => EditDictionary(((Button)sender).DataContext);
 
                         valueControl = button;
@@ -214,10 +204,10 @@ namespace Torch.Views
                     else if (propertyType.IsGenericType && typeof(ICollection).IsAssignableFrom(propertyType.GetGenericTypeDefinition()))
                     {
                         var button = new Button
-                                     {
-                                         Content = "Edit Collection"
-                                     };
-                        button.SetBinding(Button.DataContextProperty, property.Name);
+                        {
+                            Content = "Edit Collection"
+                        };
+                        button.SetBinding(DataContextProperty, property.Name);
 
                         var gt = propertyType.GetGenericArguments()[0];
 
@@ -239,7 +229,7 @@ namespace Torch.Views
                     }
                     else if (propertyType == typeof(string))
                     {
-                        var tb  = new TextBox();
+                        var tb = new TextBox();
                         tb.TextWrapping = TextWrapping.Wrap;
                         tb.AcceptsReturn = true;
                         tb.AcceptsTab = true;
@@ -250,10 +240,10 @@ namespace Torch.Views
                     else
                     {
                         var button = new Button
-                                     {
-                                         Content = "Edit Object"
-                                     };
-                        button.SetBinding(Button.DataContextProperty, property.Name);
+                        {
+                            Content = "Edit Object"
+                        };
+                        button.SetBinding(DataContextProperty, property.Name);
                         button.Click += (sender, args) => EditObject(((Button)sender).DataContext);
                         valueControl = button;
                     }
@@ -274,14 +264,13 @@ namespace Torch.Views
             return grid;
         }
 
-        private int _lastActiveRow;
         private void Grid_MouseMove(object sender, MouseEventArgs e)
         {
             var grid = (Grid)sender;
             var mousePoint = e.GetPosition(grid);
             var heightSum = grid.RowDefinitions[0].ActualHeight;
             var activeRow = 0;
-            
+
             while (heightSum < mousePoint.Y && activeRow < grid.RowDefinitions.Count)
             {
                 heightSum += grid.RowDefinitions[activeRow].ActualHeight;
@@ -293,7 +282,7 @@ namespace Torch.Views
 
             _lastActiveRow = activeRow;
             var tag = (Tuple<string, string>)grid.RowDefinitions[activeRow].Tag;
-            
+
             TbDescription.Inlines.Clear();
             TbDescription.Inlines.Add(new Run(tag?.Item1 ?? "?") {FontWeight = FontWeights.Bold});
             TbDescription.Inlines.Add(new Run($"{Environment.NewLine}{tag?.Item2 ?? "No description."}"));
@@ -305,20 +294,20 @@ namespace Torch.Views
             var obj = DataContext;
             var propName = btn.GetBindingExpression(DataContextProperty).ParentBinding.Path.Path;
             var propInfo = DataContext.GetType().GetProperty(propName);
-            
+
             new FlagsEditorDialog
             {
-                WindowStartupLocation = WindowStartupLocation.CenterOwner, 
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = Window.GetWindow(this)
             }.EditEnum(propInfo, obj);
         }
-        
+
         private void EditDictionary(object dict)
         {
             var dic = (IDictionary)dict;
             new DictionaryEditorDialog
             {
-                WindowStartupLocation = WindowStartupLocation.CenterOwner, 
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = Window.GetWindow(this)
             }.Edit(dic);
         }
@@ -328,7 +317,7 @@ namespace Torch.Views
             var c = (ICollection)collection;
             new CollectionEditor
             {
-                WindowStartupLocation = WindowStartupLocation.CenterOwner, 
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = Window.GetWindow(this)
             }.Edit(c, title);
         }
@@ -338,7 +327,7 @@ namespace Torch.Views
             var c = (ICollection)collection;
             new ObjectCollectionEditor
             {
-                WindowStartupLocation = WindowStartupLocation.CenterOwner, 
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = Window.GetWindow(this)
             }.Edit(c, title);
         }
@@ -347,7 +336,7 @@ namespace Torch.Views
         {
             new ObjectEditor
             {
-                WindowStartupLocation = WindowStartupLocation.CenterOwner, 
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = Window.GetWindow(this)
             }.Edit(o, title);
         }
@@ -358,6 +347,7 @@ namespace Torch.Views
             var grid = (Grid)ScrollViewer.Content;
             if (grid == null)
                 return;
+
             foreach (var child in grid.Children)
             {
                 if (!(child is TextBlock block))

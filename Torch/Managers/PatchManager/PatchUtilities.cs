@@ -4,9 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using NLog;
 using Torch.Managers.PatchManager.MSIL;
 using Torch.Managers.PatchManager.Transpile;
 using Torch.Utils;
@@ -14,12 +11,14 @@ using Torch.Utils;
 namespace Torch.Managers.PatchManager
 {
     /// <summary>
-    /// Functions that let you read and write MSIL to methods directly.
+    ///     Functions that let you read and write MSIL to methods directly.
     /// </summary>
     public class PatchUtilities
     {
+        public delegate void DelPrintIntegrityInfo(bool error, string msg);
+
         /// <summary>
-        /// Gets the content of a method as an instruction stream
+        ///     Gets the content of a method as an instruction stream
         /// </summary>
         /// <param name="method">Method to examine</param>
         /// <returns>instruction stream</returns>
@@ -31,7 +30,7 @@ namespace Torch.Managers.PatchManager
         }
 
         /// <summary>
-        /// Writes the given instruction stream to the given IL generator, fixing short branch instructions.
+        ///     Writes the given instruction stream to the given IL generator, fixing short branch instructions.
         /// </summary>
         /// <param name="insn">Instruction stream</param>
         /// <param name="generator">Output</param>
@@ -40,16 +39,26 @@ namespace Torch.Managers.PatchManager
             MethodTranspiler.EmitMethod(insn.ToList(), generator);
         }
 
-        public delegate void DelPrintIntegrityInfo(bool error, string msg);
-
         /// <summary>
-        /// Analyzes the integrity of a set of instructions.
+        ///     Analyzes the integrity of a set of instructions.
         /// </summary>
         /// <param name="handler">Logger</param>
         /// <param name="instructions">instructions</param>
         public static void IntegrityAnalysis(DelPrintIntegrityInfo handler, IReadOnlyList<MsilInstruction> instructions)
         {
             MethodTranspiler.IntegrityAnalysis(handler, instructions);
+        }
+
+        /// <summary>
+        ///     Forces the given dynamic method to be compiled
+        /// </summary>
+        /// <param name="method"></param>
+        public static void Compile(DynamicMethod method)
+        {
+            // Force it to compile
+            var handle = _getMethodHandle.Invoke(method);
+            var runtimeMethodInfo = _getMethodInfo.Invoke(handle);
+            _compileDynamicMethod.Invoke(runtimeMethodInfo);
         }
 
 #pragma warning disable 649
@@ -62,16 +71,5 @@ namespace Torch.Managers.PatchManager
         [ReflectedMethod(Name = "GetMethodDescriptor")]
         private static Func<DynamicMethod, RuntimeMethodHandle> _getMethodHandle;
 #pragma warning restore 649
-        /// <summary>
-        /// Forces the given dynamic method to be compiled
-        /// </summary>
-        /// <param name="method"></param>
-        public static void Compile(DynamicMethod method)
-        {
-            // Force it to compile
-            RuntimeMethodHandle handle = _getMethodHandle.Invoke(method);
-            object runtimeMethodInfo = _getMethodInfo.Invoke(handle);
-            _compileDynamicMethod.Invoke(runtimeMethodInfo);
-        }
     }
 }

@@ -3,24 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using VRage.Game;
 
 namespace Torch.Utils
 {
     /// <summary>
-    /// Utility methods for strings
+    ///     Utility methods for strings
     /// </summary>
     public static class StringUtils
     {
+        private static string[] _fontEnumValues;
+
+        private static string[] FontEnumValues => _fontEnumValues ?? (_fontEnumValues = typeof(MyFontEnum).GetFields(BindingFlags.Public | BindingFlags.Static).Where(x => x.IsLiteral && !x.IsInitOnly).Select(x => (string)x.GetValue(null)).ToArray());
+
         /// <summary>
-        /// Determines a common prefix for the given set of strings
+        ///     Determines a common prefix for the given set of strings
         /// </summary>
         /// <param name="set">Set of strings</param>
         /// <returns>Common prefix</returns>
         public static string CommonPrefix(IEnumerable<string> set)
         {
             StringBuilder builder = null;
-            foreach (string other in set)
+            foreach (var other in set)
             {
                 if (builder == null)
                     builder = new StringBuilder(other);
@@ -33,18 +37,19 @@ namespace Torch.Utils
                         break;
                     }
             }
+
             return builder?.ToString() ?? "";
         }
 
         /// <summary>
-        /// Determines a common suffix for the given set of strings
+        ///     Determines a common suffix for the given set of strings
         /// </summary>
         /// <param name="set">Set of strings</param>
         /// <returns>Common suffix</returns>
         public static string CommonSuffix(IEnumerable<string> set)
         {
             StringBuilder builder = null;
-            foreach (string other in set)
+            foreach (var other in set)
             {
                 if (builder == null)
                     builder = new StringBuilder(other);
@@ -59,12 +64,10 @@ namespace Torch.Utils
                     }
                 }
             }
+
             return builder?.ToString() ?? "";
         }
 
-        private static string[] FontEnumValues => _fontEnumValues ?? (_fontEnumValues = typeof(VRage.Game.MyFontEnum).GetFields(BindingFlags.Public | BindingFlags.Static).Where(x => x.IsLiteral && !x.IsInitOnly).Select(x => (string)x.GetValue(null)).ToArray());
-
-        private static string[] _fontEnumValues;
         public static bool IsFontEnum(string str)
         {
             return FontEnumValues.Contains(str);

@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Torch.Mod.Messages
 {
     /// <summary>
-    /// shim to store incoming message data
+    ///     shim to store incoming message data
     /// </summary>
     internal class IncomingMessage : MessageBase
     {
-        public IncomingMessage()
-        {
-        }
+        public IncomingMessage() { }
 
         public override void ProcessClient()
         {

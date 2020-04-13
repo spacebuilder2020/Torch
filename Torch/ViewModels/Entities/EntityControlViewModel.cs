@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Torch.Server.ViewModels.Entities
 {
@@ -12,16 +7,10 @@ namespace Torch.Server.ViewModels.Entities
         internal const string SignalPropertyInvalidateControl =
             "InvalidateControl-4124a476-704f-4762-8b5e-336a18e2f7e5";
 
-        internal void InvalidateControl()
-        {
-            // ReSharper disable once ExplicitCallerInfoArgument
-            OnPropertyChanged(SignalPropertyInvalidateControl);
-        }
-
         private bool _hide;
 
         /// <summary>
-        /// Should this element be forced into the <see cref="Visibility.Collapsed"/>
+        ///     Should this element be forced into the <see cref="Visibility.Collapsed" />
         /// </summary>
         public bool Hide
         {
@@ -30,9 +19,16 @@ namespace Torch.Server.ViewModels.Entities
             {
                 if (_hide == value)
                     return;
+
                 _hide = value;
                 OnPropertyChanged();
             }
+        }
+
+        internal void InvalidateControl()
+        {
+            // ReSharper disable once ExplicitCallerInfoArgument
+            OnPropertyChanged(SignalPropertyInvalidateControl);
         }
     }
 }

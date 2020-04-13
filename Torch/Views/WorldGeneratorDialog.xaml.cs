@@ -1,20 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using NLog;
-using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
-using Sandbox.Game.World;
 using Torch.Server.Managers;
 using Torch.Server.ViewModels;
 using Torch.Utils;
@@ -22,22 +11,21 @@ using VRage;
 using VRage.Dedicated;
 using VRage.FileSystem;
 using VRage.Game;
-using VRage.Game.Localization;
 using VRage.Utils;
 
 namespace Torch.Server
 {
     /// <summary>
-    /// Interaction logic for WorldGeneratorDialog.xaml
+    ///     Interaction logic for WorldGeneratorDialog.xaml
     /// </summary>
     public partial class WorldGeneratorDialog : Window
     {
-        private InstanceManager _instanceManager;
-        private List<PremadeCheckpointItem> _checkpoints = new List<PremadeCheckpointItem>();
-        private PremadeCheckpointItem _currentItem;
-
         [ReflectedStaticMethod(Type = typeof(ConfigForm), Name = "LoadLocalization")]
         private static Action _loadLocalization;
+
+        private readonly List<PremadeCheckpointItem> _checkpoints = new List<PremadeCheckpointItem>();
+        private PremadeCheckpointItem _currentItem;
+        private readonly InstanceManager _instanceManager;
 
         public WorldGeneratorDialog(InstanceManager instanceManager)
         {
@@ -47,12 +35,12 @@ namespace Torch.Server
             var scenarios = MyLocalCache.GetAvailableWorldInfos(new List<string> {Path.Combine(MyFileSystem.ContentPath, "CustomWorlds")});
             foreach (var tup in scenarios)
             {
-                string directory = tup.Item1;
-                MyWorldInfo info = tup.Item2;
-                string localizedName = MyTexts.GetString(MyStringId.GetOrCompute(info.SessionName));
+                var directory = tup.Item1;
+                var info = tup.Item2;
+                var localizedName = MyTexts.GetString(MyStringId.GetOrCompute(info.SessionName));
                 var checkpoint = MyLocalCache.LoadCheckpoint(directory, out _);
                 checkpoint.OnlineMode = MyOnlineModeEnum.PUBLIC;
-                _checkpoints.Add(new PremadeCheckpointItem { Name = localizedName, Icon = Path.Combine(directory, "thumb.jpg"), Path = directory, Checkpoint = checkpoint});
+                _checkpoints.Add(new PremadeCheckpointItem {Name = localizedName, Icon = Path.Combine(directory, "thumb.jpg"), Path = directory, Checkpoint = checkpoint});
             }
 
             /*
@@ -70,11 +58,11 @@ namespace Torch.Server
             }*/
             PremadeCheckpoints.ItemsSource = _checkpoints;
         }
-        
+
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            string worldName = string.IsNullOrEmpty(WorldName.Text) ? _currentItem.Name : WorldName.Text;
-            
+            var worldName = string.IsNullOrEmpty(WorldName.Text) ? _currentItem.Name : WorldName.Text;
+
             var worldPath = Path.Combine(TorchBase.Instance.Config.InstancePath, "Saves", worldName);
             var checkpoint = _currentItem.Checkpoint;
             if (Directory.Exists(worldPath))
@@ -82,6 +70,7 @@ namespace Torch.Server
                 MessageBox.Show("World already exists with that name.");
                 return;
             }
+
             Directory.CreateDirectory(worldPath);
             foreach (var file in Directory.EnumerateFiles(_currentItem.Path, "*", SearchOption.AllDirectories))
             {
@@ -91,7 +80,6 @@ namespace Torch.Server
             checkpoint.SessionName = worldName;
 
             MyLocalCache.SaveCheckpoint(checkpoint, worldPath);
-
 
             _instanceManager.SelectWorld(worldPath, false);
             _instanceManager.ImportSelectedWorldConfig();

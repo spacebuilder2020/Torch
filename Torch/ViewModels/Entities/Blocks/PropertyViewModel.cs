@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 
 namespace Torch.Server.ViewModels.Blocks
@@ -11,6 +6,13 @@ namespace Torch.Server.ViewModels.Blocks
     public class PropertyViewModel<T> : PropertyViewModel
     {
         private readonly ITerminalProperty<T> _prop;
+
+        public PropertyViewModel(ITerminalProperty<T> property, BlockViewModel blockViewModel) : base(blockViewModel)
+        {
+            Name = property.Id;
+            _prop = property;
+        }
+
         public string Name { get; }
         public Type PropertyType => typeof(T);
 
@@ -26,12 +28,6 @@ namespace Torch.Server.ViewModels.Blocks
                     Block.RefreshModel();
                 });
             }
-        }
-
-        public PropertyViewModel(ITerminalProperty<T> property, BlockViewModel blockViewModel) : base(blockViewModel)
-        {
-            Name = property.Id;
-            _prop = property;
         }
     }
 

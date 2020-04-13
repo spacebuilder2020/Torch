@@ -10,17 +10,41 @@ namespace Torch.Server
     // TODO: redesign this gerbage
     public class TorchConfig : CommandLine, ITorchConfig
     {
-        private static Logger _log = LogManager.GetLogger("Config");
+        private static readonly Logger _log = LogManager.GetLogger("Config");
 
-        public bool ShouldUpdatePlugins => (GetPluginUpdates && !NoUpdate) || ForceUpdate;
-        public bool ShouldUpdateTorch => (GetTorchUpdates && !NoUpdate) || ForceUpdate;
+        private string _instancePath;
+
+        [XmlIgnore]
+        private string _path;
+
+        public TorchConfig() : this("Torch") { }
+
+        public TorchConfig(string instanceName = "Torch", string instancePath = null)
+        {
+            InstanceName = instanceName;
+            InstancePath = instancePath ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SpaceEngineersDedicated");
+        }
+
+        public bool EnableWhitelist { get; set; } = false;
+        public HashSet<ulong> Whitelist { get; set; } = new HashSet<ulong>();
+
+        public Point WindowSize { get; set; } = new Point(800, 600);
+        public Point WindowPosition { get; set; } = new Point();
+
+        public string LastUsedTheme { get; set; } = "Torch Theme";
+
+        [Arg("console", "Keeps a separate console window open after the main UI loads.")]
+        public bool IndependentConsole { get; set; } = false;
+
+        [Arg("asserts", "Enable Keen's assert logging.")]
+        public bool EnableAsserts { get; set; } = false;
+
+        public bool ShouldUpdatePlugins => GetPluginUpdates && !NoUpdate || ForceUpdate;
+        public bool ShouldUpdateTorch => GetTorchUpdates && !NoUpdate || ForceUpdate;
 
         /// <inheritdoc />
         [Arg("instancename", "The name of the Torch instance.")]
         public string InstanceName { get; set; }
-
-
-        private string _instancePath;
 
         /// <inheritdoc />
         [Arg("instancepath", "Server data folder where saves and mods are stored.")]
@@ -29,14 +53,15 @@ namespace Torch.Server
             get => _instancePath;
             set
             {
-                if(String.IsNullOrEmpty(value))
+                if (String.IsNullOrEmpty(value))
                 {
                     _instancePath = value;
                     return;
                 }
+
                 try
                 {
-                    if(value.Contains("\""))
+                    if (value.Contains("\""))
                         throw new InvalidOperationException();
 
                     var s = Path.GetFullPath(value);
@@ -99,57 +124,9 @@ namespace Torch.Server
 
         public string ChatColor { get; set; } = "Red";
 
-        public bool EnableWhitelist { get; set; } = false;
-        public HashSet<ulong> Whitelist { get; set; } = new HashSet<ulong>();
-
-        public Point WindowSize { get; set; } = new Point(800, 600);
-        public Point WindowPosition { get; set; } = new Point();
-
-        public string LastUsedTheme { get; set; } = "Torch Theme";
-
-        //Prevent reserved players being written to disk, but allow it to be read
-        //remove this when ReservedPlayers is removed
-        private bool ShouldSerializeReservedPlayers() => false;
-
-        [Arg("console", "Keeps a separate console window open after the main UI loads.")]
-        public bool IndependentConsole { get; set; } = false;
-
         [XmlIgnore]
         [Arg("testplugin", "Path to a plugin to debug. For development use only.")]
         public string TestPlugin { get; set; }
-
-        [Arg("asserts", "Enable Keen's assert logging.")]
-        public bool EnableAsserts { get; set; } = false;
-
-        [XmlIgnore]
-        private string _path;
-
-        public TorchConfig() : this("Torch") { }
-
-        public TorchConfig(string instanceName = "Torch", string instancePath = null)
-        {
-            InstanceName = instanceName;
-            InstancePath = instancePath ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SpaceEngineersDedicated");
-        }
-
-        public static TorchConfig LoadFrom(string path)
-        {
-            try
-            {
-                var ser = new XmlSerializer(typeof(TorchConfig));
-                using (var f = File.OpenRead(path))
-                {
-                    var config = (TorchConfig)ser.Deserialize(f);
-                    config._path = path;
-                    return config;
-                }
-            }
-            catch (Exception e)
-            {
-                _log.Error(e);
-                return null;
-            }
-        }
 
         public bool Save(string path = null)
         {
@@ -169,6 +146,29 @@ namespace Torch.Server
             {
                 _log.Error(e);
                 return false;
+            }
+        }
+
+        //Prevent reserved players being written to disk, but allow it to be read
+        //remove this when ReservedPlayers is removed
+        private bool ShouldSerializeReservedPlayers() => false;
+
+        public static TorchConfig LoadFrom(string path)
+        {
+            try
+            {
+                var ser = new XmlSerializer(typeof(TorchConfig));
+                using (var f = File.OpenRead(path))
+                {
+                    var config = (TorchConfig)ser.Deserialize(f);
+                    config._path = path;
+                    return config;
+                }
+            }
+            catch (Exception e)
+            {
+                _log.Error(e);
+                return null;
             }
         }
     }

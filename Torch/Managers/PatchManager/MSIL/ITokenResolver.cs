@@ -24,7 +24,7 @@ namespace Torch.Managers.PatchManager.MSIL
         {
             _module = method.Module;
             _genericTypeArgs = method.DeclaringType?.GenericTypeArguments ?? new Type[0];
-            _genericMethArgs = (method is MethodInfo ? method.GetGenericArguments() : new Type[0]);
+            _genericMethArgs = method is MethodInfo ? method.GetGenericArguments() : new Type[0];
         }
 
         public MemberInfo ResolveMember(int token)
@@ -62,9 +62,7 @@ namespace Torch.Managers.PatchManager.MSIL
     {
         internal static readonly NullTokenResolver Instance = new NullTokenResolver();
 
-        internal NullTokenResolver()
-        {
-        }
+        internal NullTokenResolver() { }
 
         public MemberInfo ResolveMember(int token)
         {
@@ -111,26 +109,26 @@ namespace Torch.Managers.PatchManager.MSIL
 
         public DynamicMethodTokenResolver(DynamicMethod dynamicMethod)
         {
-            object resolver = typeof(DynamicMethod)
-                .GetField("m_resolver", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(dynamicMethod);
+            var resolver = typeof(DynamicMethod)
+                           .GetField("m_resolver", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(dynamicMethod);
             if (resolver == null) throw new ArgumentException("The dynamic method's IL has not been finalized.");
 
-            _tokenResolver = (TokenResolver) resolver.GetType()
-                .GetMethod("ResolveToken", BindingFlags.Instance | BindingFlags.NonPublic)
-                .CreateDelegate(typeof(TokenResolver), resolver);
-            _stringResolver = (StringResolver) resolver.GetType()
-                .GetMethod("GetStringLiteral", BindingFlags.Instance | BindingFlags.NonPublic)
-                .CreateDelegate(typeof(StringResolver), resolver);
-            _signatureResolver = (SignatureResolver) resolver.GetType()
-                .GetMethod("ResolveSignature", BindingFlags.Instance | BindingFlags.NonPublic)
-                .CreateDelegate(typeof(SignatureResolver), resolver);
+            _tokenResolver = (TokenResolver)resolver.GetType()
+                                                    .GetMethod("ResolveToken", BindingFlags.Instance | BindingFlags.NonPublic)
+                                                    .CreateDelegate(typeof(TokenResolver), resolver);
+            _stringResolver = (StringResolver)resolver.GetType()
+                                                      .GetMethod("GetStringLiteral", BindingFlags.Instance | BindingFlags.NonPublic)
+                                                      .CreateDelegate(typeof(StringResolver), resolver);
+            _signatureResolver = (SignatureResolver)resolver.GetType()
+                                                            .GetMethod("ResolveSignature", BindingFlags.Instance | BindingFlags.NonPublic)
+                                                            .CreateDelegate(typeof(SignatureResolver), resolver);
 
-            _getTypeFromHandleUnsafe = (GetTypeFromHandleUnsafe) typeof(Type)
-                .GetMethod("GetTypeFromHandleUnsafe", BindingFlags.Static | BindingFlags.NonPublic, null,
-                    new[] {typeof(IntPtr)}, null).CreateDelegate(typeof(GetTypeFromHandleUnsafe), null);
-            Type runtimeType = typeof(RuntimeTypeHandle).Assembly.GetType("System.RuntimeType");
+            _getTypeFromHandleUnsafe = (GetTypeFromHandleUnsafe)typeof(Type)
+                                                                .GetMethod("GetTypeFromHandleUnsafe", BindingFlags.Static | BindingFlags.NonPublic, null,
+                                                                    new[] {typeof(IntPtr)}, null).CreateDelegate(typeof(GetTypeFromHandleUnsafe), null);
+            var runtimeType = typeof(RuntimeTypeHandle).Assembly.GetType("System.RuntimeType");
 
-            Type runtimeMethodHandleInternal =
+            var runtimeMethodHandleInternal =
                 typeof(RuntimeTypeHandle).Assembly.GetType("System.RuntimeMethodHandleInternal");
             _getMethodBase = runtimeType.GetMethod("GetMethodBase", BindingFlags.Static | BindingFlags.NonPublic, null,
                 new[] {runtimeType, runtimeMethodHandleInternal}, null);
@@ -138,7 +136,7 @@ namespace Torch.Managers.PatchManager.MSIL
                 runtimeMethodHandleInternal.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
                     new[] {typeof(IntPtr)}, null);
 
-            Type runtimeFieldInfoStub = typeof(RuntimeTypeHandle).Assembly.GetType("System.RuntimeFieldInfoStub");
+            var runtimeFieldInfoStub = typeof(RuntimeTypeHandle).Assembly.GetType("System.RuntimeFieldInfoStub");
             _runtimeFieldHandleStubCtor =
                 runtimeFieldInfoStub.GetConstructor(BindingFlags.Instance | BindingFlags.Public, null,
                     new[] {typeof(IntPtr), typeof(object)}, null);
@@ -159,7 +157,7 @@ namespace Torch.Managers.PatchManager.MSIL
             IntPtr typeHandle, methodHandle, fieldHandle;
             _tokenResolver.Invoke(token, out typeHandle, out methodHandle, out fieldHandle);
 
-            return (MethodBase) _getMethodBase.Invoke(null, new[]
+            return (MethodBase)_getMethodBase.Invoke(null, new[]
             {
                 typeHandle == IntPtr.Zero ? null : _getTypeFromHandleUnsafe.Invoke(typeHandle),
                 _runtimeMethodHandleInternalCtor.Invoke(new object[] {methodHandle})
@@ -171,7 +169,7 @@ namespace Torch.Managers.PatchManager.MSIL
             IntPtr typeHandle, methodHandle, fieldHandle;
             _tokenResolver.Invoke(token, out typeHandle, out methodHandle, out fieldHandle);
 
-            return (FieldInfo) _getFieldInfo.Invoke(null, new[]
+            return (FieldInfo)_getFieldInfo.Invoke(null, new[]
             {
                 typeHandle == IntPtr.Zero ? null : _getTypeFromHandleUnsafe.Invoke(typeHandle),
                 _runtimeFieldHandleStubCtor.Invoke(new object[] {fieldHandle, null})
@@ -184,14 +182,14 @@ namespace Torch.Managers.PatchManager.MSIL
             _tokenResolver.Invoke(token, out typeHandle, out methodHandle, out fieldHandle);
 
             if (methodHandle != IntPtr.Zero)
-                return (MethodBase) _getMethodBase.Invoke(null, new[]
+                return (MethodBase)_getMethodBase.Invoke(null, new[]
                 {
                     typeHandle == IntPtr.Zero ? null : _getTypeFromHandleUnsafe.Invoke(typeHandle),
                     _runtimeMethodHandleInternalCtor.Invoke(new object[] {methodHandle})
                 });
 
             if (fieldHandle != IntPtr.Zero)
-                return (FieldInfo) _getFieldInfo.Invoke(null, new[]
+                return (FieldInfo)_getFieldInfo.Invoke(null, new[]
                 {
                     typeHandle == IntPtr.Zero ? null : _getTypeFromHandleUnsafe.Invoke(typeHandle),
                     _runtimeFieldHandleStubCtor.Invoke(new object[] {fieldHandle, null})
@@ -215,7 +213,7 @@ namespace Torch.Managers.PatchManager.MSIL
         }
 
         private delegate void TokenResolver(int token, out IntPtr typeHandle, out IntPtr methodHandle,
-            out IntPtr fieldHandle);
+                                            out IntPtr fieldHandle);
 
         private delegate string StringResolver(int token);
 

@@ -2,22 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using NLog;
-using NLog.Fluent;
 using Sandbox;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
-using Steamworks;
 using Torch.API;
 using Torch.API.Managers;
 using Torch.Managers;
 using Torch.Utils;
-using Torch.ViewModels;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.GameServices;
@@ -30,26 +25,16 @@ namespace Torch.Server.Managers
     {
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
 
-#pragma warning disable 649
-        [ReflectedGetter(Name = "m_members")]
-        private static Func<MyDedicatedServerBase, List<ulong>> _members;
-
-        [ReflectedGetter(Name = "m_waitingForGroup")]
-        private static Func<MyDedicatedServerBase, HashSet<ulong>> _waitingForGroup;
-#pragma warning restore 649
-
-        /// <inheritdoc />
-        public IReadOnlyList<ulong> BannedPlayers => MySandboxGame.ConfigDedicated.Banned;
-
-        private Dictionary<ulong, ulong> _gameOwnerIds = new Dictionary<ulong, ulong>();
+        private readonly Dictionary<ulong, ulong> _gameOwnerIds = new Dictionary<ulong, ulong>();
 
         [Dependency]
         private InstanceManager _instanceManager;
 
         /// <inheritdoc />
-        public MultiplayerManagerDedicated(ITorchBase torch) : base(torch)
-        {
-        }
+        public MultiplayerManagerDedicated(ITorchBase torch) : base(torch) { }
+
+        /// <inheritdoc />
+        public IReadOnlyList<ulong> BannedPlayers => MySandboxGame.ConfigDedicated.Banned;
 
         /// <inheritdoc />
         public void KickPlayer(ulong steamId) => Torch.Invoke(() => MyMultiplayer.Static.KickClient(steamId));
@@ -57,10 +42,7 @@ namespace Torch.Server.Managers
         /// <inheritdoc />
         public void BanPlayer(ulong steamId, bool banned = true)
         {
-            Torch.Invoke(() =>
-            {
-                MyMultiplayer.Static.BanClient(steamId, banned);
-            });
+            Torch.Invoke(() => { MyMultiplayer.Static.BanClient(steamId, banned); });
         }
 
         /// <inheritdoc />
@@ -93,24 +75,10 @@ namespace Torch.Server.Managers
             return MySession.Static.GetUserPromoteLevel(steamId);
         }
 
-        internal void RaiseClientBanned(ulong user, bool banned)
-        {
-            PlayerBanned?.Invoke(user, banned);
-            Torch.Invoke(() =>
-                         {
-                             if(_gameOwnerIds.TryGetValue(user, out ulong owner))
-                                 MyMultiplayer.Static.BanClient(owner, banned);
-                         });
-        }
-
-        internal void RaiseClientKicked(ulong user)
-        {
-            PlayerKicked?.Invoke(user);
-        }
-
         /// <inheritdoc />
-        public bool IsBanned(ulong steamId) => _isClientBanned.Invoke(MyMultiplayer.Static, steamId) ||
-                                               MySandboxGame.ConfigDedicated.Banned.Contains(steamId);
+        public bool IsBanned(ulong steamId) =>
+            _isClientBanned.Invoke(MyMultiplayer.Static, steamId) ||
+            MySandboxGame.ConfigDedicated.Banned.Contains(steamId);
 
         /// <inheritdoc />
         public event Action<ulong> PlayerKicked;
@@ -121,12 +89,7 @@ namespace Torch.Server.Managers
         /// <inheritdoc />
         public event Action<ulong, MyPromoteLevel> PlayerPromoted;
 
-        internal void RaisePromoteChanged(ulong steamId, MyPromoteLevel level)
-        {
-            PlayerPromoted?.Invoke(steamId, level);
-        }
-
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override void Attach()
         {
             base.Attach();
@@ -139,7 +102,7 @@ namespace Torch.Server.Managers
             _log.Info("Inserted steam authentication intercept");
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override void Detach()
         {
             if (_gameServerValidateAuthTicketReplacer != null && _gameServerValidateAuthTicketReplacer.Replaced)
@@ -150,6 +113,33 @@ namespace Torch.Server.Managers
             base.Detach();
         }
 
+        internal void RaiseClientBanned(ulong user, bool banned)
+        {
+            PlayerBanned?.Invoke(user, banned);
+            Torch.Invoke(() =>
+            {
+                if (_gameOwnerIds.TryGetValue(user, out var owner))
+                    MyMultiplayer.Static.BanClient(owner, banned);
+            });
+        }
+
+        internal void RaiseClientKicked(ulong user)
+        {
+            PlayerKicked?.Invoke(user);
+        }
+
+        internal void RaisePromoteChanged(ulong steamId, MyPromoteLevel level)
+        {
+            PlayerPromoted?.Invoke(steamId, level);
+        }
+
+#pragma warning disable 649
+        [ReflectedGetter(Name = "m_members")]
+        private static Func<MyDedicatedServerBase, List<ulong>> _members;
+
+        [ReflectedGetter(Name = "m_waitingForGroup")]
+        private static Func<MyDedicatedServerBase, HashSet<ulong>> _waitingForGroup;
+#pragma warning restore 649
 
 #pragma warning disable 649
         [ReflectedEventReplace(typeof(MySteamGameServer), nameof(MySteamGameServer.ValidateAuthTicketResponse),
@@ -213,12 +203,12 @@ namespace Torch.Server.Managers
             MySteamServiceWrapper.Static.Peer2Peer.GetSessionState(steamId, ref state);
             var ip = new IPAddress(BitConverter.GetBytes(state.RemoteIP).Reverse().ToArray());
 
-            Torch.CurrentSession.KeenSession.PromotedUsers.TryGetValue(steamId, out MyPromoteLevel promoteLevel);
+            Torch.CurrentSession.KeenSession.PromotedUsers.TryGetValue(steamId, out var promoteLevel);
 
             _log.Debug($"ValidateAuthTicketResponse(user={steamId}, response={response}, owner={steamOwner}, permissions={promoteLevel})");
 
             _log.Info($"Connection attempt by {steamId} from {ip}");
-            
+
             if (Players.ContainsKey(steamId))
             {
                 _log.Warn($"Player {steamId} has already joined!");
@@ -249,7 +239,6 @@ namespace Torch.Server.Managers
         {
             JoinResult internalAuth;
 
-
             if (IsBanned(info.SteamOwner) || IsBanned(info.SteamID))
                 internalAuth = JoinResult.BannedByAdmins;
             else if (_isClientKicked(MyMultiplayer.Static, info.SteamID) ||
@@ -257,7 +246,7 @@ namespace Torch.Server.Managers
                 internalAuth = JoinResult.KickedRecently;
             else if (info.SteamResponse == JoinResult.OK)
             {
-                var config = (TorchConfig) Torch.Config;
+                var config = (TorchConfig)Torch.Config;
                 if (config.EnableWhitelist && !config.Whitelist.Contains(info.SteamID))
                 {
                     _log.Warn($"Rejecting user {info.SteamID} because they are not whitelisted in Torch.cfg.");
@@ -331,13 +320,13 @@ namespace Torch.Server.Managers
 
         private void UserRejected(ulong steamId, JoinResult reason)
         {
-            _userRejected.Invoke((MyDedicatedServerBase) MyMultiplayer.Static, steamId, reason);
+            _userRejected.Invoke((MyDedicatedServerBase)MyMultiplayer.Static, steamId, reason);
         }
 
         private void UserAccepted(ulong steamId)
         {
-            _userAcceptedImpl.Invoke((MyDedicatedServerBase) MyMultiplayer.Static, steamId);
-            base.RaiseClientJoined(steamId);
+            _userAcceptedImpl.Invoke((MyDedicatedServerBase)MyMultiplayer.Static, steamId);
+            RaiseClientJoined(steamId);
         }
 
         #endregion

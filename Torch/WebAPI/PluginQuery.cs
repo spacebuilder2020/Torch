@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NLog;
@@ -14,16 +12,17 @@ namespace Torch.API.WebAPI
     {
         private const string ALL_QUERY = "https://torchapi.net/api/plugins";
         private const string PLUGIN_QUERY = "https://torchapi.net/api/plugins/{0}";
-        private readonly HttpClient _client;
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private static PluginQuery _instance;
-        public static PluginQuery Instance => _instance ?? (_instance = new PluginQuery());
+        private readonly HttpClient _client;
 
         private PluginQuery()
         {
             _client = new HttpClient();
         }
+
+        public static PluginQuery Instance => _instance ?? (_instance = new PluginQuery());
 
         public async Task<PluginResponse> QueryAll()
         {
@@ -46,6 +45,7 @@ namespace Torch.API.WebAPI
                 Log.Error(ex, "Failed to deserialize plugin query response!");
                 return null;
             }
+
             return response;
         }
 
@@ -56,7 +56,6 @@ namespace Torch.API.WebAPI
 
         public async Task<PluginFullItem> QueryOne(string guid)
         {
-
             var h = await _client.GetAsync(string.Format(PLUGIN_QUERY, guid));
             if (!h.IsSuccessStatusCode)
             {
@@ -76,6 +75,7 @@ namespace Torch.API.WebAPI
                 Log.Error(ex, "Failed to deserialize plugin query response!");
                 return null;
             }
+
             return response;
         }
 
@@ -95,27 +95,29 @@ namespace Torch.API.WebAPI
             try
             {
                 path = path ?? $"Plugins\\{item.Name}.zip";
-                string relpath = Path.GetDirectoryName(path);
+                var relpath = Path.GetDirectoryName(path);
 
                 Directory.CreateDirectory(relpath);
 
                 var h = await _client.GetAsync(string.Format(PLUGIN_QUERY, item.ID));
-                string res = await h.Content.ReadAsStringAsync();
+                var res = await h.Content.ReadAsStringAsync();
                 var response = JsonConvert.DeserializeObject<PluginFullItem>(res);
                 if (response.Versions.Length == 0)
                 {
                     Log.Error($"Selected plugin {item.Name} does not have any versions to download!");
                     return false;
                 }
+
                 var version = response.Versions.FirstOrDefault(v => v.Version == response.LatestVersion);
                 if (version == null)
                 {
                     Log.Error($"Could not find latest version for selected plugin {item.Name}");
                     return false;
                 }
+
                 var s = await _client.GetStreamAsync(version.URL);
 
-                if(File.Exists(path))
+                if (File.Exists(path))
                     File.Delete(path);
 
                 using (var f = File.Create(path))
@@ -135,17 +137,17 @@ namespace Torch.API.WebAPI
 
     public class PluginResponse
     {
-        public PluginItem[] Plugins;
         public int Count;
+        public PluginItem[] Plugins;
     }
 
     public class PluginItem
     {
-        public string ID;
-        public string Name;
         public string Author;
         public string Description;
+        public string ID;
         public string LatestVersion;
+        public string Name;
 
         public override string ToString()
         {
@@ -160,9 +162,9 @@ namespace Torch.API.WebAPI
 
     public class VersionItem
     {
-        public string Version;
-        public string Note;
         public bool IsBeta;
+        public string Note;
         public string URL;
+        public string Version;
     }
 }

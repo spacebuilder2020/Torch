@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NLog;
+﻿using NLog;
 using Sandbox.Game.World;
 using Torch.API;
 using Torch.API.Managers;
@@ -16,18 +11,7 @@ namespace Torch.Session
     {
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
 
-        /// <summary>
-        /// The Torch instance this session is bound to
-        /// </summary>
-        public ITorchBase Torch { get; }
-
-        /// <summary>
-        /// The Space Engineers game session this session is bound to.
-        /// </summary>
-        public MySession KeenSession { get; }
-
-        /// <inheritdoc cref="IDependencyManager"/>
-        public IDependencyManager Managers { get; }
+        private TorchSessionState _state = TorchSessionState.Loading;
 
         public TorchSession(ITorchBase torch, MySession keenSession)
         {
@@ -36,18 +20,20 @@ namespace Torch.Session
             Managers = new DependencyManager(torch.Managers);
         }
 
-        internal void Attach()
-        {
-            Managers.Attach();
-        }
+        /// <summary>
+        ///     The Torch instance this session is bound to
+        /// </summary>
+        public ITorchBase Torch { get; }
 
-        internal void Detach()
-        {
-            Managers.Detach();
-        }
+        /// <summary>
+        ///     The Space Engineers game session this session is bound to.
+        /// </summary>
+        public MySession KeenSession { get; }
 
-        private TorchSessionState _state = TorchSessionState.Loading;
-        /// <inheritdoc/>
+        /// <inheritdoc cref="IDependencyManager" />
+        public IDependencyManager Managers { get; }
+
+        /// <inheritdoc />
         public TorchSessionState State
         {
             get => _state;
@@ -58,7 +44,17 @@ namespace Torch.Session
             }
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public event TorchSessionStateChangedDel StateChanged;
+
+        internal void Attach()
+        {
+            Managers.Attach();
+        }
+
+        internal void Detach()
+        {
+            Managers.Detach();
+        }
     }
 }

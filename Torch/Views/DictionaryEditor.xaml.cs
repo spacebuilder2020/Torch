@@ -1,29 +1,18 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using NLog;
-using Torch.Collections;
 
 namespace Torch.Views
 {
     /// <summary>
-    /// Interaction logic for DictionaryEditorDialog.xaml
+    ///     Interaction logic for DictionaryEditorDialog.xaml
     /// </summary>
     public partial class DictionaryEditorDialog : Window
     {
+        private Action _commitChanges;
+        private Type _itemType;
+
         public DictionaryEditorDialog()
         {
             InitializeComponent();
@@ -31,9 +20,6 @@ namespace Torch.Views
         }
 
         public ObservableCollection<IDictionaryItem> Items { get; } = new ObservableCollection<IDictionaryItem>();
-        private Type _itemType;
-
-        private Action _commitChanges;
 
         public void Edit(IDictionary dict)
         {
@@ -71,7 +57,12 @@ namespace Torch.Views
             Close();
         }
 
-        public interface IDictionaryItem 
+        private void AddNew_OnClick(object sender, RoutedEventArgs e)
+        {
+            Items.Add((IDictionaryItem)Activator.CreateInstance(_itemType));
+        }
+
+        public interface IDictionaryItem
         {
             object Key { get; set; }
             object Value { get; set; }
@@ -81,12 +72,6 @@ namespace Torch.Views
         {
             private TKey _key;
             private TValue _value;
-
-            object IDictionaryItem.Key { get => _key; set => SetValue(ref _key, (TKey)value); }
-            object IDictionaryItem.Value { get => _value; set => SetValue(ref _value, (TValue)value); }
-
-            public TKey Key { get => _key; set => SetValue(ref _key, value); }
-            public TValue Value { get => _value; set => SetValue(ref _value, value); }
 
             public DictionaryItem()
             {
@@ -99,11 +84,12 @@ namespace Torch.Views
                 _key = key;
                 _value = value;
             }
-        }
 
-        private void AddNew_OnClick(object sender, RoutedEventArgs e)
-        {
-            Items.Add((IDictionaryItem)Activator.CreateInstance(_itemType));
+            public TKey Key { get => _key; set => SetValue(ref _key, value); }
+            public TValue Value { get => _value; set => SetValue(ref _value, value); }
+
+            object IDictionaryItem.Key { get => _key; set => SetValue(ref _key, (TKey)value); }
+            object IDictionaryItem.Value { get => _value; set => SetValue(ref _value, (TValue)value); }
         }
     }
 }

@@ -3,22 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Havok;
 using NLog;
 
 namespace Torch.Collections
 {
-    public class SortedView<T>: IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged
+    public class SortedView<T> : IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged
     {
-        private readonly Logger _log = LogManager.GetCurrentClassLogger();
         private readonly MtObservableCollectionBase<T> _backing;
-        private IComparer<T> _comparer;
+        private readonly Logger _log = LogManager.GetCurrentClassLogger();
         private readonly List<T> _store;
+        private IComparer<T> _comparer;
 
         public SortedView(MtObservableCollectionBase<T> backing, IComparer<T> comparer)
         {
@@ -29,6 +24,21 @@ namespace Torch.Collections
             _backing.CollectionChanged += backing_CollectionChanged;
             _backing.PropertyChanged += backing_PropertyChanged;
         }
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _store.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public int Count => _backing.Count;
 
         private void backing_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -55,20 +65,7 @@ namespace Torch.Collections
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
         }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            return _store.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public int Count => _backing.Count;
 
         private void InsertSorted(IEnumerable items)
         {
@@ -86,17 +83,20 @@ namespace Torch.Collections
                 _store.Add(item);
                 return 0;
             }
-            if(comparer.Compare(_store[_store.Count - 1], item) <= 0)
+
+            if (comparer.Compare(_store[_store.Count - 1], item) <= 0)
             {
                 _store.Add(item);
                 return _store.Count - 1;
             }
-            if(comparer.Compare(_store[0], item) >= 0)
+
+            if (comparer.Compare(_store[0], item) >= 0)
             {
                 _store.Insert(0, item);
                 return 0;
             }
-            int index = _store.BinarySearch(item);
+
+            var index = _store.BinarySearch(item);
             if (index < 0)
                 index = ~index;
             _store.Insert(index, item);
@@ -112,7 +112,7 @@ namespace Torch.Collections
                 return;
 
             _store.Sort(comparer);
-            
+
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
@@ -129,12 +129,9 @@ namespace Torch.Collections
         public void SetComparer(IComparer<T> comparer, bool resort = true)
         {
             _comparer = comparer;
-            if(resort)
+            if (resort)
                 Sort();
         }
-
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

@@ -4,7 +4,7 @@ using System.Windows.Controls;
 namespace Torch.Server.Views.Entities
 {
     /// <summary>
-    /// Interaction logic for EntityControlsView.xaml
+    ///     Interaction logic for EntityControlsView.xaml
     /// </summary>
     public partial class EntityControlsView : ItemsControl
     {
@@ -18,8 +18,8 @@ namespace Torch.Server.Views.Entities
 
         public void UpdateResourceDict(ResourceDictionary dictionary)
         {
-            this.Resources.MergedDictionaries.Clear();
-            this.Resources.MergedDictionaries.Add(dictionary);
+            Resources.MergedDictionaries.Clear();
+            Resources.MergedDictionaries.Add(dictionary);
         }
     }
 }

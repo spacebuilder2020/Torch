@@ -2,25 +2,21 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Threading;
 
 namespace Torch
 {
     /// <summary>
-    /// Provides a method to notify an observer of changes to an object's properties.
+    ///     Provides a method to notify an observer of changes to an object's properties.
     /// </summary>
     public abstract class ViewModel : INotifyPropertyChanged, INotifyCollectionChanged
     {
         /// <inheritdoc />
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         /// <inheritdoc />
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propName = "")
         {
@@ -29,7 +25,7 @@ namespace Torch
 
         protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
-            NotifyCollectionChangedEventHandler collectionChanged = CollectionChanged;
+            var collectionChanged = CollectionChanged;
             if (collectionChanged != null)
                 foreach (NotifyCollectionChangedEventHandler nh in collectionChanged.GetInvocationList())
                 {
@@ -48,9 +44,8 @@ namespace Torch
                 }
         }
 
-
         /// <summary>
-        /// Assign a value to the given field and raise PropertyChanged for the caller.
+        ///     Assign a value to the given field and raise PropertyChanged for the caller.
         /// </summary>
         protected virtual void SetValue<T>(ref T field, T value, [CallerMemberName] string propName = "")
         {
@@ -62,7 +57,7 @@ namespace Torch
         }
 
         /// <summary>
-        /// Assign a value using the given setter and raise PropertyChanged for the caller.
+        ///     Assign a value using the given setter and raise PropertyChanged for the caller.
         /// </summary>
         protected virtual void SetValue<T>(Action<T> setter, T value, [CallerMemberName] string propName = "")
         {
@@ -74,7 +69,7 @@ namespace Torch
         }
 
         /// <summary>
-        /// Fires PropertyChanged for all properties.
+        ///     Fires PropertyChanged for all properties.
         /// </summary>
         public void RefreshModel()
         {

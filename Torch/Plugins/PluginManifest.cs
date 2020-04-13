@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Torch
@@ -11,33 +8,33 @@ namespace Torch
     public class PluginManifest
     {
         /// <summary>
-        /// The display name of the plugin.
+        ///     The display name of the plugin.
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// A unique identifier for the plugin.
+        ///     A unique identifier for the plugin.
         /// </summary>
         public Guid Guid { get; set; }
 
         /// <summary>
-        /// A GitHub repository in the format of Author/Repository to retrieve plugin updates.
+        ///     A GitHub repository in the format of Author/Repository to retrieve plugin updates.
         /// </summary>
         [Obsolete("Updates no longer check git. Updates are hosted only on torchapi.net")]
         public string Repository { get; set; }
 
-        //xml tomfoolery
-        public bool ShouldSerializeRepository() => false;
-
         /// <summary>
-        /// The plugin version. This must include a string in the format of #[.#[.#]] for update checking purposes.
+        ///     The plugin version. This must include a string in the format of #[.#[.#]] for update checking purposes.
         /// </summary>
         public string Version { get; set; }
 
         /// <summary>
-        /// A list of dependent plugin repositories. This may be updated to include GUIDs in the future.
+        ///     A list of dependent plugin repositories. This may be updated to include GUIDs in the future.
         /// </summary>
         public List<PluginDependency> Dependencies { get; } = new List<PluginDependency>();
+
+        //xml tomfoolery
+        public bool ShouldSerializeRepository() => false;
 
         public void Save(string path)
         {

@@ -7,15 +7,19 @@ namespace Torch.Server
 {
     public class MultiTextWriter : TextWriter
     {
-        private IEnumerable<TextWriter> writers;
+        private readonly IEnumerable<TextWriter> writers;
+
         public MultiTextWriter(IEnumerable<TextWriter> writers)
         {
             this.writers = writers.ToList();
         }
+
         public MultiTextWriter(params TextWriter[] writers)
         {
             this.writers = writers;
         }
+
+        public override Encoding Encoding { get { return Encoding.ASCII; } }
 
         public override void Write(char value)
         {
@@ -39,11 +43,6 @@ namespace Torch.Server
         {
             foreach (var writer in writers)
                 writer.Close();
-        }
-
-        public override Encoding Encoding
-        {
-            get { return Encoding.ASCII; }
         }
     }
 }

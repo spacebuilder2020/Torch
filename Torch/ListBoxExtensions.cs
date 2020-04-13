@@ -13,7 +13,7 @@ namespace Torch.Server
         {
             // Find a container
             UIElement container = null;
-            for (int i = index; i > 0; i--)
+            for (var i = index; i > 0; i--)
             {
                 container = listBox.ItemContainerGenerator.ContainerFromIndex(i) as UIElement;
                 if (container != null)
@@ -21,6 +21,7 @@ namespace Torch.Server
                     break;
                 }
             }
+
             if (container == null)
                 return;
 
@@ -29,15 +30,17 @@ namespace Torch.Server
             for (Visual vis = container; vis != null && vis != listBox; vis = VisualTreeHelper.GetParent(vis) as Visual)
                 if ((presenter = vis as ScrollContentPresenter) != null)
                     break;
+
             if (presenter == null)
                 return;
 
             // Find the IScrollInfo
             var scrollInfo =
-                !presenter.CanContentScroll ? presenter :
-                presenter.Content as IScrollInfo ??
-                FirstVisualChild(presenter.Content as ItemsPresenter) as IScrollInfo ??
-                presenter;
+                !presenter.CanContentScroll
+                    ? presenter
+                    : presenter.Content as IScrollInfo ??
+                      FirstVisualChild(presenter.Content as ItemsPresenter) as IScrollInfo ??
+                      presenter;
 
             // Find the amount of items that is "Visible" in the ListBox
             var height = (container as ListBoxItem).ActualHeight;
@@ -53,6 +56,7 @@ namespace Torch.Server
         {
             if (visual == null) return null;
             if (VisualTreeHelper.GetChildrenCount(visual) == 0) return null;
+
             return VisualTreeHelper.GetChild(visual, 0);
         }
     }

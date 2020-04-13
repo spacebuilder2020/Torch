@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Sandbox.ModAPI;
 using Torch.Mod.Messages;
 using VRage;
 using VRage.Collections;
 using VRage.Game.ModAPI;
-using VRage.Network;
 using VRage.Utils;
-using Task = ParallelTasks.Task;
 
 namespace Torch.Mod
 {
@@ -122,6 +116,7 @@ namespace Torch.Mod
                                 {
                                     if (p.SteamUserId == MyAPIGateway.Multiplayer.MyId)
                                         continue;
+
                                     MyAPIGateway.Multiplayer.SendMessageTo(NET_ID, m.CompressedData, p.SteamUserId);
                                 }
 
@@ -132,6 +127,7 @@ namespace Torch.Mod
                                 {
                                     if (p.SteamUserId == MyAPIGateway.Multiplayer.MyId || m.Ignore.Contains(p.SteamUserId))
                                         continue;
+
                                     MyAPIGateway.Multiplayer.SendMessageTo(NET_ID, m.CompressedData, p.SteamUserId);
                                 }
 
@@ -157,7 +153,7 @@ namespace Torch.Mod
             _messagePool = null;
             _playerCache = null;
         }
-        
+
         public static void SendMessageTo(MessageBase message, ulong target)
         {
             if (!MyAPIGateway.Multiplayer.IsServer)

@@ -13,7 +13,7 @@ namespace Torch.Server.Views.ValidationRules
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
             var converter = TypeDescriptor.GetConverter(Type);
-            var input = ((string)value).Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            var input = ((string)value).Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
             foreach (var item in input)
             {
                 try

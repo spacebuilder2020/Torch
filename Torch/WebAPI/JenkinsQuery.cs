@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NLog;
@@ -20,13 +17,14 @@ namespace Torch.API.WebAPI
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private static JenkinsQuery _instance;
-        public static JenkinsQuery Instance => _instance ?? (_instance = new JenkinsQuery());
-        private HttpClient _client;
+        private readonly HttpClient _client;
 
         private JenkinsQuery()
         {
             _client = new HttpClient();
         }
+
+        public static JenkinsQuery Instance => _instance ?? (_instance = new JenkinsQuery());
 
         public async Task<Job> GetLatestVersion(string branch)
         {
@@ -34,12 +32,12 @@ namespace Torch.API.WebAPI
             if (!h.IsSuccessStatusCode)
             {
                 Log.Error($"Branch query failed with code {h.StatusCode}");
-                if(h.StatusCode == HttpStatusCode.NotFound)
+                if (h.StatusCode == HttpStatusCode.NotFound)
                     Log.Error("This likely means you're trying to update a branch that is not public on Jenkins. Sorry :(");
                 return null;
             }
 
-            string r = await h.Content.ReadAsStringAsync();
+            var r = await h.Content.ReadAsStringAsync();
 
             BranchResponse response;
             try
@@ -71,6 +69,7 @@ namespace Torch.API.WebAPI
                 Log.Error(ex, "Failed to deserialize job response!");
                 return null;
             }
+
             return job;
         }
 
@@ -82,23 +81,24 @@ namespace Torch.API.WebAPI
                 Log.Error($"Job download failed with code {h.StatusCode}");
                 return false;
             }
+
             var s = await h.Content.ReadAsStreamAsync();
             using (var fs = new FileStream(path, FileMode.Create))
             {
                 await s.CopyToAsync(fs);
                 await fs.FlushAsync();
             }
+
             return true;
         }
-
     }
 
     public class BranchResponse
     {
-        public string Name;
-        public string URL;
         public Build LastBuild;
         public Build LastStableBuild;
+        public string Name;
+        public string URL;
     }
 
     public class Build
@@ -109,12 +109,12 @@ namespace Torch.API.WebAPI
 
     public class Job
     {
-        public int Number;
+        private InformationalVersion _version;
         public bool Building;
         public string Description;
+        public int Number;
         public string Result;
         public string URL;
-        private InformationalVersion _version;
 
         public InformationalVersion Version
         {

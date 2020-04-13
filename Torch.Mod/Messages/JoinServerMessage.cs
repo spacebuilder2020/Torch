@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ProtoBuf;
+﻿using ProtoBuf;
 using Sandbox.ModAPI;
 
 namespace Torch.Mod.Messages
@@ -9,15 +6,13 @@ namespace Torch.Mod.Messages
     [ProtoContract]
     public class JoinServerMessage : MessageBase
     {
-        [ProtoMember(201)]
-        public int Delay;
         [ProtoMember(202)]
         public string Address;
 
-        private JoinServerMessage()
-        {
+        [ProtoMember(201)]
+        public int Delay;
 
-        }
+        private JoinServerMessage() { }
 
         public JoinServerMessage(string address)
         {
@@ -44,14 +39,12 @@ namespace Torch.Mod.Messages
             }
 
             MyAPIGateway.Parallel.StartBackground(() =>
-                                                  {
-                                                      MyAPIGateway.Parallel.Sleep(Delay);
-                                                      MyAPIGateway.Multiplayer.JoinServer(Address);
-                                                  });
+            {
+                MyAPIGateway.Parallel.Sleep(Delay);
+                MyAPIGateway.Multiplayer.JoinServer(Address);
+            });
         }
 
-        public override void ProcessServer()
-        {
-        }
+        public override void ProcessServer() { }
     }
 }

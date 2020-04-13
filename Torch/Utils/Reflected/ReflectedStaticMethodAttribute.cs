@@ -3,10 +3,10 @@ using System;
 namespace Torch.Utils
 {
     /// <summary>
-    /// Indicates that this field should contain a delegate capable of invoking a static method.
+    ///     Indicates that this field should contain a delegate capable of invoking a static method.
     /// </summary>
     /// <example>
-    /// <code>
+    ///     <code>
     /// <![CDATA[
     /// [ReflectedMethodAttribute(Type = typeof(Example)]
     /// private static Func<int, float, string> ExampleStatic;
@@ -20,7 +20,5 @@ namespace Torch.Utils
     /// </code>
     /// </example>
     [AttributeUsage(AttributeTargets.Field)]
-    public class ReflectedStaticMethodAttribute : ReflectedMethodAttribute
-    {
-    }
+    public class ReflectedStaticMethodAttribute : ReflectedMethodAttribute { }
 }

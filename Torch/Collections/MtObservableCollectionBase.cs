@@ -4,24 +4,20 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Torch.Utils;
 
 namespace Torch.Collections
 {
     /// <summary>
-    /// Multithread safe, observable collection base type for event dispatch
+    ///     Multithread safe, observable collection base type for event dispatch
     /// </summary>
     /// <typeparam name="TV">Value type</typeparam>
     public abstract class MtObservableCollectionBase<TV> : INotifyPropertyChanged, INotifyCollectionChanged,
-        ICollection, ICollection<TV>
+                                                           ICollection, ICollection<TV>
     {
-        private int _version;
         private readonly ThreadLocal<ThreadView> _threadViews;
-        protected abstract ReaderWriterLockSlim Lock { get; }
+        private int _version;
 
         protected MtObservableCollectionBase()
         {
@@ -31,25 +27,65 @@ namespace Torch.Collections
             _flushEventQueue = new Timer(FlushEventQueue);
         }
 
+        protected abstract ReaderWriterLockSlim Lock { get; }
+
+        /// <summary>
+        ///     Should this observable collection actually dispatch events.
+        /// </summary>
+        public bool NotificationsEnabled { get; protected set; } = true;
+
+        /// <summary>
+        ///     Is this collection observed by any listeners.
+        /// </summary>
+        public bool IsObserved => _collectionChangedEvent.IsObserved || _propertyChangedEvent.IsObserved;
+
+        /// <inheritdoc />
+        public abstract void CopyTo(Array array, int index);
+
+        /// <inheritdoc />
+        object ICollection.SyncRoot => this;
+
+        /// <inheritdoc />
+        bool ICollection.IsSynchronized => true;
+
+        /// <inheritdoc />
+        int ICollection.Count => Count;
+
+        /// <inheritdoc />
+        public abstract void Add(TV item);
+
+        /// <inheritdoc />
+        public abstract void Clear();
+
+        /// <inheritdoc />
+        public abstract bool Contains(TV item);
+
+        /// <inheritdoc />
+        public abstract void CopyTo(TV[] array, int arrayIndex);
+
+        /// <inheritdoc />
+        public abstract bool Remove(TV item);
+
+        /// <inheritdoc />
+        public abstract int Count { get; }
+
+        /// <inheritdoc />
+        public abstract bool IsReadOnly { get; }
+
         ~MtObservableCollectionBase()
         {
             // normally we'd call Timer.Dispose() here but it's a managed handle, and the finalizer for the timerholder class does it
         }
 
         /// <summary>
-        /// Should this observable collection actually dispatch events.
-        /// </summary>
-        public bool NotificationsEnabled { get; protected set; } = true;
-
-        /// <summary>
-        /// Takes a snapshot of this collection.  Note: This call is only done when a read lock is acquired.
+        ///     Takes a snapshot of this collection.  Note: This call is only done when a read lock is acquired.
         /// </summary>
         /// <param name="old">Collection to clear and reuse, or null if none</param>
         /// <returns>The snapshot</returns>
         protected abstract List<TV> Snapshot(List<TV> old);
 
         /// <summary>
-        /// Marks all snapshots taken of this collection as dirty.
+        ///     Marks all snapshots taken of this collection as dirty.
         /// </summary>
         protected void MarkSnapshotsDirty()
         {
@@ -61,7 +97,7 @@ namespace Torch.Collections
         private readonly DeferredUpdateToken _deferredSnapshot;
 
         /// <summary>
-        /// Disposable that stops update signals and signals a full refresh when disposed.
+        ///     Disposable that stops update signals and signals a full refresh when disposed.
         /// </summary>
         public IDisposable DeferredUpdate()
         {
@@ -82,14 +118,6 @@ namespace Torch.Collections
                 _collection = c;
             }
 
-            internal void Enter()
-            {
-                if (Interlocked.Increment(ref _depth) == 1)
-                {
-                    _collection.NotificationsEnabled = false;
-                }
-            }
-
             public void Dispose()
             {
                 if (Interlocked.Decrement(ref _depth) == 0)
@@ -102,12 +130,21 @@ namespace Torch.Collections
                             new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
                     }
             }
+
+            internal void Enter()
+            {
+                if (Interlocked.Increment(ref _depth) == 1)
+                {
+                    _collection.NotificationsEnabled = false;
+                }
+            }
         }
 
         protected void OnPropertyChanged(string propName)
         {
             if (!NotificationsEnabled)
                 return;
+
             _propertyEventQueue.Enqueue(propName);
             _flushEventQueue?.Change(_eventRaiseDelay, -1);
         }
@@ -116,6 +153,7 @@ namespace Torch.Collections
         {
             if (!NotificationsEnabled)
                 return;
+
             _collectionEventQueue.Enqueue(e);
             // In half a second, flush the events
             _flushEventQueue?.Change(_eventRaiseDelay, -1);
@@ -132,16 +170,16 @@ namespace Torch.Collections
         private void FlushEventQueue(object data)
         {
             // raise property events
-            while (_propertyEventQueue.TryDequeue(out string prop))
+            while (_propertyEventQueue.TryDequeue(out var prop))
                 _propertyChangedEvent.Raise(this, new PropertyChangedEventArgs(prop));
 
             // :/, but works better
-            bool reset = _collectionEventQueue.Count > 0;
+            var reset = _collectionEventQueue.Count > 0;
             if (reset)
                 while (_collectionEventQueue.Count > 0)
                     _collectionEventQueue.TryDequeue(out _);
             else
-                while (_collectionEventQueue.TryDequeue(out NotifyCollectionChangedEventArgs e))
+                while (_collectionEventQueue.TryDequeue(out var e))
                     _collectionChangedEvent.Raise(this, e);
 
             if (reset)
@@ -153,7 +191,7 @@ namespace Torch.Collections
             =
             new MtObservableEvent<PropertyChangedEventArgs, PropertyChangedEventHandler>();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged
         {
             add
@@ -171,8 +209,8 @@ namespace Torch.Collections
         private readonly MtObservableEvent<NotifyCollectionChangedEventArgs, NotifyCollectionChangedEventHandler>
             _collectionChangedEvent =
                 new MtObservableEvent<NotifyCollectionChangedEventArgs, NotifyCollectionChangedEventHandler>();
-        
-        /// <inheritdoc/>
+
+        /// <inheritdoc />
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add
@@ -189,15 +227,10 @@ namespace Torch.Collections
 
         #endregion
 
-        /// <summary>
-        /// Is this collection observed by any listeners.
-        /// </summary>
-        public bool IsObserved => _collectionChangedEvent.IsObserved || _propertyChangedEvent.IsObserved;
-
         #region Enumeration
 
         /// <summary>
-        /// Manages a snapshot to a collection and dispatches enumerators from that snapshot.
+        ///     Manages a snapshot to a collection and dispatches enumerators from that snapshot.
         /// </summary>
         private sealed class ThreadView
         {
@@ -205,14 +238,14 @@ namespace Torch.Collections
             private readonly WeakReference<List<TV>> _snapshot;
 
             /// <summary>
-            /// The <see cref="MtObservableCollection{TC,TV}._version"/> of the <see cref="_snapshot"/>
-            /// </summary>
-            private int _snapshotVersion;
-
-            /// <summary>
-            /// Number of strong references to the value pointed to be <see cref="_snapshot"/>
+            ///     Number of strong references to the value pointed to be <see cref="_snapshot" />
             /// </summary>
             private int _snapshotRefCount;
+
+            /// <summary>
+            ///     The <see cref="MtObservableCollection{TC,TV}._version" /> of the <see cref="_snapshot" />
+            /// </summary>
+            private int _snapshotVersion;
 
             internal ThreadView(MtObservableCollectionBase<TV> owner)
             {
@@ -227,7 +260,7 @@ namespace Torch.Collections
                 // reading the version number + snapshots
                 using (_owner.Lock.ReadUsing())
                 {
-                    if (!_snapshot.TryGetTarget(out List<TV> currentSnapshot) || _snapshotVersion != _owner._version)
+                    if (!_snapshot.TryGetTarget(out var currentSnapshot) || _snapshotVersion != _owner._version)
                     {
                         // Update the snapshot, using the old one if it isn't referenced.
                         currentSnapshot = _owner.Snapshot(_snapshotRefCount == 0 ? currentSnapshot : null);
@@ -235,13 +268,14 @@ namespace Torch.Collections
                         _snapshotRefCount = 0;
                         _snapshot.SetTarget(currentSnapshot);
                     }
+
                     return currentSnapshot;
                 }
             }
 
             /// <summary>
-            /// Borrows a snapshot from a <see cref="ThreadView"/> and provides an enumerator.
-            /// Once <see cref="Dispose"/> is called the read lock is released.
+            ///     Borrows a snapshot from a <see cref="ThreadView" /> and provides an enumerator.
+            ///     Once <see cref="Dispose" /> is called the read lock is released.
             /// </summary>
             internal sealed class Enumerator : IEnumerator<TV>
             {
@@ -258,15 +292,8 @@ namespace Torch.Collections
                         _owner._snapshotRefCount++;
                         _backing = owner.GetSnapshot().GetEnumerator();
                     }
-                    _disposed = false;
-                }
 
-                ~Enumerator()
-                {
-                    // Lock required since destructors run MT
-                    if (!_disposed && _owner != null)
-                        lock (_owner)
-                            Dispose();
+                    _disposed = false;
                 }
 
                 public void Dispose()
@@ -281,6 +308,7 @@ namespace Torch.Collections
                 {
                     if (_disposed)
                         throw new ObjectDisposedException(nameof(Enumerator));
+
                     return _backing.MoveNext();
                 }
 
@@ -288,6 +316,7 @@ namespace Torch.Collections
                 {
                     if (_disposed)
                         throw new ObjectDisposedException(nameof(Enumerator));
+
                     _backing.Reset();
                 }
 
@@ -297,56 +326,32 @@ namespace Torch.Collections
                     {
                         if (_disposed)
                             throw new ObjectDisposedException(nameof(Enumerator));
+
                         return _backing.Current;
                     }
                 }
 
                 object IEnumerator.Current => Current;
+
+                ~Enumerator()
+                {
+                    // Lock required since destructors run MT
+                    if (!_disposed && _owner != null)
+                        lock (_owner)
+                            Dispose();
+                }
             }
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public IEnumerator<TV> GetEnumerator()
         {
             return new ThreadView.Enumerator(_threadViews.Value);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
-
-        /// <inheritdoc/>
-        public abstract void CopyTo(Array array, int index);
-
-        /// <inheritdoc/>
-        public abstract void Add(TV item);
-
-        /// <inheritdoc/>
-        public abstract void Clear();
-
-        /// <inheritdoc/>
-        public abstract bool Contains(TV item);
-
-        /// <inheritdoc/>
-        public abstract void CopyTo(TV[] array, int arrayIndex);
-
-        /// <inheritdoc/>
-        public abstract bool Remove(TV item);
-
-        /// <inheritdoc/>
-        public abstract int Count { get; }
-
-        /// <inheritdoc/>
-        public abstract bool IsReadOnly { get; }
-
-        /// <inheritdoc/>
-        object ICollection.SyncRoot => this;
-
-        /// <inheritdoc/>
-        bool ICollection.IsSynchronized => true;
-
-        /// <inheritdoc/>
-        int ICollection.Count => Count;
     }
 }

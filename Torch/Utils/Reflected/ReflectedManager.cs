@@ -6,14 +6,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using NLog;
-using Sandbox.Engine.Multiplayer;
-using Torch.API;
-using Torch.Managers.PatchManager;
 using Torch.Utils.Reflected;
-using PropertyAttributes = System.Reflection.PropertyAttributes;
 
 namespace Torch.Utils
 {
@@ -34,7 +28,8 @@ namespace Torch.Utils
     #endregion
 
     /// <summary>
-    /// Automatically calls <see cref="ReflectedManager.Process(Assembly)"/> for every assembly already loaded, and every assembly that is loaded in the future.
+    ///     Automatically calls <see cref="ReflectedManager.Process(Assembly)" /> for every assembly already loaded, and every
+    ///     assembly that is loaded in the future.
     /// </summary>
     public static class ReflectedManager
     {
@@ -42,15 +37,15 @@ namespace Torch.Utils
         private static readonly HashSet<Type> _processedTypes = new HashSet<Type>();
 
         /// <summary>
-        /// Ensures all reflected fields and methods contained in the given type are initialized
+        ///     Ensures all reflected fields and methods contained in the given type are initialized
         /// </summary>
         /// <param name="t">Type to process</param>
         public static void Process(Type t)
         {
             if (_processedTypes.Add(t))
             {
-                foreach (FieldInfo field in t.GetFields(BindingFlags.Static | BindingFlags.Instance |
-                                                        BindingFlags.Public | BindingFlags.NonPublic))
+                foreach (var field in t.GetFields(BindingFlags.Static | BindingFlags.Instance |
+                                                  BindingFlags.Public | BindingFlags.NonPublic))
                 {
                     try
                     {
@@ -72,28 +67,29 @@ namespace Torch.Utils
         }
 
         /// <summary>
-        /// Ensures all types in the given assembly are initialized using <see cref="Process(Type)"/>
+        ///     Ensures all types in the given assembly are initialized using <see cref="Process(Type)" />
         /// </summary>
         /// <param name="asm">Assembly to process</param>
         public static void Process(Assembly asm)
         {
-            foreach (Type type in asm.GetTypes())
+            foreach (var type in asm.GetTypes())
                 if (!type.HasAttribute<ReflectedLazyAttribute>())
                     Process(type);
         }
 
         /// <summary>
-        /// Processes the given field, determines if it's reflected, and initializes it if it is.
+        ///     Processes the given field, determines if it's reflected, and initializes it if it is.
         /// </summary>
         /// <param name="field">Field to process</param>
         /// <returns>true if it was reflected, false if it wasn't reflectable</returns>
         /// <exception cref="ArgumentException">If the field failed to process</exception>
         public static bool Process(FieldInfo field)
         {
-            foreach (ReflectedMemberAttribute attr in field.GetCustomAttributes<ReflectedMemberAttribute>())
+            foreach (var attr in field.GetCustomAttributes<ReflectedMemberAttribute>())
             {
                 if (!field.IsStatic)
                     throw new ArgumentException("Field must be static to be reflected");
+
                 switch (attr)
                 {
                     case ReflectedMethodAttribute rma:
@@ -122,6 +118,7 @@ namespace Torch.Utils
             {
                 if (!field.IsStatic)
                     throw new ArgumentException("Field must be static to be reflected");
+
                 field.SetValue(null,
                     new Func<ReflectedEventReplacer>(() => new ReflectedEventReplacer(reflectedEventReplacer)));
                 return true;
@@ -137,6 +134,7 @@ namespace Torch.Utils
                 throw new ArgumentException("Reflected member info attributes require Type to be defined");
             if (attr.Name == null)
                 throw new ArgumentException("Reflected member info attributes require Name to be defined");
+
             switch (attr)
             {
                 case ReflectedFieldInfoAttribute rfia:
@@ -145,6 +143,7 @@ namespace Torch.Utils
                         (type, name, bindingFlags) => type.GetField(name, bindingFlags));
                     if (info == null)
                         throw new ArgumentException($"Unable to find field {rfia.Type.FullName}#{rfia.Name}");
+
                     break;
                 case ReflectedPropertyInfoAttribute rpia:
                     info = GetFieldPropRecursive(rpia.Type, rpia.Name,
@@ -152,6 +151,7 @@ namespace Torch.Utils
                         (type, name, bindingFlags) => type.GetProperty(name, bindingFlags));
                     if (info == null)
                         throw new ArgumentException($"Unable to find property {rpia.Type.FullName}#{rpia.Name}");
+
                     break;
                 case ReflectedMethodInfoAttribute rmia:
                     if (rmia.Parameters != null)
@@ -172,23 +172,25 @@ namespace Torch.Utils
                                 $"Unable to find method {rmia.Type.FullName}#{rmia.Name}");
                     }
 
-                    if (rmia.ReturnType != null && !rmia.ReturnType.IsAssignableFrom(((MethodInfo) info).ReturnType))
+                    if (rmia.ReturnType != null && !rmia.ReturnType.IsAssignableFrom(((MethodInfo)info).ReturnType))
                         throw new ArgumentException(
-                            $"Method {rmia.Type.FullName}#{rmia.Name} has return type {((MethodInfo) info).ReturnType.FullName}, expected {rmia.ReturnType.FullName}");
+                            $"Method {rmia.Type.FullName}#{rmia.Name} has return type {((MethodInfo)info).ReturnType.FullName}, expected {rmia.ReturnType.FullName}");
+
                     break;
             }
 
             if (info == null)
                 throw new ArgumentException(
                     $"Unable to find member info for {attr.GetType().Name}[{attr.Type.FullName}#{attr.Name}");
+
             field.SetValue(null, info);
         }
 
         private static void ProcessReflectedMethod(FieldInfo field, ReflectedMethodAttribute attr)
         {
-            MethodInfo delegateMethod = field.FieldType.GetMethod("Invoke");
-            ParameterInfo[] parameters = delegateMethod.GetParameters();
-            Type trueType = attr.Type;
+            var delegateMethod = field.FieldType.GetMethod("Invoke");
+            var parameters = delegateMethod.GetParameters();
+            var trueType = attr.Type;
             Type[] trueParameterTypes;
             if (attr is ReflectedStaticMethodAttribute)
             {
@@ -204,25 +206,24 @@ namespace Torch.Utils
             for (var i = 0; i < invokeTypes.Length; i++)
                 invokeTypes[i] = attr.OverrideTypes?[i] ?? trueParameterTypes[i];
 
-            MethodInfo methodInstance = trueType.GetMethod(attr.Name ?? field.Name,
+            var methodInstance = trueType.GetMethod(attr.Name ?? field.Name,
                 (attr is ReflectedStaticMethodAttribute ? BindingFlags.Static : BindingFlags.Instance) |
                 BindingFlags.Public |
                 BindingFlags.NonPublic, null, CallingConventions.Any, invokeTypes, null);
             if (methodInstance == null)
             {
-                string methodType = attr is ReflectedStaticMethodAttribute ? "static" : "instance";
-                string methodParams = string.Join(", ",
+                var methodType = attr is ReflectedStaticMethodAttribute ? "static" : "instance";
+                var methodParams = string.Join(", ",
                     trueParameterTypes.Select(x => x.Name));
                 throw new NoNullAllowedException(
                     $"Unable to find {methodType} method {attr.Name ?? field.Name} in type {trueType.FullName} with parameters {methodParams}");
             }
 
-
             if (attr is ReflectedStaticMethodAttribute)
             {
                 if (attr.OverrideTypes != null)
                 {
-                    ParameterExpression[] paramExp =
+                    var paramExp =
                         parameters.Select(x => Expression.Parameter(x.ParameterType)).ToArray();
                     var argExp = new Expression[invokeTypes.Length];
                     for (var i = 0; i < argExp.Length; i++)
@@ -232,14 +233,14 @@ namespace Torch.Utils
                             argExp[i] = paramExp[i];
                     field.SetValue(null,
                         Expression.Lambda(Expression.Call(methodInstance, argExp), paramExp)
-                            .Compile());
+                                  .Compile());
                 }
                 else
                     field.SetValue(null, Delegate.CreateDelegate(field.FieldType, methodInstance));
             }
             else
             {
-                ParameterExpression[] paramExp =
+                var paramExp =
                     parameters.Select(x => Expression.Parameter(x.ParameterType)).ToArray();
                 var argExp = new Expression[invokeTypes.Length];
                 for (var i = 0; i < argExp.Length; i++)
@@ -248,23 +249,23 @@ namespace Torch.Utils
                     else
                         argExp[i] = paramExp[i + 1];
                 Debug.Assert(methodInstance.DeclaringType != null);
-                Expression instanceExp = paramExp[0].Type != methodInstance.DeclaringType
-                    ? Expression.Convert(paramExp[0], methodInstance.DeclaringType)
-                    : (Expression) paramExp[0];
+                var instanceExp = paramExp[0].Type != methodInstance.DeclaringType
+                                      ? Expression.Convert(paramExp[0], methodInstance.DeclaringType)
+                                      : (Expression)paramExp[0];
                 field.SetValue(null,
                     Expression.Lambda(Expression.Call(instanceExp, methodInstance, argExp), paramExp)
-                        .Compile());
+                              .Compile());
                 _log.Trace(
                     $"Reflecting field {field.DeclaringType?.FullName}#{field.Name} with {methodInstance.DeclaringType?.FullName}#{methodInstance.Name}");
             }
         }
 
         internal static T GetFieldPropRecursive<T>(Type baseType, string name, BindingFlags flags,
-            Func<Type, string, BindingFlags, T> getter) where T : class
+                                                   Func<Type, string, BindingFlags, T> getter) where T : class
         {
             while (baseType != null)
             {
-                T result = getter.Invoke(baseType, name, flags);
+                var result = getter.Invoke(baseType, name, flags);
                 if (result != null)
                     return result;
 
@@ -276,14 +277,14 @@ namespace Torch.Utils
 
         private static void ProcessReflectedField(FieldInfo field, ReflectedMemberAttribute attr)
         {
-            MethodInfo delegateMethod = field.FieldType.GetMethod("Invoke");
-            ParameterInfo[] parameters = delegateMethod.GetParameters();
-            string trueName = attr.Name ?? field.Name;
-            Type trueType = attr.Type;
+            var delegateMethod = field.FieldType.GetMethod("Invoke");
+            var parameters = delegateMethod.GetParameters();
+            var trueName = attr.Name ?? field.Name;
+            var trueType = attr.Type;
             bool isStatic;
             if (attr is ReflectedSetterAttribute)
             {
-                if (delegateMethod.ReturnType != typeof(void) || (parameters.Length != 1 && parameters.Length != 2))
+                if (delegateMethod.ReturnType != typeof(void) || parameters.Length != 1 && parameters.Length != 2)
                     throw new ArgumentOutOfRangeException(nameof(field),
                         "Delegate for setter must be an action with one or two arguments");
 
@@ -296,7 +297,7 @@ namespace Torch.Utils
             }
             else if (attr is ReflectedGetterAttribute)
             {
-                if (delegateMethod.ReturnType == typeof(void) || (parameters.Length != 0 && parameters.Length != 1))
+                if (delegateMethod.ReturnType == typeof(void) || parameters.Length != 0 && parameters.Length != 1)
                     throw new ArgumentOutOfRangeException(nameof(field),
                         "Delegate for getter must be an function with one or no arguments");
 
@@ -311,19 +312,20 @@ namespace Torch.Utils
                 throw new ArgumentException($"Field attribute type {attr.GetType().FullName} is invalid",
                     nameof(field));
 
-            BindingFlags bindingFlags = (isStatic ? BindingFlags.Static : BindingFlags.Instance) |
-                                        BindingFlags.NonPublic |
-                                        BindingFlags.Public;
-            FieldInfo sourceField = GetFieldPropRecursive(trueType, trueName, bindingFlags,
+            var bindingFlags = (isStatic ? BindingFlags.Static : BindingFlags.Instance) |
+                               BindingFlags.NonPublic |
+                               BindingFlags.Public;
+            var sourceField = GetFieldPropRecursive(trueType, trueName, bindingFlags,
                 (a, b, c) => a.GetField(b, c));
-            PropertyInfo sourceProperty =
+            var sourceProperty =
                 GetFieldPropRecursive(trueType, trueName, bindingFlags, (a, b, c) => a.GetProperty(b, c));
             if (sourceField == null && sourceProperty == null)
                 throw new ArgumentException(
                     $"Unable to find field or property for {trueName} in {trueType.FullName} or its base types",
                     nameof(field));
+
             var sourceType = sourceField?.FieldType ?? sourceProperty.PropertyType;
-            bool isSetter = attr is ReflectedSetterAttribute;
+            var isSetter = attr is ReflectedSetterAttribute;
             if (sourceProperty != null && isSetter && !sourceProperty.CanWrite)
                 throw new InvalidOperationException(
                     $"Can't create setter for readonly property {trueName} in {trueType.FullName}");
@@ -335,14 +337,14 @@ namespace Torch.Utils
             var dynMethod = new DynamicMethod((isSetter ? "set" : "get") + "_" + trueType.FullName + "." + trueName,
                 delegateMethod.ReturnType, parameters.Select(x => x.ParameterType).ToArray(),
                 typeof(ReflectedManager).Module, true);
-            ILGenerator il = dynMethod.GetILGenerator();
+            var il = dynMethod.GetILGenerator();
 
             if (!isStatic)
                 EmitThis(il, parameters[0].ParameterType, trueType);
 
             if (isSetter)
             {
-                int val = isStatic ? 0 : 1;
+                var val = isStatic ? 0 : 1;
                 il.Emit(OpCodes.Ldarg, val);
                 EmitCast(il, parameters[val].ParameterType, sourceType);
                 if (sourceProperty != null)

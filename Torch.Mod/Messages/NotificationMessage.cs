@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using ProtoBuf;
 using Sandbox.ModAPI;
 
@@ -9,15 +7,16 @@ namespace Torch.Mod.Messages
     [ProtoContract]
     public class NotificationMessage : MessageBase
     {
-        [ProtoMember(201)]
-        public string Message;
-        [ProtoMember(202)]
-        public string Font;
         [ProtoMember(203)]
         public int DisappearTimeMs;
 
-        public NotificationMessage()
-        { }
+        [ProtoMember(202)]
+        public string Font;
+
+        [ProtoMember(201)]
+        public string Message;
+
+        public NotificationMessage() { }
 
         public NotificationMessage(string message, int disappearTimeMs, string font)
         {

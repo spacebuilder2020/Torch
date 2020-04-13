@@ -1,8 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
-using Sandbox.Engine.Networking;
 using Sandbox.Game.Multiplayer;
 using Torch.API;
 using Torch.API.Managers;
@@ -16,40 +12,10 @@ namespace Torch.Commands
 {
     public class CommandContext
     {
-        /// <summary>
-        /// The plugin that added this command.
-        /// </summary>
-        public ITorchPlugin Plugin { get; }
-
-        /// <summary>
-        /// The current Torch instance.
-        /// </summary>
-        public ITorchBase Torch { get; }
-
-        /// <summary>
-        /// The player who ran the command, or null if the server sent it.
-        /// </summary>
-        public IMyPlayer Player => Torch.CurrentSession.KeenSession.Players.TryGetPlayerBySteamId(_steamIdSender);
-
-        /// <summary>
-        /// Was this message sent by this program.
-        /// </summary>
-        public bool SentBySelf => _steamIdSender == Sync.MyId;
-
-        private ulong _steamIdSender;
-
-        /// <summary>
-        /// The command arguments split by spaces and quotes. Ex. "this is" a command -> {this is, a, command}
-        /// </summary>
-        public List<string> Args { get; }
-
-        /// <summary>
-        /// The non-split argument string.
-        /// </summary>
-        public string RawArgs { get; }
+        private readonly ulong _steamIdSender;
 
         public CommandContext(ITorchBase torch, ITorchPlugin plugin, ulong steamIdSender, string rawArgs = null,
-            List<string> args = null)
+                              List<string> args = null)
         {
             Torch = torch;
             Plugin = plugin;
@@ -58,13 +24,43 @@ namespace Torch.Commands
             Args = args ?? new List<string>();
         }
 
+        /// <summary>
+        ///     The plugin that added this command.
+        /// </summary>
+        public ITorchPlugin Plugin { get; }
+
+        /// <summary>
+        ///     The current Torch instance.
+        /// </summary>
+        public ITorchBase Torch { get; }
+
+        /// <summary>
+        ///     The player who ran the command, or null if the server sent it.
+        /// </summary>
+        public IMyPlayer Player => Torch.CurrentSession.KeenSession.Players.TryGetPlayerBySteamId(_steamIdSender);
+
+        /// <summary>
+        ///     Was this message sent by this program.
+        /// </summary>
+        public bool SentBySelf => _steamIdSender == Sync.MyId;
+
+        /// <summary>
+        ///     The command arguments split by spaces and quotes. Ex. "this is" a command -> {this is, a, command}
+        /// </summary>
+        public List<string> Args { get; }
+
+        /// <summary>
+        ///     The non-split argument string.
+        /// </summary>
+        public string RawArgs { get; }
+
         public void Respond(string message, Color color, string sender = null, string font = null)
         {
             var chat = Torch.CurrentSession.Managers.GetManager<IChatManagerServer>();
-            
+
             if (color == default && font != null)
                 color = ColorUtils.TranslateColor(font);
-            
+
             if (font == null)
                 font = MyFontEnum.White;
 
@@ -79,7 +75,7 @@ namespace Torch.Commands
                 sender = null;
                 font = null;
             }
-            
+
             Respond(message, default, sender, font);
         }
     }

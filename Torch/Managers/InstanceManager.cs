@@ -1,48 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using Havok;
 using NLog;
-using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
-using Sandbox.Game;
-using Sandbox.Game.Gui;
 using Torch.API;
-using Torch.API.Managers;
 using Torch.Collections;
 using Torch.Managers;
 using Torch.Mod;
 using Torch.Server.ViewModels;
-using VRage;
 using VRage.FileSystem;
 using VRage.Game;
-using VRage.Game.ObjectBuilder;
 using VRage.ObjectBuilders;
-using VRage.Plugins;
 
 namespace Torch.Server.Managers
 {
     public class InstanceManager : Manager
     {
         private const string CONFIG_NAME = "SpaceEngineers-Dedicated.cfg";
-
-        public event Action<ConfigDedicatedViewModel> InstanceLoaded;
-        public ConfigDedicatedViewModel DedicatedConfig { get; set; }
         private static readonly Logger Log = LogManager.GetLogger(nameof(InstanceManager));
+
         [Dependency]
         private FilesystemManager _filesystemManager;
 
-        public InstanceManager(ITorchBase torchInstance) : base(torchInstance)
-        {
-            
-        }
-        
+        public InstanceManager(ITorchBase torchInstance) : base(torchInstance) { }
+
+        public ConfigDedicatedViewModel DedicatedConfig { get; set; }
+
+        public event Action<ConfigDedicatedViewModel> InstanceLoaded;
+
         public void LoadInstance(string path, bool validate = true)
         {
             Log.Info($"Loading instance {path}");
@@ -97,7 +83,7 @@ namespace Torch.Server.Managers
         public void SelectWorld(string worldPath, bool modsOnly = true)
         {
             DedicatedConfig.LoadWorld = worldPath;
-            
+
             var worldInfo = DedicatedConfig.Worlds.FirstOrDefault(x => x.WorldPath == worldPath);
             try
             {
@@ -153,7 +139,6 @@ namespace Torch.Server.Managers
                 mods.Add(new ModItemInfo(mod));
             DedicatedConfig.Mods = mods;
 
-
             Log.Debug("Loaded mod list from world");
 
             if (!modsOnly)
@@ -172,7 +157,7 @@ namespace Torch.Server.Managers
 
             try
             {
-                MyObjectBuilderSerializer.DeserializeXML(sandboxPath, out MyObjectBuilder_Checkpoint checkpoint, out ulong sizeInBytes);
+                MyObjectBuilderSerializer.DeserializeXML(sandboxPath, out MyObjectBuilder_Checkpoint checkpoint, out var sizeInBytes);
                 if (checkpoint == null)
                 {
                     Log.Error($"Failed to load {DedicatedConfig.LoadWorld}, checkpoint null ({sizeInBytes} bytes, instance {Torch.Config.InstancePath})");
@@ -203,7 +188,7 @@ namespace Torch.Server.Managers
                 Log.Warn("Checkpoint cache is stale, not saving dedicated config.");
                 return;
             }
-            
+
             DedicatedConfig.Save(Path.Combine(Torch.Config.InstancePath, CONFIG_NAME));
             Log.Info("Saved dedicated config.");
 
@@ -221,6 +206,7 @@ namespace Torch.Server.Managers
                     savedMod.IsDependency = mod.IsDependency;
                     world.WorldConfiguration.Mods.Add(savedMod);
                 }
+
                 Task.Run(() => DedicatedConfig.UpdateAllModInfosAsync());
 
                 world.SaveSandbox();
@@ -235,7 +221,7 @@ namespace Torch.Server.Managers
         }
 
         /// <summary>
-        /// Ensures that the given path is a valid server instance.
+        ///     Ensures that the given path is a valid server instance.
         /// </summary>
         private void ValidateInstance(string path)
         {
@@ -253,15 +239,8 @@ namespace Torch.Server.Managers
     public class WorldViewModel : ViewModel
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-        public string FolderName { get; set; }
-        public string WorldPath { get; }
-        public long WorldSizeKB { get; }
-        private string _checkpointPath;
-        private string _worldConfigPath;
-        public CheckpointViewModel Checkpoint { get; private set; }
-        
-        public WorldConfigurationViewModel WorldConfiguration { get; private set; }
+        private readonly string _checkpointPath;
+        private readonly string _worldConfigPath;
 
         public WorldViewModel(string worldPath)
         {
@@ -281,6 +260,13 @@ namespace Torch.Server.Managers
             }
         }
 
+        public string FolderName { get; set; }
+        public string WorldPath { get; }
+        public long WorldSizeKB { get; }
+        public CheckpointViewModel Checkpoint { get; private set; }
+
+        public WorldConfigurationViewModel WorldConfiguration { get; private set; }
+
         public void SaveSandbox()
         {
             using (var f = File.Open(_checkpointPath, FileMode.Create))
@@ -294,7 +280,7 @@ namespace Torch.Server.Managers
         {
             MyObjectBuilderSerializer.DeserializeXML(_checkpointPath, out MyObjectBuilder_Checkpoint checkpoint);
             Checkpoint = new CheckpointViewModel(checkpoint);
-            
+
             // migrate old saves
             if (File.Exists(_worldConfigPath))
             {
@@ -312,7 +298,7 @@ namespace Torch.Server.Managers
                 checkpoint.Mods = null;
                 checkpoint.Settings = null;
             }
-            
+
             OnPropertyChanged(nameof(Checkpoint));
             OnPropertyChanged(nameof(WorldConfiguration));
         }

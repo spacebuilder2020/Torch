@@ -4,18 +4,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Torch.Collections
 {
     public class SystemSortedView<T> : IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged
     {
         private readonly ObservableCollection<T> _backing;
-        private IComparer<T> _comparer;
         private readonly List<T> _store;
+        private IComparer<T> _comparer;
 
         public SystemSortedView(ObservableCollection<T> backing, IComparer<T> comparer)
         {
@@ -25,6 +22,21 @@ namespace Torch.Collections
             _store.AddRange(_backing);
             _backing.CollectionChanged += backing_CollectionChanged;
         }
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _store.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public int Count => _backing.Count;
 
         private void backing_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -46,20 +58,7 @@ namespace Torch.Collections
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
         }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            return _store.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public int Count => _backing.Count;
 
         private void InsertSorted(IEnumerable items)
         {
@@ -77,17 +76,20 @@ namespace Torch.Collections
                 _store.Add(item);
                 return 0;
             }
+
             if (comparer.Compare(_store[_store.Count - 1], item) <= 0)
             {
                 _store.Add(item);
                 return _store.Count - 1;
             }
+
             if (comparer.Compare(_store[0], item) >= 0)
             {
                 _store.Insert(0, item);
                 return 0;
             }
-            int index = _store.BinarySearch(item);
+
+            var index = _store.BinarySearch(item);
             if (index < 0)
                 index = ~index;
             _store.Insert(index, item);
@@ -120,9 +122,6 @@ namespace Torch.Collections
             if (resort)
                 Sort();
         }
-
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

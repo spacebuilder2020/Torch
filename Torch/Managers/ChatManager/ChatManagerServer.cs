@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using NLog;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -15,10 +11,8 @@ using Torch.API;
 using Torch.API.Managers;
 using Torch.Managers.PatchManager;
 using Torch.Utils;
-using VRage;
 using VRage.Collections;
 using VRage.Game;
-using VRage.Library.Collections;
 using VRage.Network;
 using VRageMath;
 
@@ -29,7 +23,7 @@ namespace Torch.Managers.ChatManager
     {
         private static ChatManagerServer _chatManager;
         private static ChatManagerServer ChatManager => _chatManager ?? (_chatManager = TorchBase.Instance.CurrentSession.Managers.GetManager<ChatManagerServer>());
-            
+
         internal static void Patch(PatchContext context)
         {
             var target = typeof(MyMultiplayerBase).GetMethod("OnChatMessageReceived_Server", BindingFlags.Static | BindingFlags.NonPublic);
@@ -44,21 +38,19 @@ namespace Torch.Managers.ChatManager
             return !consumed;
         }
     }
-    
+
     public class ChatManagerServer : ChatManagerClient, IChatManagerServer
     {
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
         private static readonly Logger _chatLog = LogManager.GetLogger("Chat");
 
         private readonly HashSet<ulong> _muted = new HashSet<ulong>();
-        /// <inheritdoc />
-        public HashSetReader<ulong> MutedUsers => _muted;
 
         /// <inheritdoc />
-        public ChatManagerServer(ITorchBase torchInstance) : base(torchInstance)
-        {
-            
-        }
+        public ChatManagerServer(ITorchBase torchInstance) : base(torchInstance) { }
+
+        /// <inheritdoc />
+        public HashSetReader<ulong> MutedUsers => _muted;
 
         /// <inheritdoc />
         public event MessageProcessingDel MessageProcessing;
@@ -83,31 +75,21 @@ namespace Torch.Managers.ChatManager
                 RaiseMessageRecieved(new TorchChatMessage(authorId, message, ChatChannel.Global, 0));
                 return;
             }
+
             if (MyMultiplayer.Static == null)
             {
                 if ((targetSteamId == MyGameService.UserId || targetSteamId == 0) && HasHud)
-                    MyHud.Chat?.ShowMessage(authorId == MyGameService.UserId ?
-                        (MySession.Static.LocalHumanPlayer?.DisplayName ?? "Player") : $"user_{authorId}", message);
+                    MyHud.Chat?.ShowMessage(authorId == MyGameService.UserId ? MySession.Static.LocalHumanPlayer?.DisplayName ?? "Player" : $"user_{authorId}", message);
                 return;
             }
+
             if (MyMultiplayer.Static is MyDedicatedServerBase dedicated)
             {
-                var msg = new ChatMsg() { Author = authorId, Text = message };
+                var msg = new ChatMsg() {Author = authorId, Text = message};
                 _dedicatedServerBaseSendChatMessage.Invoke(ref msg);
-                _dedicatedServerBaseOnChatMessage.Invoke(dedicated, new object[] { msg });
+                _dedicatedServerBaseOnChatMessage.Invoke(dedicated, new object[] {msg});
             }
         }
-
-
-#pragma warning disable 649
-        private delegate void MultiplayerBaseSendChatMessageDel(ref ChatMsg arg);
-        [ReflectedStaticMethod(Name = "SendChatMessage", Type = typeof(MyMultiplayerBase))]
-        private static MultiplayerBaseSendChatMessageDel _dedicatedServerBaseSendChatMessage;
-
-        // [ReflectedMethod] doesn't play well with instance methods and refs.
-        [ReflectedMethodInfo(typeof(MyDedicatedServerBase), "OnChatMessage")]
-        private static MethodInfo _dedicatedServerBaseOnChatMessage;
-#pragma warning restore 649
 
         public void SendMessageAsOther(string author, string message, Color color = default, ulong targetSteamId = 0, string font = MyFontEnum.White)
         {
@@ -116,12 +98,14 @@ namespace Torch.Managers.ChatManager
                 RaiseMessageRecieved(new TorchChatMessage(author, message, font));
                 return;
             }
+
             if (MyMultiplayer.Static == null)
             {
                 if ((targetSteamId == MyGameService.UserId || targetSteamId == 0) && HasHud)
                     MyHud.Chat?.ShowMessage(author, message, font);
                 return;
             }
+
             var scripted = new ScriptedChatMsg()
             {
                 Author = author ?? Torch.Config.ChatName,
@@ -133,9 +117,9 @@ namespace Torch.Managers.ChatManager
             _chatLog.Info($"{author} (to {GetMemberName(targetSteamId)}): {message}");
             MyMultiplayerBase.SendScriptedChatMessage(ref scripted);
         }
-        
+
         /// <summary>
-        /// Backwards compatibility
+        ///     Backwards compatibility
         /// </summary>
         [Obsolete("Use the other overload with a Color parameter.")]
         public void SendMessageAsOther(string author, string message, string font, ulong targetSteamId = 0)
@@ -148,6 +132,7 @@ namespace Torch.Managers.ChatManager
         {
             if (MyMultiplayer.Static != null)
                 return false;
+
             var consumed = false;
             MessageProcessing?.Invoke(msg, ref consumed);
             return consumed;
@@ -173,5 +158,16 @@ namespace Torch.Managers.ChatManager
         {
             return MyMultiplayer.Static?.GetMemberName(steamId) ?? $"user_{steamId}";
         }
+
+#pragma warning disable 649
+        private delegate void MultiplayerBaseSendChatMessageDel(ref ChatMsg arg);
+
+        [ReflectedStaticMethod(Name = "SendChatMessage", Type = typeof(MyMultiplayerBase))]
+        private static MultiplayerBaseSendChatMessageDel _dedicatedServerBaseSendChatMessage;
+
+        // [ReflectedMethod] doesn't play well with instance methods and refs.
+        [ReflectedMethodInfo(typeof(MyDedicatedServerBase), "OnChatMessage")]
+        private static MethodInfo _dedicatedServerBaseOnChatMessage;
+#pragma warning restore 649
     }
 }

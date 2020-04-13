@@ -9,17 +9,18 @@
         Title="WorldGeneratorDialog" Height="500" Width="700">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <ListView Grid.Column="0" x:Name="PremadeCheckpoints" ScrollViewer.CanContentScroll="False" HorizontalContentAlignment="Center" Margin="3" SelectionChanged="PremadeCheckpoints_SelectionChanged">
+        <ListView Grid.Column="0" x:Name="PremadeCheckpoints" ScrollViewer.CanContentScroll="False"
+                  HorizontalContentAlignment="Center" Margin="3" SelectionChanged="PremadeCheckpoints_SelectionChanged">
             <ListView.ItemTemplate>
                 <DataTemplate DataType="local:PremadeCheckpointItem">
                     <StackPanel HorizontalAlignment="Center">
-                        <Label Content="{Binding Name}" HorizontalAlignment="Center"/>
+                        <Label Content="{Binding Name}" HorizontalAlignment="Center" />
                         <Image Stretch="Uniform" MaxHeight="100" HorizontalAlignment="Center">
                             <Image.Source>
-                                <BitmapImage UriSource="{Binding Icon}"/>
+                                <BitmapImage UriSource="{Binding Icon}" />
                             </Image.Source>
                         </Image>
                     </StackPanel>
@@ -28,16 +29,16 @@
         </ListView>
         <Grid Grid.Column="1" Margin="3">
             <Grid.RowDefinitions>
-                <RowDefinition Height ="Auto"/>
-                <RowDefinition Height ="*"/>
-                <RowDefinition Height ="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
-                <Label Content="World Name: "/>
-                <TextBox x:Name="WorldName" Width="300" Margin="3"/>
+                <Label Content="World Name: " />
+                <TextBox x:Name="WorldName" Width="300" Margin="3" />
             </StackPanel>
-            <views1:PropertyGrid Grid.Row="1" x:Name="SettingsView" Margin="3"/>
-            <Button Grid.Row="2"  Content="Create World" Click="ButtonBase_OnClick" Margin ="3"/>
+            <views1:PropertyGrid Grid.Row="1" x:Name="SettingsView" Margin="3" />
+            <Button Grid.Row="2" Content="Create World" Click="ButtonBase_OnClick" Margin="3" />
         </Grid>
     </Grid>
 </Window>

@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,13 +10,13 @@ using Torch.Managers.PatchManager.MSIL;
 namespace Torch.Patches
 {
     /// <summary>
-    /// Patches MySandboxGame.InitQuickLaunch to rethrow exceptions caught during session load.
+    ///     Patches MySandboxGame.InitQuickLaunch to rethrow exceptions caught during session load.
     /// </summary>
     [PatchShim]
     public static class WorldLoadExceptionPatch
     {
         private static readonly ILogger _log = LogManager.GetCurrentClassLogger();
-        
+
         public static void Patch(PatchContext ctx)
         {
             ctx.GetPattern(typeof(MySandboxGame).GetMethod("InitQuickLaunch", BindingFlags.Instance | BindingFlags.NonPublic))
@@ -42,6 +40,7 @@ namespace Torch.Patches
                     break;
                 }
             }
+
             return msil;
         }
     }

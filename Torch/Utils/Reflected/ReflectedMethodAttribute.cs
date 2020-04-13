@@ -4,10 +4,10 @@ using System.Linq;
 namespace Torch.Utils
 {
     /// <summary>
-    /// Indicates that this field should contain a delegate capable of invoking an instance method.
+    ///     Indicates that this field should contain a delegate capable of invoking an instance method.
     /// </summary>
     /// <example>
-    /// <code>
+    ///     <code>
     /// <![CDATA[
     /// [ReflectedMethodAttribute]
     /// private static Func<Example, int, float, string> ExampleInstance;
@@ -24,17 +24,13 @@ namespace Torch.Utils
     public class ReflectedMethodAttribute : ReflectedMemberAttribute
     {
         /// <summary>
-        /// When set the parameters types for the method are assumed to be this.
+        ///     When set the parameters types for the method are assumed to be this.
         /// </summary>
         public Type[] OverrideTypes { get; set; }
 
         /// <summary>
-        /// Assembly qualified names of <see cref="OverrideTypes"/>
+        ///     Assembly qualified names of <see cref="OverrideTypes" />
         /// </summary>
-        public string[] OverrideTypeNames
-        {
-            get => OverrideTypes.Select(x => x.AssemblyQualifiedName).ToArray();
-            set => OverrideTypes = value?.Select(x => x == null ? null : Type.GetType(x, true)).ToArray();
-        }
+        public string[] OverrideTypeNames { get => OverrideTypes.Select(x => x.AssemblyQualifiedName).ToArray(); set => OverrideTypes = value?.Select(x => x == null ? null : Type.GetType(x, true)).ToArray(); }
     }
 }

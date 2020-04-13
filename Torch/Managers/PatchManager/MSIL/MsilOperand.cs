@@ -19,7 +19,7 @@ namespace Torch.Managers.PatchManager.MSIL
         public MsilInstruction Instruction { get; }
 
         /// <summary>
-        /// Gets the maximum amount of space this operand will use.
+        ///     Gets the maximum amount of space this operand will use.
         /// </summary>
         public abstract int MaxBytes { get; }
 

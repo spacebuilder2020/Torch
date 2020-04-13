@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using NLog;
-using Torch.API;
 using Torch.API.Plugins;
 using Torch.Server.Views;
 
@@ -15,11 +10,7 @@ namespace Torch.Server.ViewModels
 {
     public class PluginViewModel
     {
-        public UserControl Control { get; }
-        public string Name { get; }
-        public ITorchPlugin Plugin { get; }
-
-        private static Logger _log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger _log = LogManager.GetCurrentClassLogger();
 
         public PluginViewModel(ITorchPlugin plugin)
         {
@@ -37,25 +28,21 @@ namespace Torch.Server.ViewModels
                     Control = null;
                 }
             }
-            
+
             Name = $"{plugin.Name} ({plugin.Version})";
 
             ThemeControl.UpdateDynamicControls += UpdateResourceDict;
             UpdateResourceDict(ThemeControl.currentTheme);
         }
 
-        public void UpdateResourceDict(ResourceDictionary dictionary)
-        {
-            if (this.Control == null)
-                return;
-
-            this.Control.Resources.MergedDictionaries.Clear();
-            this.Control.Resources.MergedDictionaries.Add(dictionary);
-        }
+        public UserControl Control { get; }
+        public string Name { get; }
+        public ITorchPlugin Plugin { get; }
 
         public Brush Color
         {
-            get {
+            get
+            {
                 switch (Plugin.State)
                 {
                     case PluginState.NotInitialized:
@@ -79,7 +66,9 @@ namespace Torch.Server.ViewModels
 
         public string ToolTip
         {
-            get { switch (Plugin.State)
+            get
+            {
+                switch (Plugin.State)
                 {
                     case PluginState.NotInitialized:
                         return "Error during load.";
@@ -101,6 +90,15 @@ namespace Torch.Server.ViewModels
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+        public void UpdateResourceDict(ResourceDictionary dictionary)
+        {
+            if (Control == null)
+                return;
+
+            Control.Resources.MergedDictionaries.Clear();
+            Control.Resources.MergedDictionaries.Add(dictionary);
         }
     }
 }

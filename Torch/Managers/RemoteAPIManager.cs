@@ -9,11 +9,8 @@ namespace Torch.Server.Managers
     public class RemoteAPIManager : Manager
     {
         /// <inheritdoc />
-        public RemoteAPIManager(ITorchBase torchInstance) : base(torchInstance)
-        {
-            
-        }
-        
+        public RemoteAPIManager(ITorchBase torchInstance) : base(torchInstance) { }
+
         /// <inheritdoc />
         public override void Attach()
         {

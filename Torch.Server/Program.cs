@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading;
 using Microsoft.VisualBasic.Devices;
 using NLog;
-using NLog.Fluent;
 using NLog.Targets;
 using Torch.Utils;
 
@@ -19,13 +12,11 @@ namespace Torch.Server
     internal static class Program
     {
         /// <remarks>
-        /// This method must *NOT* load any types/assemblies from the vanilla game, otherwise automatic updates will fail.
+        ///     This method must *NOT* load any types/assemblies from the vanilla game, otherwise automatic updates will fail.
         /// </remarks>
         [STAThread]
         public static void Main(string[] args)
         {
-            
-            
             Target.Register<FlowDocumentTarget>("FlowDocument");
             //Ensures that all the files are downloaded in the Torch directory.
             var workingDir = new FileInfo(typeof(Program).Assembly.Location).Directory.ToString();

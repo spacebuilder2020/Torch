@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NLog;
-using Sandbox.Engine.Multiplayer;
-using Torch.Managers.PatchManager;
+﻿using Sandbox.Engine.Multiplayer;
 using Torch.API.Managers;
+using Torch.Managers.PatchManager;
 
 namespace Torch.Server.Managers
 {

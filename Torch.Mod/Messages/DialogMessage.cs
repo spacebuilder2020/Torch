@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ProtoBuf;
 using Sandbox.ModAPI;
 
@@ -28,19 +24,22 @@ namespace Torch.Mod.Messages
     [ProtoContract]
     public class DialogMessage : MessageBase
     {
-        [ProtoMember(201)]
-        public string Title;
-        [ProtoMember(202)]
-        public string Subtitle;
-        [ProtoMember(203)]
-        public string Prefix;
-        [ProtoMember(204)]
-        public string Content;
         [ProtoMember(205)]
         public string ButtonText;
 
-        public DialogMessage()
-        { }
+        [ProtoMember(204)]
+        public string Content;
+
+        [ProtoMember(203)]
+        public string Prefix;
+
+        [ProtoMember(202)]
+        public string Subtitle;
+
+        [ProtoMember(201)]
+        public string Title;
+
+        public DialogMessage() { }
 
         public DialogMessage(string title, string subtitle, string content)
         {

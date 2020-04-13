@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using Torch.Managers.PatchManager.MSIL;
-using Torch.Managers.PatchManager.Transpile;
 
 namespace Torch.Managers.PatchManager
 {
     internal static class EmitExtensions
     {
         /// <summary>
-        /// Sets the given local to its default value in the given IL generator.
+        ///     Sets the given local to its default value in the given IL generator.
         /// </summary>
         /// <param name="local">Local to set to default</param>
         /// <returns>Instructions</returns>
@@ -27,6 +26,7 @@ namespace Torch.Managers.PatchManager
                     yield return new MsilInstruction(OpCodes.Ldc_I8).InlineValue(0L);
                 else
                     yield return new MsilInstruction(OpCodes.Ldc_I4).InlineValue(0);
+
                 yield return new MsilInstruction(OpCodes.Stloc).InlineValue(local);
             }
             else if (local.Type.IsValueType) // struct
@@ -42,7 +42,7 @@ namespace Torch.Managers.PatchManager
         }
 
         /// <summary>
-        /// Emits a dereference for the given type.
+        ///     Emits a dereference for the given type.
         /// </summary>
         /// <param name="type">Type to dereference</param>
         /// <returns>Derference instruction</returns>
@@ -70,6 +70,7 @@ namespace Torch.Managers.PatchManager
                 return new MsilInstruction(OpCodes.Ldind_I4);
             if (type == typeof(long) || type == typeof(ulong))
                 return new MsilInstruction(OpCodes.Ldind_I8);
+
             return new MsilInstruction(OpCodes.Ldind_Ref);
         }
     }

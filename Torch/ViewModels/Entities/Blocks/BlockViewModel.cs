@@ -10,7 +10,30 @@ namespace Torch.Server.ViewModels.Blocks
 {
     public class BlockViewModel : EntityViewModel
     {
-        public IMyTerminalBlock Block => (IMyTerminalBlock) Entity;
+        public BlockViewModel(IMyTerminalBlock block, EntityTreeViewModel tree) : base(block, tree)
+        {
+            if (Block == null)
+                return;
+
+            var propList = new List<ITerminalProperty>();
+            block.GetProperties(propList);
+            foreach (var prop in propList)
+            {
+                Type propType = null;
+                foreach (var iface in prop.GetType().GetInterfaces())
+                {
+                    if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(ITerminalProperty<>))
+                        propType = iface.GenericTypeArguments[0];
+                }
+
+                var modelType = typeof(PropertyViewModel<>).MakeGenericType(propType);
+                Properties.Add((PropertyViewModel)Activator.CreateInstance(modelType, prop, this));
+            }
+        }
+
+        public BlockViewModel() { }
+
+        public IMyTerminalBlock Block => (IMyTerminalBlock)Entity;
         public MtObservableList<PropertyViewModel> Properties { get; } = new MtObservableList<PropertyViewModel>();
 
         public string FullName => $"{Block?.CubeGrid.CustomName} - {Block?.CustomName}";
@@ -24,7 +47,7 @@ namespace Torch.Server.ViewModels.Blocks
                 {
                     Block.CustomName = value;
                     OnPropertyChanged();
-                }); 
+                });
             }
         }
 
@@ -50,32 +73,6 @@ namespace Torch.Server.ViewModels.Blocks
         public override void Delete()
         {
             Block.CubeGrid.RazeBlock(Block.Position);
-        }
-
-        public BlockViewModel(IMyTerminalBlock block, EntityTreeViewModel tree) : base(block, tree)
-        {
-            if (Block == null)
-                return;
-
-            var propList = new List<ITerminalProperty>();
-            block.GetProperties(propList);
-            foreach (var prop in propList)
-            {
-                Type propType = null;
-                foreach (var iface in prop.GetType().GetInterfaces())
-                {
-                    if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(ITerminalProperty<>))
-                        propType = iface.GenericTypeArguments[0];
-                }
-
-                var modelType = typeof(PropertyViewModel<>).MakeGenericType(propType);
-                Properties.Add((PropertyViewModel)Activator.CreateInstance(modelType, prop, this));
-            }
-        }
-
-        public BlockViewModel()
-        {
-            
         }
     }
 }

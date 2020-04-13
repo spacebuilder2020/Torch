@@ -6,5 +6,5 @@
         xmlns:local="clr-namespace:Torch.Views"
         mc:Ignorable="d"
         Height="370" Width="400" Title="Edit Collection">
-    <local:EmbeddedCollectionEditor x:Name="Editor"/>
+    <local:EmbeddedCollectionEditor x:Name="Editor" />
 </Window>

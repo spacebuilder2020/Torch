@@ -1,33 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Torch.API
+﻿namespace Torch.API
 {
     /// <summary>
-    /// Used to indicate the state of the dedicated server.
+    ///     Used to indicate the state of the dedicated server.
     /// </summary>
     public enum ServerState
     {
         /// <summary>
-        /// The server is not running.
+        ///     The server is not running.
         /// </summary>
         Stopped,
 
         /// <summary>
-        /// The server is starting/loading the session.
+        ///     The server is starting/loading the session.
         /// </summary>
         Starting,
 
         /// <summary>
-        /// The server is running.
+        ///     The server is running.
         /// </summary>
         Running,
 
         /// <summary>
-        /// The server encountered an error.
+        ///     The server encountered an error.
         /// </summary>
         Error
     }

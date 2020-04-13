@@ -8,7 +8,6 @@ using System.Reflection.Emit;
 using NLog;
 using Torch.Managers.PatchManager.MSIL;
 using Torch.Utils;
-using VRage.Game.VisualScripting.Utils;
 
 namespace Torch.Managers.PatchManager.Transpile
 {
@@ -16,42 +15,11 @@ namespace Torch.Managers.PatchManager.Transpile
     {
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
 
-        public readonly MethodBase Method;
-        public readonly MethodBody MethodBody;
-        private readonly byte[] _msilBytes;
-
-        internal Dictionary<int, MsilLabel> Labels { get; } = new Dictionary<int, MsilLabel>();
-        private readonly List<MsilInstruction> _instructions = new List<MsilInstruction>();
-        public IReadOnlyList<MsilInstruction> Instructions => _instructions;
-
-        internal ITokenResolver TokenResolver { get; }
-
-        internal MsilLabel LabelAt(int i)
-        {
-            if (Labels.TryGetValue(i, out MsilLabel label))
-                return label;
-            Labels.Add(i, label = new MsilLabel());
-            return label;
-        }
-
-        public MethodContext(MethodBase method)
-        {
-            Method = method;
-            MethodBody = method.GetMethodBody();
-            Debug.Assert(MethodBody != null, "Method body is null");
-            _msilBytes = MethodBody.GetILAsByteArray();
-            TokenResolver = new NormalTokenResolver(method);
-        }
-
-
-#pragma warning disable 649
         [ReflectedMethod(Name = "BakeByteArray")]
         private static Func<ILGenerator, byte[]> _ilGeneratorBakeByteArray;
 
         [ReflectedMethod(Name = "GetExceptions")]
         private static Func<ILGenerator, Array> _ilGeneratorGetExceptionHandlers;
-
-        private const string InternalExceptionInfo = "System.Reflection.Emit.__ExceptionInfo, mscorlib";
 
         [ReflectedMethod(Name = "GetExceptionTypes", TypeName = InternalExceptionInfo)]
         private static Func<object, int[]> _exceptionHandlerGetTypes;
@@ -76,9 +44,41 @@ namespace Torch.Managers.PatchManager.Transpile
 
         [ReflectedMethod(Name = "GetFilterAddresses", TypeName = InternalExceptionInfo)]
         private static Func<object, int[]> _exceptionHandlerGetFilterAddrs;
-#pragma warning restore 649
+
+        private static readonly Dictionary<short, OpCode> OpCodeLookup;
+        private static readonly HashSet<short> Prefixes;
 
         private readonly Array _dynamicExceptionTable;
+        private readonly List<MsilInstruction> _instructions = new List<MsilInstruction>();
+        private readonly byte[] _msilBytes;
+
+        public readonly MethodBase Method;
+        public readonly MethodBody MethodBody;
+
+        static MethodContext()
+        {
+            OpCodeLookup = new Dictionary<short, OpCode>();
+            Prefixes = new HashSet<short>();
+            foreach (var field in typeof(OpCodes).GetFields(BindingFlags.Static | BindingFlags.Public))
+            {
+                var opcode = (OpCode)field.GetValue(null);
+                if (opcode.OpCodeType != OpCodeType.Nternal)
+                    OpCodeLookup.Add(opcode.Value, opcode);
+                if ((ushort)opcode.Value > 0xFF)
+                {
+                    Prefixes.Add((short)((ushort)opcode.Value >> 8));
+                }
+            }
+        }
+
+        public MethodContext(MethodBase method)
+        {
+            Method = method;
+            MethodBody = method.GetMethodBody();
+            Debug.Assert(MethodBody != null, "Method body is null");
+            _msilBytes = MethodBody.GetILAsByteArray();
+            TokenResolver = new NormalTokenResolver(method);
+        }
 
         public MethodContext(DynamicMethod method)
         {
@@ -87,6 +87,20 @@ namespace Torch.Managers.PatchManager.Transpile
             _msilBytes = _ilGeneratorBakeByteArray(method.GetILGenerator());
             _dynamicExceptionTable = _ilGeneratorGetExceptionHandlers(method.GetILGenerator());
             TokenResolver = new DynamicMethodTokenResolver(method);
+        }
+
+        internal Dictionary<int, MsilLabel> Labels { get; } = new Dictionary<int, MsilLabel>();
+        public IReadOnlyList<MsilInstruction> Instructions => _instructions;
+
+        internal ITokenResolver TokenResolver { get; }
+
+        internal MsilLabel LabelAt(int i)
+        {
+            if (Labels.TryGetValue(i, out var label))
+                return label;
+
+            Labels.Add(i, label = new MsilLabel());
+            return label;
         }
 
         public void Read()
@@ -104,14 +118,14 @@ namespace Torch.Managers.PatchManager.Transpile
             using (var reader = new BinaryReader(memory))
                 while (memory.Length > memory.Position)
                 {
-                    var opcodeOffset = (int) memory.Position;
-                    var instructionValue = (short) memory.ReadByte();
+                    var opcodeOffset = (int)memory.Position;
+                    var instructionValue = (short)memory.ReadByte();
                     if (Prefixes.Contains(instructionValue))
                     {
-                        instructionValue = (short) ((instructionValue << 8) | memory.ReadByte());
+                        instructionValue = (short)((instructionValue << 8) | memory.ReadByte());
                     }
 
-                    if (!OpCodeLookup.TryGetValue(instructionValue, out OpCode opcode))
+                    if (!OpCodeLookup.TryGetValue(instructionValue, out var opcode))
                     {
                         var msg = $"Unknown opcode {instructionValue:X}";
                         _log.Error(msg);
@@ -122,6 +136,7 @@ namespace Torch.Managers.PatchManager.Transpile
                     if (opcode.Size != memory.Position - opcodeOffset)
                         throw new Exception(
                             $"Opcode said it was {opcode.Size} but we read {memory.Position - opcodeOffset}");
+
                     var instruction = new MsilInstruction(opcode)
                     {
                         Offset = opcodeOffset
@@ -159,13 +174,13 @@ namespace Torch.Managers.PatchManager.Transpile
                     var endFinallyAddr = _exceptionHandlerGetFinallyEnd(eh);
                     for (var i = 0; i < catchCount; i++)
                     {
-                        var flags = (ExceptionHandlingClauseOptions) exTypes[i];
+                        var flags = (ExceptionHandlingClauseOptions)exTypes[i];
                         var endAddress = (flags & ExceptionHandlingClauseOptions.Finally) != 0 ? endFinallyAddr : endAddr;
 
                         var catchAddr = exCatches[i];
                         var catchEndAddr = exCatchesEnd[i];
                         var filterAddr = exFilters[i];
-                        
+
                         AddEhHandler(tryAddr, MsilTryCatchOperationType.BeginExceptionBlock);
                         if ((flags & ExceptionHandlingClauseOptions.Fault) != 0)
                             AddEhHandler(catchAddr, MsilTryCatchOperationType.BeginFaultBlock);
@@ -190,7 +205,7 @@ namespace Torch.Managers.PatchManager.Transpile
             int min = 0, max = _instructions.Count;
             while (min != max)
             {
-                int mid = (min + max) / 2;
+                var mid = (min + max) / 2;
                 if (_instructions[mid].Offset < offset)
                     min = mid + 1;
                 else
@@ -204,35 +219,21 @@ namespace Torch.Managers.PatchManager.Transpile
         {
             foreach (var label in Labels)
             {
-                MsilInstruction target = FindInstruction(label.Key);
+                var target = FindInstruction(label.Key);
                 Debug.Assert(target != null, $"No label for offset {label.Key}");
                 target?.Labels?.Add(label.Value);
             }
         }
-
 
         public string ToHumanMsil()
         {
             return string.Join("\n", _instructions.Select(x => $"IL_{x.Offset:X4}: {x.StackChange():+0;-#} {x}"));
         }
 
-        private static readonly Dictionary<short, OpCode> OpCodeLookup;
-        private static readonly HashSet<short> Prefixes;
+#pragma warning disable 649
 
-        static MethodContext()
-        {
-            OpCodeLookup = new Dictionary<short, OpCode>();
-            Prefixes = new HashSet<short>();
-            foreach (FieldInfo field in typeof(OpCodes).GetFields(BindingFlags.Static | BindingFlags.Public))
-            {
-                var opcode = (OpCode) field.GetValue(null);
-                if (opcode.OpCodeType != OpCodeType.Nternal)
-                    OpCodeLookup.Add(opcode.Value, opcode);
-                if ((ushort) opcode.Value > 0xFF)
-                {
-                    Prefixes.Add((short) ((ushort) opcode.Value >> 8));
-                }
-            }
-        }
+        private const string InternalExceptionInfo = "System.Reflection.Emit.__ExceptionInfo, mscorlib";
+
+#pragma warning restore 649
     }
 }

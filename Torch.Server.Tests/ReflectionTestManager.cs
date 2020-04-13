@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using Torch.Utils;
 
@@ -9,6 +8,7 @@ namespace Torch.Tests
     public class ReflectionTestManager
     {
         #region FieldProvider
+
         public struct FieldRef
         {
             public FieldInfo Field;
@@ -22,6 +22,7 @@ namespace Torch.Tests
             {
                 if (Field == null)
                     return "Ignored";
+
                 return Field.DeclaringType?.FullName + "." + Field.Name;
             }
         }
@@ -34,9 +35,9 @@ namespace Torch.Tests
 
         public ReflectionTestManager()
         {
-            _getters.Add(new object[] { new FieldRef(null) });
-            _setters.Add(new object[] { new FieldRef(null) });
-            _invokers.Add(new object[] { new FieldRef(null) });
+            _getters.Add(new object[] {new FieldRef(null)});
+            _setters.Add(new object[] {new FieldRef(null)});
+            _invokers.Add(new object[] {new FieldRef(null)});
             _memberInfo.Add(new object[] {new FieldRef(null)});
             _events.Add(new object[] {new FieldRef(null)});
         }
@@ -45,28 +46,30 @@ namespace Torch.Tests
         {
             try
             {
-                foreach (Type type in asm.GetTypes())
+                foreach (var type in asm.GetTypes())
                     Init(type);
             }
             catch (ReflectionTypeLoadException e)
             {
                 throw e.LoaderExceptions[0];
             }
+
             return this;
         }
 
         public ReflectionTestManager Init(Type type)
         {
-            foreach (FieldInfo field in type.GetFields(BindingFlags.Static |
-                                                           BindingFlags.Instance |
-                                                           BindingFlags.Public |
-                                                           BindingFlags.NonPublic))
+            foreach (var field in type.GetFields(BindingFlags.Static |
+                                                 BindingFlags.Instance |
+                                                 BindingFlags.Public |
+                                                 BindingFlags.NonPublic))
             {
-                var args = new object[] { new FieldRef(field) };
-                foreach (ReflectedMemberAttribute attr in field.GetCustomAttributes<ReflectedMemberAttribute>())
+                var args = new object[] {new FieldRef(field)};
+                foreach (var attr in field.GetCustomAttributes<ReflectedMemberAttribute>())
                 {
                     if (!field.IsStatic)
                         throw new ArgumentException("Field must be static to be reflected");
+
                     switch (attr)
                     {
                         case ReflectedMethodAttribute rma:
@@ -85,14 +88,17 @@ namespace Torch.Tests
                             break;
                     }
                 }
+
                 var reflectedEventReplacer = field.GetCustomAttribute<ReflectedEventReplaceAttribute>();
                 if (reflectedEventReplacer != null)
                 {
                     if (!field.IsStatic)
                         throw new ArgumentException("Field must be static to be reflected");
+
                     _events.Add(args);
                 }
             }
+
             return this;
         }
 
@@ -107,6 +113,5 @@ namespace Torch.Tests
         public IEnumerable<object[]> Events => _events;
 
         #endregion
-
     }
 }

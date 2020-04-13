@@ -3,10 +3,10 @@ using System;
 namespace Torch.Utils
 {
     /// <summary>
-    /// Indicates that this field should contain a delegate capable of retrieving the value of a field.
+    ///     Indicates that this field should contain a delegate capable of retrieving the value of a field.
     /// </summary>
     /// <example>
-    /// <code>
+    ///     <code>
     /// <![CDATA[
     /// [ReflectedGetterAttribute(Name="_instanceField")]
     /// private static Func<Example, int> _instanceGetter;
@@ -22,7 +22,5 @@ namespace Torch.Utils
     /// </code>
     /// </example>
     [AttributeUsage(AttributeTargets.Field)]
-    public class ReflectedGetterAttribute : ReflectedMemberAttribute
-    {
-    }
+    public class ReflectedGetterAttribute : ReflectedMemberAttribute { }
 }

@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using System.ServiceProcess;
 using System.Threading;
+using System.Threading.Tasks;
 using NLog;
 
 namespace Torch.Server
 {
     class TorchService : ServiceBase
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         public const string Name = "Torch (SEDS)";
-        private Initializer _initializer;
-        private string[] _args;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly string[] _args;
+        private readonly Initializer _initializer;
 
         public TorchService(string[] args)
         {

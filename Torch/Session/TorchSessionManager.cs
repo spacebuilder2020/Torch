@@ -1,45 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NLog;
 using Sandbox.Game.World;
 using Torch.API;
-using Torch.API.Managers;
 using Torch.API.Session;
 using Torch.Managers;
 using Torch.Mod;
-using Torch.Session;
 using VRage.Game;
 
 namespace Torch.Session
 {
     /// <summary>
-    /// Manages the creation and destruction of <see cref="TorchSession"/> instances for each <see cref="MySession"/> created by Space Engineers.
+    ///     Manages the creation and destruction of <see cref="TorchSession" /> instances for each <see cref="MySession" />
+    ///     created by Space Engineers.
     /// </summary>
     public class TorchSessionManager : Manager, ITorchSessionManager
     {
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
-        private TorchSession _currentSession;
-
-        private readonly Dictionary<ulong, MyObjectBuilder_Checkpoint.ModItem> _overrideMods;
-
-        public event Action<CollectionChangeEventArgs> OverrideModsChanged;
-
-        /// <summary>
-        /// List of mods that will be injected into client world downloads.
-        /// </summary>
-        public IReadOnlyCollection<MyObjectBuilder_Checkpoint.ModItem> OverrideMods => _overrideMods.Values;
-
-        /// <inheritdoc />
-        public event TorchSessionStateChangedDel SessionStateChanged;
-
-        /// <inheritdoc/>
-        public ITorchSession CurrentSession => _currentSession;
 
         private readonly HashSet<SessionManagerFactoryDel> _factories = new HashSet<SessionManagerFactoryDel>();
+
+        private readonly Dictionary<ulong, MyObjectBuilder_Checkpoint.ModItem> _overrideMods;
+        private TorchSession _currentSession;
 
         public TorchSessionManager(ITorchBase torchInstance) : base(torchInstance)
         {
@@ -47,27 +30,43 @@ namespace Torch.Session
             _overrideMods.Add(TorchModCore.MOD_ID, new MyObjectBuilder_Checkpoint.ModItem(TorchModCore.MOD_ID));
         }
 
-        /// <inheritdoc/>
+        public event Action<CollectionChangeEventArgs> OverrideModsChanged;
+
+        /// <summary>
+        ///     List of mods that will be injected into client world downloads.
+        /// </summary>
+        public IReadOnlyCollection<MyObjectBuilder_Checkpoint.ModItem> OverrideMods => _overrideMods.Values;
+
+        /// <inheritdoc />
+        public event TorchSessionStateChangedDel SessionStateChanged;
+
+        /// <inheritdoc />
+        public ITorchSession CurrentSession => _currentSession;
+
+        /// <inheritdoc />
         public bool AddFactory(SessionManagerFactoryDel factory)
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory), "Factory must be non-null");
+
             return _factories.Add(factory);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public bool RemoveFactory(SessionManagerFactoryDel factory)
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory), "Factory must be non-null");
+
             return _factories.Remove(factory);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public bool AddOverrideMod(ulong modId)
         {
             if (_overrideMods.ContainsKey(modId))
                 return false;
+
             var item = new MyObjectBuilder_Checkpoint.ModItem(modId);
             _overrideMods.Add(modId, item);
 
@@ -75,13 +74,39 @@ namespace Torch.Session
             return true;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public bool RemoveOverrideMod(ulong modId)
         {
-            if(_overrideMods.TryGetValue(modId, out var item))
+            if (_overrideMods.TryGetValue(modId, out var item))
                 OverrideModsChanged?.Invoke(new CollectionChangeEventArgs(CollectionChangeAction.Remove, item));
 
             return _overrideMods.Remove(modId);
+        }
+
+        /// <inheritdoc />
+        public override void Attach()
+        {
+            MySession.OnLoading += SessionLoading;
+            MySession.AfterLoading += SessionLoaded;
+            MySession.OnUnloading += SessionUnloading;
+            MySession.OnUnloaded += SessionUnloaded;
+        }
+
+        /// <inheritdoc />
+        public override void Detach()
+        {
+            MySession.OnLoading -= SessionLoading;
+            MySession.AfterLoading -= SessionLoaded;
+            MySession.OnUnloading -= SessionUnloading;
+            MySession.OnUnloaded -= SessionUnloaded;
+
+            if (_currentSession != null)
+            {
+                if (_currentSession.State == TorchSessionState.Loaded)
+                    SessionUnloading();
+                if (_currentSession.State == TorchSessionState.Unloading)
+                    SessionUnloaded();
+            }
         }
 
         #region Session events
@@ -90,6 +115,7 @@ namespace Torch.Session
         {
             if (_currentSession == null)
                 return;
+
             _currentSession.State = state;
             SessionStateChanged?.Invoke(_currentSession, _currentSession.State);
         }
@@ -125,12 +151,14 @@ namespace Torch.Session
                     _log.Warn("Session loaded event occurred when we don't have a session.");
                     return;
                 }
-                foreach (SessionManagerFactoryDel factory in _factories)
+
+                foreach (var factory in _factories)
                 {
-                    IManager manager = factory(CurrentSession);
+                    var manager = factory(CurrentSession);
                     if (manager != null)
                         CurrentSession.Managers.AddManager(manager);
                 }
+
                 (CurrentSession as TorchSession)?.Attach();
                 _log.Info($"Loaded torch session for {MySession.Static.Name}");
                 SetState(TorchSessionState.Loaded);
@@ -151,6 +179,7 @@ namespace Torch.Session
                     _log.Warn("Session unloading event occurred when we don't have a session.");
                     return;
                 }
+
                 _log.Info($"Unloading torch session for {_currentSession.KeenSession.Name}");
                 SetState(TorchSessionState.Unloading);
                 _currentSession.Detach();
@@ -171,6 +200,7 @@ namespace Torch.Session
                     _log.Warn("Session unloading event occurred when we don't have a session.");
                     return;
                 }
+
                 _log.Info($"Unloaded torch session for {_currentSession.KeenSession.Name}");
                 SetState(TorchSessionState.Unloaded);
                 _currentSession = null;
@@ -181,33 +211,7 @@ namespace Torch.Session
                 throw;
             }
         }
+
         #endregion
-
-        /// <inheritdoc/>
-        public override void Attach()
-        {
-            MySession.OnLoading += SessionLoading;
-            MySession.AfterLoading += SessionLoaded;
-            MySession.OnUnloading += SessionUnloading;
-            MySession.OnUnloaded += SessionUnloaded;
-        }
-
-
-        /// <inheritdoc/>
-        public override void Detach()
-        {
-            MySession.OnLoading -= SessionLoading;
-            MySession.AfterLoading -= SessionLoaded;
-            MySession.OnUnloading -= SessionUnloading;
-            MySession.OnUnloaded -= SessionUnloaded;
-
-            if (_currentSession != null)
-            {
-                if (_currentSession.State == TorchSessionState.Loaded)
-                    SessionUnloading();
-                if (_currentSession.State == TorchSessionState.Unloading)
-                    SessionUnloaded();
-            }
-        }
     }
 }

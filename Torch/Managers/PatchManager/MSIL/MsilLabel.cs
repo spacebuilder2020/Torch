@@ -48,10 +48,12 @@ namespace Torch.Managers.PatchManager.MSIL
         {
             if (_overrideLabel.HasValue)
                 return _overrideLabel.Value;
-            foreach (KeyValuePair<WeakReference<LoggingIlGenerator>, Label> kv in _labelInstances)
-                if (kv.Key.TryGetTarget(out LoggingIlGenerator gen2) && gen2 == gen)
+
+            foreach (var kv in _labelInstances)
+                if (kv.Key.TryGetTarget(out var gen2) && gen2 == gen)
                     return kv.Value;
-            Label label = gen.DefineLabel();
+
+            var label = gen.DefineLabel();
             _labelInstances.Add(
                 new KeyValuePair<WeakReference<LoggingIlGenerator>, Label>(new WeakReference<LoggingIlGenerator>(gen),
                     label));

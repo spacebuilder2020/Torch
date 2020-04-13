@@ -3,13 +3,14 @@ using System;
 namespace Torch.Utils
 {
     /// <summary>
-    /// Indicates that this field should contain the <see cref="System.Reflection.PropertyInfo"/> instance for the given property.
+    ///     Indicates that this field should contain the <see cref="System.Reflection.PropertyInfo" /> instance for the given
+    ///     property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class ReflectedPropertyInfoAttribute : ReflectedMemberAttribute
     {
         /// <summary>
-        /// Creates a reflected property info attribute using the given type and name.
+        ///     Creates a reflected property info attribute using the given type and name.
         /// </summary>
         /// <param name="type">Type that contains the member</param>
         /// <param name="name">Name of the member</param>

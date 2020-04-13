@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Torch.Server.ViewModels;
 using VRage.Game;
 using Xunit;
-using System.ComponentModel.DataAnnotations;
 
 namespace Torch.Server.Tests
 {
     public class TorchServerSessionSettingsTest
     {
         public static PropertyInfo[] ViewModelProperties = typeof(SessionSettingsViewModel).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-        public static IEnumerable<object[]> ModelFields = typeof(MyObjectBuilder_SessionSettings).GetFields(BindingFlags.Public | BindingFlags.Instance).Select(x => new object[] { x });
+        public static IEnumerable<object[]> ModelFields = typeof(MyObjectBuilder_SessionSettings).GetFields(BindingFlags.Public | BindingFlags.Instance).Select(x => new object[] {x});
 
         [Theory]
         [MemberData(nameof(ModelFields))]
