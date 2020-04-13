@@ -68,27 +68,19 @@
     <Compile Include="..\Versioning\AssemblyVersion.cs">
       <Link>Properties\AssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="PatchTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReflectionSystemTest.cs" />
+    <Compile Include="ReflectionTestManager.cs" />
+    <Compile Include="TestUtils.cs" />
+    <Compile Include="TorchReflectionTest.cs" />
     <Compile Include="TorchServerReflectionTest.cs" />
     <Compile Include="TorchServerSessionSettingsTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Torch.API\Torch.API.csproj">
-      <Project>{fba5d932-6254-4a1e-baf4-e229fa94e3c2}</Project>
-      <Name>Torch.API</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Torch.Server\Torch.Server.csproj">
       <Project>{ca50886b-7b22-4cd8-93a0-c06f38d4f77d}</Project>
       <Name>Torch.Server</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Torch.Tests\Torch.Tests.csproj">
-      <Project>{c3c8b671-6ad1-44aa-a8da-e0c0dc0fedf5}</Project>
-      <Name>Torch.Tests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Torch\Torch.csproj">
-      <Project>{7e01635c-3b67-472e-bcd6-c5539564f214}</Project>
-      <Name>Torch</Name>
-      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

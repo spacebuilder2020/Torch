@@ -4,8 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Torch.Server"
-        xmlns:views="clr-namespace:Torch.Server.Views"
-        xmlns:views1="clr-namespace:Torch.Views;assembly=Torch"
+        xmlns:views1="clr-namespace:Torch.Views"
         mc:Ignorable="d"
         Title="WorldGeneratorDialog" Height="500" Width="700">
     <Grid>

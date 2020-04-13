@@ -41,6 +41,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>$(SolutionDir)\bin\x64\Release\</OutputPath>
@@ -52,6 +53,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <DocumentationFile>$(SolutionDir)\bin\x64\Release\Torch.Server.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>Torch.Server.Program</StartupObject>
@@ -132,6 +134,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\GameBinaries\SpaceEngineers.ObjectBuilders.XmlSerializers.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="SteamKit2, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\SteamKit2.2.2.0\lib\netstandard2.0\SteamKit2.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>..\GameBinaries\Steamworks.NET.dll</HintPath>
@@ -239,28 +245,164 @@
     <Compile Include="..\Versioning\AssemblyVersion.cs">
       <Link>Properties\AssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="Collections\BinaryMinHeap.cs" />
+    <Compile Include="Collections\KeyTree.cs" />
+    <Compile Include="Collections\MtObservableCollection.cs" />
+    <Compile Include="Collections\MtObservableCollectionBase.cs" />
+    <Compile Include="Collections\MtObservableEvent.cs" />
+    <Compile Include="Collections\MtObservableList.cs" />
+    <Compile Include="Collections\MtObservableSortedDictionary.cs" />
+    <Compile Include="Collections\RollingAverage.cs" />
+    <Compile Include="Collections\SortedView.cs" />
+    <Compile Include="Collections\SystemSortedView.cs" />
+    <Compile Include="Collections\TransformComparer.cs" />
+    <Compile Include="Collections\TransformEnumerator.cs" />
+    <Compile Include="CommandLine.cs" />
+    <Compile Include="Commands\CategoryAttribute.cs" />
+    <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\CommandAttribute.cs" />
+    <Compile Include="Commands\CommandContext.cs" />
+    <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\CommandModule.cs" />
+    <Compile Include="Commands\CommandTree.cs" />
+    <Compile Include="Commands\ConsoleCommandContext.cs" />
+    <Compile Include="Commands\Permissions\PermissionAttribute.cs" />
+    <Compile Include="Commands\Permissions\PermissonsSystem.cs" />
+    <Compile Include="Commands\TorchCommands.cs" />
     <Compile Include="Commands\WhitelistCommands.cs" />
+    <Compile Include="ConnectionState.cs" />
+    <Compile Include="Event\EventHandlerAttribute.cs" />
+    <Compile Include="Event\EventList.cs" />
+    <Compile Include="Event\EventManager.cs" />
+    <Compile Include="Event\EventShimAttribute.cs" />
+    <Compile Include="Event\IEvent.cs" />
+    <Compile Include="Event\IEventHandler.cs" />
+    <Compile Include="Event\IEventList.cs" />
+    <Compile Include="Event\IEventManager.cs" />
+    <Compile Include="Extensions\DispatcherExtensions.cs" />
+    <Compile Include="Extensions\ICollectionExtensions.cs" />
+    <Compile Include="Extensions\LinqExtensions.cs" />
+    <Compile Include="Extensions\MyPlayerCollectionExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="FlowDocumentTarget.cs" />
+    <Compile Include="InformationalVersion.cs" />
+    <Compile Include="IPlayer.cs" />
+    <Compile Include="IServerControls.cs" />
+    <Compile Include="ITorchBase.cs" />
+    <Compile Include="ITorchConfig.cs" />
     <Compile Include="ListBoxExtensions.cs" />
+    <Compile Include="Managers\ChatManager\ChatManagerClient.cs" />
+    <Compile Include="Managers\ChatManager\ChatManagerServer.cs" />
+    <Compile Include="Managers\DependencyManager.cs" />
+    <Compile Include="Managers\DependencyManagerExtensions.cs" />
+    <Compile Include="Managers\DependencyProviderExtensions.cs" />
     <Compile Include="Managers\EntityControlManager.cs" />
+    <Compile Include="Managers\EntityManager.cs" />
+    <Compile Include="Managers\FilesystemManager.cs" />
+    <Compile Include="Managers\IChatManagerClient.cs" />
+    <Compile Include="Managers\IChatManagerServer.cs" />
+    <Compile Include="Managers\IDependencyManager.cs" />
+    <Compile Include="Managers\IDependencyProvider.cs" />
+    <Compile Include="Managers\IManager.cs" />
+    <Compile Include="Managers\IMultiplayerManagerBase.cs" />
+    <Compile Include="Managers\IMultiplayerManagerClient.cs" />
+    <Compile Include="Managers\IMultiplayerManagerServer.cs" />
+    <Compile Include="Managers\INetworkManager.cs" />
+    <Compile Include="Managers\IPluginManager.cs" />
+    <Compile Include="Managers\Manager.cs" />
+    <Compile Include="Managers\MultiplayerManagerBase.cs" />
     <Compile Include="Managers\MultiplayerManagerDedicated.cs" />
     <Compile Include="Managers\InstanceManager.cs" />
     <Compile Include="Managers\MultiplayerManagerDedicatedEventShim.cs" />
     <Compile Include="Managers\MultiplayerManagerDedicatedPatchShim.cs" />
+    <Compile Include="Managers\NetworkManager\NetworkManager.cs" />
+    <Compile Include="Managers\PatchManager\AssemblyMemory.cs" />
+    <Compile Include="Managers\PatchManager\DecoratedMethod.cs" />
+    <Compile Include="Managers\PatchManager\EmitExtensions.cs" />
+    <Compile Include="Managers\PatchManager\MethodRewritePattern.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\ITokenResolver.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilArgument.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilInstruction.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilInstructionExtensions.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilLabel.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilLocal.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilOperand.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilOperandBrTarget.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilOperandInline.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilOperandSwitch.cs" />
+    <Compile Include="Managers\PatchManager\MSIL\MsilTryCatchOperation.cs" />
+    <Compile Include="Managers\PatchManager\PatchContext.cs" />
+    <Compile Include="Managers\PatchManager\PatchManager.cs" />
+    <Compile Include="Managers\PatchManager\PatchPriorityAttribute.cs" />
+    <Compile Include="Managers\PatchManager\PatchShimAttribute.cs" />
+    <Compile Include="Managers\PatchManager\PatchUtilities.cs" />
+    <Compile Include="Managers\PatchManager\Transpile\LoggingILGenerator.cs" />
+    <Compile Include="Managers\PatchManager\Transpile\MethodContext.cs" />
+    <Compile Include="Managers\PatchManager\Transpile\MethodTranspiler.cs" />
     <Compile Include="Managers\RemoteAPIManager.cs" />
+    <Compile Include="Managers\UpdateManager.cs" />
+    <Compile Include="ModAPI\Ingame\GridExtensions.cs" />
+    <Compile Include="ModAPI\TorchAPI.cs" />
+    <Compile Include="MySteamServiceWrapper.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Initializer.cs" />
+    <Compile Include="Patches\GameAnalyticsPatch.cs" />
+    <Compile Include="Patches\GameStatePatchShim.cs" />
+    <Compile Include="Patches\KeenLogPatch.cs" />
+    <Compile Include="Patches\ObjectFactoryInitPatch.cs" />
+    <Compile Include="Patches\PhysicsMemoryPatch.cs" />
     <Compile Include="Patches\PromotePatch.cs" />
+    <Compile Include="Patches\SessionDownloadPatch.cs" />
+    <Compile Include="Patches\TorchAsyncSaving.cs" />
     <Compile Include="Patches\WorldLoadExceptionPatch.cs" />
+    <Compile Include="Persistent.cs" />
+    <Compile Include="Plugins\ITorchPlugin.cs" />
+    <Compile Include="Plugins\IWpfPlugin.cs" />
+    <Compile Include="Plugins\PluginAttribute.cs" />
+    <Compile Include="Plugins\PluginDependency.cs" />
+    <Compile Include="Plugins\PluginManager.cs" />
+    <Compile Include="Plugins\PluginManifest.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerState.cs" />
+    <Compile Include="Session\GameSaveResult.cs" />
+    <Compile Include="Session\ITorchSession.cs" />
+    <Compile Include="Session\ITorchSessionManager.cs" />
+    <Compile Include="Session\TorchSession.cs" />
+    <Compile Include="Session\TorchSessionManager.cs" />
+    <Compile Include="Session\TorchSessionState.cs" />
+    <Compile Include="TorchBase.cs" />
     <Compile Include="TorchConfig.cs" />
+    <Compile Include="TorchGameState.cs" />
+    <Compile Include="TorchPluginBase.cs" />
     <Compile Include="TorchService.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="TorchServiceInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Utils\ColorUtils.cs" />
+    <Compile Include="Utils\MiscExtensions.cs" />
+    <Compile Include="Utils\Reflected\ReflectedEventReplaceAttribute.cs" />
+    <Compile Include="Utils\Reflected\ReflectedEventReplacer.cs" />
+    <Compile Include="Utils\Reflected\ReflectedFieldInfoAttribute.cs" />
+    <Compile Include="Utils\Reflected\ReflectedGetterAttribute.cs" />
+    <Compile Include="Utils\Reflected\ReflectedLazyAttribute.cs" />
+    <Compile Include="Utils\Reflected\ReflectedManager.cs" />
+    <Compile Include="Utils\Reflected\ReflectedMemberAttribute.cs" />
+    <Compile Include="Utils\Reflected\ReflectedMethodAttribute.cs" />
+    <Compile Include="Utils\Reflected\ReflectedMethodInfoAttribute.cs" />
+    <Compile Include="Utils\Reflected\ReflectedPropertyInfoAttribute.cs" />
+    <Compile Include="Utils\Reflected\ReflectedSetterAttribute.cs" />
+    <Compile Include="Utils\Reflected\ReflectedStaticMethodAttribute.cs" />
+    <Compile Include="Utils\Reflection.cs" />
+    <Compile Include="Utils\SteamWorkshopTools\KeyValueExtensions.cs" />
+    <Compile Include="Utils\SteamWorkshopTools\PublishedItemDetails.cs" />
+    <Compile Include="Utils\SteamWorkshopTools\WebAPI.cs" />
+    <Compile Include="Utils\StringUtils.cs" />
+    <Compile Include="Utils\SynchronizationExtensions.cs" />
+    <Compile Include="Utils\TorchAssemblyResolver.cs" />
+    <Compile Include="Utils\TorchLauncher.cs" />
     <Compile Include="ViewModels\BlockLimitViewModel.cs" />
     <Compile Include="ViewModels\CheckpointViewModel.cs" />
     <Compile Include="ViewModels\Entities\Blocks\BlockViewModel.cs" />
@@ -270,8 +412,14 @@
     <Compile Include="ViewModels\ConfigDedicatedViewModel.cs" />
     <Compile Include="ViewModels\Entities\EntityControlViewModel.cs" />
     <Compile Include="ViewModels\ModItemInfo.cs" />
+    <Compile Include="ViewModels\ModViewModel.cs" />
+    <Compile Include="ViewModels\PlayerViewModel.cs" />
     <Compile Include="ViewModels\SessionSettingsViewModel.cs" />
+    <Compile Include="ViewModels\ViewModel.cs" />
     <Compile Include="ViewModels\WorldConfigurationViewModel.cs" />
+    <Compile Include="Views\CollectionEditor.xaml.cs">
+      <DependentUpon>CollectionEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Converters\DefinitionToIdConverter.cs" />
     <Compile Include="Views\Converters\BooleanAndConverter.cs" />
     <Compile Include="Views\Converters\ListConverter.cs" />
@@ -279,15 +427,34 @@
     <Compile Include="RichTextBoxWriter.cs" />
     <Compile Include="Views\Converters\ListConverterWorkshopId.cs" />
     <Compile Include="Views\Converters\ModToIdConverter.cs" />
+    <Compile Include="Views\DictionaryEditor.xaml.cs">
+      <DependentUpon>DictionaryEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DisplayAttribute.cs" />
+    <Compile Include="Views\EmbeddedCollectionEditor.xaml.cs">
+      <DependentUpon>EmbeddedCollectionEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Entities\CharacterView.xaml.cs">
       <DependentUpon>CharacterView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Extensions.cs" />
+    <Compile Include="Views\FlagsEditor.xaml.cs">
+      <DependentUpon>FlagsEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ModListControl.xaml.cs">
       <DependentUpon>ModListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ObjectCollectionEditor.xaml.cs">
+      <DependentUpon>ObjectCollectionEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ObjectEditor.xaml.cs">
+      <DependentUpon>ObjectEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\PluginBrowser.xaml.cs">
       <DependentUpon>PluginBrowser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PropertyGrid.xaml.cs">
+      <DependentUpon>PropertyGrid.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RoleEditor.xaml.cs">
       <DependentUpon>RoleEditor.xaml</DependentUpon>
@@ -360,6 +527,9 @@
     <Compile Include="Views\WorldGeneratorDialog.xaml.cs">
       <DependentUpon>WorldGeneratorDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VRageGame.cs" />
+    <Compile Include="WebAPI\JenkinsQuery.cs" />
+    <Compile Include="WebAPI\PluginQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -384,18 +554,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Torch.API\Torch.API.csproj">
-      <Project>{fba5d932-6254-4a1e-baf4-e229fa94e3c2}</Project>
-      <Name>Torch.API</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Torch\Torch.csproj">
-      <Project>{7e01635c-3b67-472e-bcd6-c5539564f214}</Project>
-      <Name>Torch</Name>
-      <Private>False</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Page Include="Themes\Dark Theme Animated.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -411,6 +569,18 @@
     <Page Include="Themes\Light Theme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\CollectionEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\DictionaryEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EmbeddedCollectionEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Entities\EntityControlHost.xaml">
       <SubType>Designer</SubType>
@@ -452,7 +622,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\FlagsEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\ModListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ObjectCollectionEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ObjectEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -471,6 +653,10 @@
     <Page Include="Views\ModsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PropertyGrid.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Resources.xaml">
       <SubType>Designer</SubType>
@@ -525,4 +711,5 @@
   <PropertyGroup>
     <PostBuildEvent>copy "$(SolutionDir)NLog.config" "$(TargetDir)" &amp; copy "$(SolutionDir)NLog-user.config" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\Torch.Mod\Torch.Mod.projitems" Label="Shared" />
 </Project>

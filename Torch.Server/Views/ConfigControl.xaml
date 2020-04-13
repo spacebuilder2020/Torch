@@ -7,7 +7,7 @@
              xmlns:managers="clr-namespace:Torch.Server.Managers"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:validationRules="clr-namespace:Torch.Server.Views.ValidationRules"
-             xmlns:views="clr-namespace:Torch.Views;assembly=Torch"
+             xmlns:views="clr-namespace:Torch.Views"
              mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
