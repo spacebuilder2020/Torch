@@ -82,6 +82,10 @@
       <Project>{ca50886b-7b22-4cd8-93a0-c06f38d4f77d}</Project>
       <Name>Torch.Server</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Torch\Torch.csproj">
+      <Project>{d9a6ef62-82cc-444c-851d-3cc92a1b0efd}</Project>
+      <Name>Torch</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

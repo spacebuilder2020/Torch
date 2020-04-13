@@ -38,23 +38,9 @@ using Torch.Managers.PatchManager;
 using Torch.Patches;
 using Torch.Utils;
 using Torch.Session;
-using VRage;
-using VRage.Collections;
-using VRage.FileSystem;
-using VRage.Game;
-using VRage.Game.Common;
-using VRage.Game.Components;
-using VRage.Game.ObjectBuilder;
-using VRage.Game.SessionComponents;
-using VRage.GameServices;
-using VRage.Library;
-using VRage.ObjectBuilders;
 using VRage.Platform.Windows;
 using VRage.Plugins;
-using VRage.Scripting;
-using VRage.Steam;
 using VRage.Utils;
-using VRageRender;
 
 namespace Torch
 {

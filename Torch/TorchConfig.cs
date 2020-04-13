@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using NLog;
-using VRage.Game;
 
 namespace Torch.Server
 {

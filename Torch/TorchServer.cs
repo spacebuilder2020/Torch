@@ -1,17 +1,12 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using NLog;
 using Sandbox;
-using Sandbox.Engine.Networking;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Torch.API;
@@ -24,14 +19,7 @@ using Torch.Server.Commands;
 using Torch.Server.Managers;
 using Torch.Utils;
 using VRage;
-using VRage.Dedicated;
-using VRage.Dedicated.RemoteAPI;
-using VRage.GameServices;
-using VRage.Scripting;
-using VRage.Steam;
 using Timer = System.Threading.Timer;
-
-#endregion
 
 #pragma warning disable 618
 
@@ -50,7 +38,7 @@ namespace Torch.Server
         private int _players;
         private MultiplayerManagerDedicated _multiplayerManagerDedicated;
         
-        internal bool FatalException { get; set; }
+        public bool FatalException { get; set; }
 
         private System.Timers.Timer _simUpdateTimer = new System.Timers.Timer(200);
         private bool _simDirty;
