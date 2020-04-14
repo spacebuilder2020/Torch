@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Ink;
 using ProtoBuf;
-using SteamCLI.Core;
 using SteamKit2;
 using static SteamKit2.SteamClient;
 using static SteamKit2.SteamUser;
@@ -49,7 +47,7 @@ namespace TorchWizard.Steam
         {
             var key = $"{depotId}:{host}";
 
-            if (_cdnAuthTokens.TryGetValue(key, out var token) && token.Expiration < DateTime.Now)
+            if (_cdnAuthTokens.TryGetValue(key, out var token) && token.Expiration > DateTime.Now)
                 return token.Token;
 
             var cdnAuthTokenResult = await _apps.GetCDNAuthToken(appId, depotId, host).ToTask().ConfigureAwait(false);
@@ -196,7 +194,7 @@ namespace TorchWizard.Steam
             var manifest = await GetManifestAsync(appId, depotId, branch);
 
             var job = InstallJob.Upgrade(appId, depotId, installPath, localCache, manifest);
-            await job.Execute(this);
+            await job.Execute(this, 128);
         }
     }
 }

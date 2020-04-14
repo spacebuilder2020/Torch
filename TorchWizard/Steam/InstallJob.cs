@@ -38,13 +38,15 @@ namespace TorchWizard.Steam
                 if (_neededChunks.TryPop(out var workItem))
                 {
                     var depotKey = await _downloader.GetDepotKeyAsync(_appId, _depotId).ConfigureAwait(false);
+                    var server = _downloader.CdnPool.GetBestServer();
                     var client = await _downloader.CdnPool.GetClientForDepot(_appId, _depotId, depotKey).ConfigureAwait(false);
+                    client.AuthenticateDepot(_depotId, depotKey, await _downloader.GetCdnAuthTokenAsync(_appId, _depotId, server.Host));
 
                     CDNClient.DepotChunk chunk;
 
                     try
                     {
-                        chunk = await client.DownloadDepotChunkAsync(_depotId, workItem.ChunkData, _downloader.CdnPool.GetBestServer());
+                        chunk = await client.DownloadDepotChunkAsync(_depotId, workItem.ChunkData, server);
 
                         if (depotKey != null || CryptoHelper.AdlerHash(chunk.Data).SequenceEqual(chunk.ChunkInfo.Checksum))
                             await _fileParts[workItem.FileName].SubmitAsync(chunk).ConfigureAwait(false);
@@ -126,7 +128,7 @@ namespace TorchWizard.Steam
                     throw new InvalidOperationException("The file is already complete.");
                 
                 _completeChunks.Add(chunk);
-                Console.WriteLine($"{chunk.ChunkInfo.Offset} {_destPath.FullName}");
+                //Console.WriteLine($"{chunk.ChunkInfo.Offset} {_destPath.FullName}");
 
                 if (_completeChunks.Count == _fileData.Chunks.Count)
                 {

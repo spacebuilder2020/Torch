@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SteamKit2;
 
-namespace SteamCLI.Core
+namespace TorchWizard.Steam
 {
     public class CdnPool
     {
@@ -58,31 +58,8 @@ namespace SteamCLI.Core
             ClientInfo info;
             if (!_clientBag.TryTake(out var client))
             {
-                var server = GetBestServer();
                 client = new CDNClient(_client);
-
-                info = _clientInfoTable.GetOrCreateValue(client);
-                info.Server = server;
-
-                if (server.Type == "CDN")
-                {
-                    var result = await _apps.GetCDNAuthToken(appId, depotId, server.Host).ToTask().ConfigureAwait(false);
-                    if (result.Result != EResult.OK)
-                        throw new Exception($"Error getting CDN auth token: {result.Result}");
-
-                    info.AuthExpiration = result.Expiration;
-                    info.AuthToken = result.Token;
-                }
             }
-            else
-            {
-                info = _clientInfoTable.GetOrCreateValue(client);
-            }
-            
-            if (info.AuthExpiration < DateTime.UtcNow)
-                return await GetClientForDepot(appId, depotId, depotKey).ConfigureAwait(false);
-            
-            client.AuthenticateDepot(depotId, depotKey, info.AuthToken);
             return client;
         }
 
@@ -94,11 +71,8 @@ namespace SteamCLI.Core
         private int cur = 0;
         public CDNClient.Server GetBestServer()
         {
-            // TODO distribute load more effectively
-            if (cur++ == _servers.Count)
-                cur = 0;
-            
-            return _servers[cur];
+            cur++;
+            return _servers[cur % _servers.Count];
         }
 
         private class ClientInfo
