@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Threading;
 using NLog;
 using Torch.API;
-using Torch.API.WebAPI;
+using Torch.WebRequests;
 
 namespace Torch.Managers
 {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NLog;
 
-namespace Torch.API.WebAPI
+namespace Torch.WebRequests
 {
     public class PluginQuery
     {
