@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ProtoBuf;
 using SteamKit2;
 
-namespace TorchWizard.Steam
+namespace TorchSetup.Steam
 {
     public class InstallJob
     {
@@ -15,11 +17,21 @@ namespace TorchWizard.Steam
         private readonly List<string> _filesToDelete = new List<string>();
         private uint _appId;
         private uint _depotId;
+        private string _basePath;
+        private LocalFileCache _cache;
 
         private SteamDownloader _downloader;
 
         public async Task Execute(SteamDownloader downloader, int workerCount = 8)
         {
+            // Stage 1: Remove files
+            foreach (var file in _filesToDelete)
+            {
+                File.Delete(Path.Combine(_basePath, file));
+                _cache.Files.Remove(file);
+            }
+
+            // Stage 2: Get new files
             _downloader = downloader;
 
             var workers = new Task[workerCount];
@@ -29,45 +41,69 @@ namespace TorchWizard.Steam
             }
 
             await Task.WhenAll(workers);
+            
+            // Stage 3: Update local cache
+            foreach (var newFile in _fileParts.Values)
+            {
+                var (relPath, hash, timeDone) = newFile.GetCacheDetails();
+                _cache.Files[relPath] = new FileInfo
+                {
+                    Hash = hash,
+                    LastModified = timeDone
+                };
+            }
+
+            Directory.CreateDirectory(Path.Combine(_basePath, SteamDownloader.CACHE_DIR));
+            using (var fs = File.Create(Path.Combine(_basePath, SteamDownloader.CACHE_DIR, _depotId.ToString())))
+                Serializer.Serialize(fs, _cache);
         }
 
         private async Task StartWorkerAsync()
         {
+            var depotKey = await _downloader.GetDepotKeyAsync(_appId, _depotId).ConfigureAwait(false);
+            
             while (_neededChunks.Count > 0)
             {
-                if (_neededChunks.TryPop(out var workItem))
+                if (!_neededChunks.TryPop(out var workItem))
+                    continue;
+
+                var server = _downloader.CdnPool.GetBestServer();
+                var client = _downloader.CdnPool.TakeClient();
+                var cdnAuthToken = await _downloader.GetCdnAuthTokenAsync(_appId, _depotId, server.Host);
+
+                CDNClient.DepotChunk chunk;
+
+                try
                 {
-                    var depotKey = await _downloader.GetDepotKeyAsync(_appId, _depotId).ConfigureAwait(false);
-                    var server = _downloader.CdnPool.GetBestServer();
-                    var client = await _downloader.CdnPool.GetClientForDepot(_appId, _depotId, depotKey).ConfigureAwait(false);
-                    client.AuthenticateDepot(_depotId, depotKey, await _downloader.GetCdnAuthTokenAsync(_appId, _depotId, server.Host));
+                    // Don't need AuthenticateDepot because we're managing auth keys ourselves.
+                    chunk = await client.DownloadDepotChunkAsync(_depotId, workItem.ChunkData, server, cdnAuthToken, depotKey).ConfigureAwait(false);
 
-                    CDNClient.DepotChunk chunk;
-
-                    try
-                    {
-                        chunk = await client.DownloadDepotChunkAsync(_depotId, workItem.ChunkData, server);
-
-                        if (depotKey != null || CryptoHelper.AdlerHash(chunk.Data).SequenceEqual(chunk.ChunkInfo.Checksum))
-                            await _fileParts[workItem.FileName].SubmitAsync(chunk).ConfigureAwait(false);
-                        else
-                            _neededChunks.Push(workItem);
-                    }
-                    catch
+                    if (depotKey != null || CryptoHelper.AdlerHash(chunk.Data).SequenceEqual(chunk.ChunkInfo.Checksum))
+                        await _fileParts[workItem.FileName].SubmitAsync(chunk).ConfigureAwait(false);
+                    else
                     {
                         _neededChunks.Push(workItem);
                     }
-                    
-                    _downloader.CdnPool.ReturnClient(client);
                 }
+                catch
+                {
+                    _neededChunks.Push(workItem);
+                }
+                    
+                _downloader.CdnPool.ReturnClient(client);
             }
         }
         
         public static InstallJob Upgrade(uint appId, uint depotId, string installPath, LocalFileCache localFiles, DepotManifest remoteFiles)
         {
-            var job = new InstallJob();
-            job._appId = appId;
-            job._depotId = depotId;
+            var job = new InstallJob
+            {
+                _cache = localFiles, 
+                _basePath = installPath, 
+                _appId = appId, 
+                _depotId = depotId
+            };
+            
             var remoteFileDict = remoteFiles.Files
                                             .Where(x => (x.Flags & EDepotFileFlag.Directory) == 0)
                                             .ToDictionary(x => x.FileName);
@@ -109,9 +145,21 @@ namespace TorchWizard.Steam
         {
             private readonly System.IO.FileInfo _destPath;
             private readonly DepotManifest.FileData _fileData;
-            private readonly ConcurrentBag<CDNClient.DepotChunk> _completeChunks;
+            private ConcurrentBag<CDNClient.DepotChunk> _completeChunks;
+            private DateTime _completionTime;
+
+            private bool _started;
+            private Stopwatch _sw = new Stopwatch();
             
             public bool IsComplete { get; private set; }
+
+            public (string relPath, byte[] hash, DateTime completionTime) GetCacheDetails()
+            {
+                if (!IsComplete)
+                    throw new InvalidOperationException("File is not complete!");
+                    
+                return (_fileData.FileName, _fileData.FileHash, _completionTime);
+            }
 
             public FileParts(DepotManifest.FileData fileData, string basePath)
             {
@@ -126,38 +174,44 @@ namespace TorchWizard.Steam
             {
                 if (IsComplete)
                     throw new InvalidOperationException("The file is already complete.");
-                
+
+                if (!_started)
+                {
+                    _sw.Start();
+                    _started = true;
+                }
+
                 _completeChunks.Add(chunk);
                 //Console.WriteLine($"{chunk.ChunkInfo.Offset} {_destPath.FullName}");
 
                 if (_completeChunks.Count == _fileData.Chunks.Count)
                 {
                     IsComplete = true;
-                    await Save().ConfigureAwait(false);
+                    Save();
                 }
             }
-            
+
             /// <summary>
             /// Creates a physical file and writes the chunks to disk.
             /// </summary>
             /// <exception cref="InvalidOperationException">The file is not ready to be saved.</exception>
-            private async Task Save()
+            private void Save()
             {
                 Directory.CreateDirectory(_destPath.DirectoryName);
                 
-                using (var fs = File.Create(_destPath.FullName, (int)_fileData.TotalSize, 
-                    FileOptions.RandomAccess | FileOptions.Asynchronous))
+                using (var fs = File.Create(_destPath.FullName, (int)_fileData.TotalSize))
                 {
-                    fs.SetLength((long)_fileData.TotalSize);
-                    while (_completeChunks.Count > 0)
+                    foreach (var chunk in _completeChunks.OrderBy(x => x.ChunkInfo.Offset))
                     {
-                        if (_completeChunks.TryTake(out var chunk))
-                        {
-                            fs.Seek((long)chunk.ChunkInfo.Offset, SeekOrigin.Begin);
-                            await fs.WriteAsync(chunk.Data, 0, chunk.Data.Length).ConfigureAwait(false);
-                        }
+                        fs.Write(chunk.Data, 0, chunk.Data.Length);
                     }
+
+                    _completeChunks = null;
                 }
+                
+                _sw.Stop();
+                //Console.WriteLine($"{_sw.Elapsed.TotalSeconds.ToString().PadRight(20)} {_fileData.TotalSize.ToString().PadRight(20)} {_fileData.FileName}");
+                _completionTime = DateTime.Now;
             }
         }
         

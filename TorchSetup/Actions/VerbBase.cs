@@ -1,6 +1,6 @@
 using CommandLine;
 
-namespace TorchWizard.Actions
+namespace TorchSetup.Actions
 {
     public abstract class VerbBase
     {

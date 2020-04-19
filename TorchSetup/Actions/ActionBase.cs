@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using CommandLine;
 
-namespace TorchWizard.Actions
+namespace TorchSetup.Actions
 {
     public class ActionBase : VerbBase
     {

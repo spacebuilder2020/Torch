@@ -1,4 +1,4 @@
-﻿namespace TorchWizard
+﻿namespace TorchSetup
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

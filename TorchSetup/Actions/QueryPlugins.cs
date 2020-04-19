@@ -4,7 +4,7 @@ using System.Net.Http;
 using CommandLine;
 using Newtonsoft.Json.Linq;
 
-namespace TorchWizard.Actions
+namespace TorchSetup.Actions
 {
     [Verb("queryplugins", HelpText = "Search for plugins on the Torch website.")]
     public class QueryPlugins : VerbBase

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using CommandLine;
 using SteamKit2;
-using TorchWizard.Actions;
-using TorchWizard.Steam;
+using TorchSetup.Actions;
+using TorchSetup.Steam;
 
-namespace TorchWizard
+namespace TorchSetup
 {
     /// <summary>
     /// Installer and configurator for Torch servers.

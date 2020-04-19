@@ -2,7 +2,7 @@ using System;
 using SteamKit2;
 using static SteamKit2.SteamApps.PICSProductInfoCallback;
 
-namespace TorchWizard.Steam
+namespace TorchSetup.Steam
 {
     public static class PICSProductInfoExtensions
     {

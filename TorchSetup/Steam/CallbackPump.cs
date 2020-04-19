@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SteamKit2;
 
-namespace TorchWizard.Steam
+namespace TorchSetup.Steam
 {
     public class CallbackPump
     {

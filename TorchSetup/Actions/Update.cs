@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using CommandLine;
 
-namespace TorchWizard.Actions
+namespace TorchSetup.Actions
 {
     [Verb("update", HelpText = "Update an existing Torch install.")]
     public class Update : ActionBase

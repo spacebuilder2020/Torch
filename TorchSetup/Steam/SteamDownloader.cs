@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,12 +11,12 @@ using static SteamKit2.SteamUser;
 using static SteamKit2.SteamApps;
 using static SteamKit2.SteamApps.PICSProductInfoCallback;
 
-namespace TorchWizard.Steam
+namespace TorchSetup.Steam
 {
     public class SteamDownloader
     {
-        private const string PERSISTENT_CACHE_DIR = ".sdcache";
-        private const string LOCAL_CACHE_FILE = PERSISTENT_CACHE_DIR + "\\local";
+        internal const string CACHE_DIR = ".sdcache";
+        internal const string LOCKFILE = CACHE_DIR + "\\lock";
         
         private readonly SteamClient  _client;    // Core Steam client.
         private readonly SteamUser    _user;      // User authentication handler.
@@ -26,9 +27,9 @@ namespace TorchWizard.Steam
         private LoggedOnCallback _loginDetails = null; // Info about the currently logged in user.
         
         // Caches
-        private readonly Dictionary<uint, byte[]> _depotKeys = new Dictionary<uint, byte[]>();
-        private readonly Dictionary<string, CDNAuthTokenCallback> _cdnAuthTokens = new Dictionary<string, CDNAuthTokenCallback>();
-        private readonly Dictionary<uint, PICSProductInfo> _appInfos = new Dictionary<uint, PICSProductInfo>();
+        private readonly ConcurrentDictionary<uint, byte[]> _depotKeys = new ConcurrentDictionary<uint, byte[]>();
+        private readonly ConcurrentDictionary<string, CDNAuthTokenCallback> _cdnAuthTokens = new ConcurrentDictionary<string, CDNAuthTokenCallback>();
+        private readonly ConcurrentDictionary<uint, PICSProductInfo> _appInfos = new ConcurrentDictionary<uint, PICSProductInfo>();
 
         public bool IsLoggedIn => _loginDetails != null;
         public CdnPool CdnPool => _cdnPool;
@@ -70,7 +71,7 @@ namespace TorchWizard.Steam
             _client = new SteamClient(configuration);
             _user = _client.GetHandler<SteamUser>();
             _apps = _client.GetHandler<SteamApps>();
-            _cdnPool = new CdnPool(_client, _apps);
+            _cdnPool = new CdnPool(_client);
             
             _callbacks = new CallbackPump(_client);
             _callbacks.CallbackReceived += CallbacksOnCallbackReceived;
@@ -101,7 +102,7 @@ namespace TorchWizard.Steam
                 throw new InvalidOperationException("The Steam client is not logged in.");
             
             var depotKey = await GetDepotKeyAsync(appId, depotId).ConfigureAwait(false);
-            var cdnClient = await _cdnPool.GetClientForDepot(appId, depotId, depotKey).ConfigureAwait(false);
+            var cdnClient = _cdnPool.TakeClient();
             var server = _cdnPool.GetBestServer();
             var cdnAuthToken = await GetCdnAuthTokenAsync(appId, depotId, server.Host).ConfigureAwait(false);
             var manifest = await cdnClient.DownloadManifestAsync(depotId, manifestId, server, cdnAuthToken, depotKey).ConfigureAwait(false);
@@ -170,8 +171,9 @@ namespace TorchWizard.Steam
         
         public async Task InstallAsync(uint appId, uint depotId, string branch, string installPath)
         {
+            FileStream lockFile;
             LocalFileCache localCache;
-            var localCacheFile = Path.Combine(installPath, LOCAL_CACHE_FILE);
+            var localCacheFile = Path.Combine(installPath, CACHE_DIR, depotId.ToString());
 
             // Only allow installing to an existing install or empty/new directory.
             if (File.Exists(localCacheFile))
@@ -189,12 +191,24 @@ namespace TorchWizard.Steam
             }
 
             Directory.CreateDirectory(installPath);
+            Directory.CreateDirectory(Path.Combine(installPath, CACHE_DIR));
+
+            try
+            {
+                lockFile = File.Create(Path.Combine(installPath, LOCKFILE));
+            }
+            catch
+            {
+                throw new InvalidOperationException("A job is already in progress on this install.");
+            }
             
             // Get installation details from Steam
             var manifest = await GetManifestAsync(appId, depotId, branch);
 
             var job = InstallJob.Upgrade(appId, depotId, installPath, localCache, manifest);
-            await job.Execute(this, 128);
+            await job.Execute(this, _cdnPool.Servers.Count * 4);
+            
+            lockFile.Dispose();
         }
     }
 }

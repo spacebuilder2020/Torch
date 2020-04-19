@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using ProtoBuf;
 
-namespace TorchWizard.Steam
+namespace TorchSetup.Steam
 {
     [ProtoContract]
     public class LocalFileCache
     {
-        [ProtoMember(0)]
+        [ProtoMember(1)]
         public Dictionary<string, FileInfo> Files { get; set; }
 
         public LocalFileCache()
@@ -19,10 +19,10 @@ namespace TorchWizard.Steam
     [ProtoContract]
     public class FileInfo
     {
-        [ProtoMember(0)]
+        [ProtoMember(1)]
         public byte[] Hash { get; set; }
         
-        [ProtoMember(1)]
+        [ProtoMember(2)]
         public DateTime LastModified { get; set; }
 
         public FileInfo()

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using CommandLine;
 
-namespace TorchWizard.Actions
+namespace TorchSetup.Actions
 {
     [Verb("install", HelpText = "Install a Torch server.")]
     public class Install : Update
