@@ -112,10 +112,10 @@
                 <RowDefinition />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ListView Name="PluginsList" Width="150" Height="Auto" Margin="3" ItemsSource="{Binding Plugins}"
-                      SelectionChanged="PluginsList_SelectionChanged" />
-            <Button Name="DownloadButton" Grid.Row="1" Content="Download" Margin="3" Height="30"
-                    Click="DownloadButton_OnClick" IsEnabled="False" />
+            <!--<ListView Name="PluginsList" Width="150" Height="Auto" Margin="3" ItemsSource="{Binding Plugins}"</!-->
+            <!--          SelectionChanged="PluginsList_SelectionChanged" /></!-->
+            <!--<Button Name="DownloadButton" Grid.Row="1" Content="Download" Margin="3" Height="30"</!-->
+            <!--        Click="DownloadButton_OnClick" IsEnabled="False" /></!-->
         </Grid>
         <FlowDocumentScrollViewer Grid.Column="1" Name="MarkdownFlow" VerticalAlignment="Stretch"
                                   HorizontalAlignment="Stretch" Margin="3"

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using CommandLine;
 
 namespace TorchSetup.Actions
@@ -7,6 +8,6 @@ namespace TorchSetup.Actions
         [Option('j', "json", Default = false, HelpText = "Return output as JSON.")]
         public bool ReturnJson { get; set; }
         
-        public abstract void Execute();
+        public abstract Task ExecuteAsync();
     }
 }

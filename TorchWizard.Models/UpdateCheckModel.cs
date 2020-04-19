@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TorchWizard.Models
+namespace TorchSetup.Models
 {
     public class UpdateCheckModel
     {

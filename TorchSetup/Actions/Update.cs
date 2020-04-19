@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using CommandLine;
 
 namespace TorchSetup.Actions
@@ -9,18 +10,9 @@ namespace TorchSetup.Actions
     {
         [Option("dry-run", HelpText = "Check for updates but don't perform the update.")]
         public bool DryRun { get; set; }
-        
-        [Option("branch", Default = "master", HelpText = "The Torch branch to install.")]
-        public string Branch { get; set; }
-        
-        [Option("version", Default = "latest", HelpText = "A specific version to install.")]
-        public string Version { get; set; }
-        
-        [Option("gamebranch", Default = "public", HelpText = "A specific game branch to install.")]
-        public string GameBranch { get; set; }
 
         /// <inheritdoc />
-        public override void Execute()
+        public override async Task ExecuteAsync()
         {
             if (!Directory.Exists(Path))
             {

@@ -12,7 +12,7 @@ using Torch.API;
 using Torch.API.Managers;
 using Torch.API.Plugins;
 using Torch.API.Session;
-using Torch.WebRequests;
+//using Torch.WebRequests;
 using Torch.Collections;
 using Torch.Commands;
 using Torch.Utils;
@@ -282,54 +282,55 @@ namespace Torch.Managers
 
         private bool DownloadPluginUpdates(List<PluginItem> plugins)
         {
-            _log.Info("Checking for plugin updates...");
-            var count = 0;
-            Task.WaitAll(plugins.Select(async item =>
-            {
-                try
-                {
-                    if (!item.IsZip)
-                    {
-                        _log.Warn($"Unzipped plugins cannot be auto-updated. Skipping plugin {item}");
-                        return;
-                    }
-
-                    item.Manifest.Version.TryExtractVersion(out var currentVersion);
-                    var latest = await PluginQuery.Instance.QueryOne(item.Manifest.Guid);
-
-                    if (latest?.LatestVersion == null)
-                    {
-                        _log.Warn($"Plugin {item.Manifest.Name} does not have any releases on torchapi.net. Cannot update.");
-                        return;
-                    }
-
-                    latest.LatestVersion.TryExtractVersion(out var newVersion);
-
-                    if (currentVersion == null || newVersion == null)
-                    {
-                        _log.Error($"Error parsing version from manifest or website for plugin '{item.Manifest.Name}.'");
-                        return;
-                    }
-
-                    if (newVersion <= currentVersion)
-                    {
-                        _log.Debug($"{item.Manifest.Name} {item.Manifest.Version} is up to date.");
-                        return;
-                    }
-
-                    _log.Info($"Updating plugin '{item.Manifest.Name}' from {currentVersion} to {newVersion}.");
-                    await PluginQuery.Instance.DownloadPlugin(latest, item.Path);
-                    Interlocked.Increment(ref count);
-                }
-                catch (Exception e)
-                {
-                    _log.Warn($"An error occurred updating the plugin {item.Manifest.Name}.");
-                    _log.Warn(e);
-                }
-            }).ToArray());
-
-            _log.Info($"Updated {count} plugins.");
-            return count > 0;
+            return false;
+            //_log.Info("Checking for plugin updates...");
+            //var count = 0;
+            //Task.WaitAll(plugins.Select(async item =>
+            //{
+            //    try
+            //    {
+            //        if (!item.IsZip)
+            //        {
+            //            _log.Warn($"Unzipped plugins cannot be auto-updated. Skipping plugin {item}");
+            //            return;
+            //        }
+//
+            //        item.Manifest.Version.TryExtractVersion(out var currentVersion);
+            //        var latest = await PluginQuery.Instance.QueryOne(item.Manifest.Guid);
+//
+            //        if (latest?.LatestVersion == null)
+            //        {
+            //            _log.Warn($"Plugin {item.Manifest.Name} does not have any releases on torchapi.net. Cannot update.");
+            //            return;
+            //        }
+//
+            //        latest.LatestVersion.TryExtractVersion(out var newVersion);
+//
+            //        if (currentVersion == null || newVersion == null)
+            //        {
+            //            _log.Error($"Error parsing version from manifest or website for plugin '{item.Manifest.Name}.'");
+            //            return;
+            //        }
+//
+            //        if (newVersion <= currentVersion)
+            //        {
+            //            _log.Debug($"{item.Manifest.Name} {item.Manifest.Version} is up to date.");
+            //            return;
+            //        }
+//
+            //        _log.Info($"Updating plugin '{item.Manifest.Name}' from {currentVersion} to {newVersion}.");
+            //        await PluginQuery.Instance.DownloadPlugin(latest, item.Path);
+            //        Interlocked.Increment(ref count);
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        _log.Warn($"An error occurred updating the plugin {item.Manifest.Name}.");
+            //        _log.Warn(e);
+            //    }
+            //}).ToArray());
+//
+            //_log.Info($"Updated {count} plugins.");
+            //return count > 0;
         }
 
         private void LoadPlugin(PluginItem item)

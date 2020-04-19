@@ -174,16 +174,11 @@ namespace TorchSetup.Steam
             FileStream lockFile;
             LocalFileCache localCache;
             var localCacheFile = Path.Combine(installPath, CACHE_DIR, depotId.ToString());
-
-            // Only allow installing to an existing install or empty/new directory.
+            
             if (File.Exists(localCacheFile))
             {
                 using (var fs = File.OpenRead(localCacheFile))
                     localCache = Serializer.Deserialize<LocalFileCache>(fs);
-            }
-            else if (Directory.Exists(installPath) && Directory.EnumerateFileSystemEntries(installPath).Any())
-            {
-                throw new InvalidOperationException("The target directory is not empty.");
             }
             else
             {

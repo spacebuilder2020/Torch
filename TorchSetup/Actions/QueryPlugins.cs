@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using CommandLine;
 using Newtonsoft.Json.Linq;
 
@@ -12,7 +13,7 @@ namespace TorchSetup.Actions
         private static readonly WebClient _webClient = new WebClient();
         
         /// <inheritdoc />
-        public override void Execute()
+        public override async Task ExecuteAsync()
         {
             var json = JObject.Parse(_webClient.DownloadString("https://torchapi.net/api/plugins"));
 

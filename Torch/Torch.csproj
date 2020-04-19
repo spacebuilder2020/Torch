@@ -428,8 +428,6 @@
           <DependentUpon>WorldGeneratorDialog.xaml</DependentUpon>
         </Compile>
         <Compile Include="VRageGame.cs" />
-        <Compile Include="WebRequests\JenkinsQuery.cs" />
-        <Compile Include="WebRequests\PluginQuery.cs" />
     </ItemGroup>
     <ItemGroup>
       <Page Include="Themes\Dark Theme Animated.xaml">

@@ -96,7 +96,7 @@ namespace Torch
             Managers.AddManager(sessionManager);
             Managers.AddManager(new PatchManager(this));
             Managers.AddManager(new FilesystemManager(this));
-            Managers.AddManager(new UpdateManager(this));
+            //Managers.AddManager(new UpdateManager(this));
             Managers.AddManager(new EventManager(this));
             Managers.AddManager(Plugins);
             TorchAPI.Instance = this;

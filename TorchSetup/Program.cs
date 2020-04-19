@@ -31,12 +31,9 @@ namespace TorchSetup
         }
         
         [STAThread]
-        public static async Task Main(string[] args)
+        // Not async main because of WPF's STAThread requirement
+        public static void Main(string[] args)
         {
-            await TestSteam();
-            return;
-            
-            
             if (args.Length == 0)
             {
                 IsGUI = true;
@@ -57,7 +54,7 @@ namespace TorchSetup
         private static void HandleParsed(object obj)
         {
             if (obj is VerbBase action)
-                action.Execute();
+                action.ExecuteAsync().Wait();
         }
 
         public static bool Confirm(string message)

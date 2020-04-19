@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using CommandLine;
 
 namespace TorchSetup.Actions
@@ -13,6 +14,6 @@ namespace TorchSetup.Actions
         public string Path { get; set; } = Directory.GetCurrentDirectory();
 
         /// <inheritdoc />
-        public override void Execute() { }
+        public override async Task ExecuteAsync() => throw new NotImplementedException();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Torch.API
+namespace TorchSetup
 {
     /// <summary>
     ///     Version in the form v#.#.#.#-branch

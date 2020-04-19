@@ -22,7 +22,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Torch.Mod", "Torch.Mod\Torc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Torch", "Torch\Torch.csproj", "{D9A6EF62-82CC-444C-851D-3CC92A1B0EFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorchWizard", "TorchWizard\TorchWizard.csproj", "{E233A5EC-1B34-4B81-8D6E-22E7E7E884FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorchSetup", "TorchSetup\TorchSetup.csproj", "{E233A5EC-1B34-4B81-8D6E-22E7E7E884FC}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TorchWizard.Models", "TorchWizard.Models\TorchWizard.Models.shproj", "{9AB63E84-C64D-424F-89AE-9AE317CF0203}"
 EndProject

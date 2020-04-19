@@ -5,9 +5,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NLog;
-using Torch.API;
 
-namespace Torch.WebRequests
+namespace TorchSetup.WebRequests
 {
     public class JenkinsQuery
     {
