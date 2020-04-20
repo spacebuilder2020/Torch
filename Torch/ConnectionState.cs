@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Torch.API
+namespace Torch
 {
     /// <summary>
     ///     Identifies a player's current connection state.

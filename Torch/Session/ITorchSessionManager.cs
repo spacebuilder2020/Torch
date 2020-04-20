@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Torch.API.Managers;
+using Torch.Managers;
 using VRage.Game;
 
-namespace Torch.API.Session
+namespace Torch.Session
 {
     /// <summary>
     ///     Creates a manager for the given session if applicable.

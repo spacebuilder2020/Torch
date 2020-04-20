@@ -5,7 +5,7 @@ using Torch.Utils;
 using VRage.Game;
 using VRageMath;
 
-namespace Torch.API.Managers
+namespace Torch.Managers
 {
     /// <summary>
     ///     Represents a scripted or user chat message.
@@ -13,22 +13,6 @@ namespace Torch.API.Managers
     public struct TorchChatMessage
     {
         private const string DEFAULT_FONT = MyFontEnum.Blue;
-
-        #region Backwards compatibility
-
-        [Obsolete]
-        public TorchChatMessage(string author, string message, string font = DEFAULT_FONT)
-            : this(author, message, default, font) { }
-
-        [Obsolete]
-        public TorchChatMessage(string author, ulong authorSteamId, string message, ChatChannel channel, long target, string font = DEFAULT_FONT)
-            : this(author, authorSteamId, message, channel, target, default, font) { }
-
-        [Obsolete]
-        public TorchChatMessage(ulong authorSteamId, string message, ChatChannel channel, long target, string font = DEFAULT_FONT)
-            : this(authorSteamId, message, channel, target, default, font) { }
-
-        #endregion
 
         /// <summary>
         ///     Creates a new torch chat message with the given author and message.

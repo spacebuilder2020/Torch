@@ -12,18 +12,16 @@ using Sandbox.Game;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using SpaceEngineers.Game;
-using Torch.API;
-using Torch.API.Managers;
-using Torch.API.ModAPI;
-using Torch.API.Session;
 using Torch.Commands;
 using Torch.Event;
 using Torch.Managers;
 using Torch.Managers.ChatManager;
 using Torch.Managers.PatchManager;
 using Torch.Patches;
+using Torch.Plugins;
 using Torch.Session;
-using Torch.Utils;
+using Torch.UI.ViewModels;
+using Torch.Utils.Reflected;
 using VRage.Platform.Windows;
 using VRage.Plugins;
 using VRage.Utils;
@@ -86,8 +84,6 @@ namespace Torch
 
             Managers = new DependencyManager();
 
-            Plugins = new PluginManager(this);
-
             var sessionManager = new TorchSessionManager(this);
             sessionManager.AddFactory((x) => Sync.IsServer ? new ChatManagerServer(this) : new ChatManagerClient(this));
             sessionManager.AddFactory((x) => Sync.IsServer ? new CommandManager(this) : null);
@@ -98,8 +94,7 @@ namespace Torch
             Managers.AddManager(new FilesystemManager(this));
             //Managers.AddManager(new UpdateManager(this));
             Managers.AddManager(new EventManager(this));
-            Managers.AddManager(Plugins);
-            TorchAPI.Instance = this;
+            Managers.AddManager(new PluginManager(this));
 
             GameStateChanged += (game, state) =>
             {
@@ -170,10 +165,6 @@ namespace Torch
         public InformationalVersion TorchVersion { get; }
 
         /// <inheritdoc />
-        [Obsolete("Use GetManager<T>() or the [Dependency] attribute.")]
-        public IPluginManager Plugins { get; protected set; }
-
-        /// <inheritdoc />
         public ITorchSession CurrentSession => Managers?.GetManager<ITorchSessionManager>()?.CurrentSession;
 
         /// <inheritdoc />
@@ -190,18 +181,6 @@ namespace Torch
 
         /// <inheritdoc />
         public IDependencyManager Managers { get; }
-
-        [Obsolete("Prefer using Managers.GetManager for global managers")]
-        public T GetManager<T>() where T : class, IManager
-        {
-            return Managers.GetManager<T>();
-        }
-
-        [Obsolete("Prefer using Managers.AddManager for global managers")]
-        public bool AddManager<T>(T manager) where T : class, IManager
-        {
-            return Managers.AddManager(manager);
-        }
 
         /// <inheritdoc />
         public virtual Task<GameSaveResult> Save(int timeoutMs = -1, bool exclusive = false)

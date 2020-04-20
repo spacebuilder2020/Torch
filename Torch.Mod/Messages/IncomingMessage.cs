@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Torch.Mod.Messages
+namespace Torch.Messages
 {
     /// <summary>
     ///     shim to store incoming message data

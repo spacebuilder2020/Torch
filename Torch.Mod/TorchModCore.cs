@@ -1,7 +1,7 @@
 ﻿using Sandbox.ModAPI;
 using VRage.Game.Components;
 
-namespace Torch.Mod
+namespace Torch
 {
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     public class TorchModCore : MySessionComponentBase

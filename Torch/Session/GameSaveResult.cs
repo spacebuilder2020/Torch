@@ -1,4 +1,4 @@
-﻿namespace Torch.API.Session
+﻿namespace Torch.Session
 {
     /// <summary>
     ///     The result of a save operation

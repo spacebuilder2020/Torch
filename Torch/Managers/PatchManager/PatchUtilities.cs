@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using Torch.Managers.PatchManager.MSIL;
 using Torch.Managers.PatchManager.Transpile;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 
 namespace Torch.Managers.PatchManager
 {

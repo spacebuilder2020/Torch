@@ -1,7 +1,7 @@
 ﻿using Sandbox.Game.World;
-using Torch.API.Managers;
+using Torch.Managers;
 
-namespace Torch.API.Session
+namespace Torch.Session
 {
     /// <summary>
     ///     Represents the Torch code working with a single game session

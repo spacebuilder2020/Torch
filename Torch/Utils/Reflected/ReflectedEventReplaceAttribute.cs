@@ -1,6 +1,6 @@
 using System;
 
-namespace Torch.Utils
+namespace Torch.Utils.Reflected
 {
     /// <summary>
     ///     Attribute used to indicate that the the given field, of type <![CDATA[Func<ReflectedEventReplacer>]]>, should be

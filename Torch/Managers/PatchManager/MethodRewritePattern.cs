@@ -61,12 +61,6 @@ namespace Torch.Managers.PatchManager
         public MethodRewriteSet Suffixes { get; }
 
         /// <summary>
-        ///     Should the resulting MSIL of the transpile operation be printed.
-        /// </summary>
-        [Obsolete]
-        public bool PrintMsil { get => PrintMode != 0; set => PrintMode = PrintModeEnum.Emitted; }
-
-        /// <summary>
         ///     Types of IL to print to log
         /// </summary>
         public PrintModeEnum PrintMode

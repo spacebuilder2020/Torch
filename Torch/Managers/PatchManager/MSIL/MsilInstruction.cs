@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 
 namespace Torch.Managers.PatchManager.MSIL
 {
@@ -111,21 +112,6 @@ namespace Torch.Managers.PatchManager.MSIL
         ///     Labels pointing to this instruction.
         /// </summary>
         public HashSet<MsilLabel> Labels { get; } = new HashSet<MsilLabel>();
-
-        /// <summary>
-        ///     The try catch operation that is performed here.
-        /// </summary>
-        [Obsolete("Since instructions can have multiple try catch operations you need to be using TryCatchOperations")]
-        public MsilTryCatchOperation TryCatchOperation
-        {
-            get => TryCatchOperations.FirstOrDefault();
-            set
-            {
-                TryCatchOperations.Clear();
-                if (value != null)
-                    TryCatchOperations.Add(value);
-            }
-        }
 
         /// <summary>
         ///     Gets the maximum amount of space this instruction will use.

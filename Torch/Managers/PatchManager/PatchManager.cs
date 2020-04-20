@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using NLog;
-using Torch.API;
 
 namespace Torch.Managers.PatchManager
 {

@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Torch.API.Event;
 using Torch.Event;
 using VRage.Network;
 
-namespace Torch.Server.Managers
+namespace Torch.Managers
 {
     [EventShim]
     internal static class MultiplayerManagerDedicatedEventShim

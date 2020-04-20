@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace Torch.Utils
+namespace Torch.Utils.Reflected
 {
     /// <summary>
     ///     Indicates that this field should contain a delegate capable of invoking an instance method.

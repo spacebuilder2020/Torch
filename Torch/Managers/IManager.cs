@@ -1,4 +1,4 @@
-﻿namespace Torch.API.Managers
+﻿namespace Torch.Managers
 {
     /// <summary>
     ///     Base interface for Torch managers.

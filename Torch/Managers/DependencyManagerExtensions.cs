@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Torch.API.Managers
+namespace Torch.Managers
 {
     public static class DependencyManagerExtensions
     {

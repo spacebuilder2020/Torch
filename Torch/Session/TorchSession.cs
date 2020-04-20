@@ -1,8 +1,5 @@
 ﻿using NLog;
 using Sandbox.Game.World;
-using Torch.API;
-using Torch.API.Managers;
-using Torch.API.Session;
 using Torch.Managers;
 
 namespace Torch.Session

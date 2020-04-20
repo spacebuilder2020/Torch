@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Sandbox.Game.Multiplayer;
-using Torch.API;
-using Torch.API.Managers;
-using Torch.API.Plugins;
+using Torch.Extensions;
+using Torch.Managers;
+using Torch.Plugins;
 using Torch.Utils;
 using VRage.Game;
 using VRage.Game.ModAPI;

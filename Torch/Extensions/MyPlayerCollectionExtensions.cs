@@ -1,7 +1,7 @@
 ﻿using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 
-namespace Torch
+namespace Torch.Extensions
 {
     public static class MyPlayerCollectionExtensions
     {

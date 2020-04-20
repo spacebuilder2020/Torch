@@ -1,6 +1,6 @@
 using System;
 
-namespace Torch.Utils
+namespace Torch.Utils.Reflected
 {
     /// <summary>
     ///     Indicates that this field should contain a delegate capable of setting the value of a field.

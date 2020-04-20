@@ -1,10 +1,10 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Torch.API.Managers;
-using Torch.API.Session;
+using Torch.Managers;
+using Torch.Session;
 
-namespace Torch.API
+namespace Torch
 {
     /// <summary>
     ///     API for Torch functions shared between client and server.
@@ -21,10 +21,6 @@ namespace Torch.API
         /// </summary>
         ITorchConfig Config { get; }
 
-        /// <inheritdoc cref="IPluginManager" />
-        [Obsolete]
-        IPluginManager Plugins { get; }
-
         /// <inheritdoc cref="IDependencyManager" />
         IDependencyManager Managers { get; }
 
@@ -37,36 +33,6 @@ namespace Torch.API
         ///     The current state of the game this instance of torch is controlling.
         /// </summary>
         TorchGameState GameState { get; }
-
-        /// <summary>
-        ///     Fired when the session begins loading.
-        /// </summary>
-        [Obsolete("Prefer using the TorchSessionManager.SessionStateChanged event")]
-        event Action SessionLoading;
-
-        /// <summary>
-        ///     Fired when the session finishes loading.
-        /// </summary>
-        [Obsolete("Prefer using the TorchSessionManager.SessionStateChanged event")]
-        event Action SessionLoaded;
-
-        /// <summary>
-        ///     Fires when the session begins unloading.
-        /// </summary>
-        [Obsolete("Prefer using the TorchSessionManager.SessionStateChanged event")]
-        event Action SessionUnloading;
-
-        /// <summary>
-        ///     Fired when the session finishes unloading.
-        /// </summary>
-        [Obsolete("Prefer using the TorchSessionManager.SessionStateChanged event")]
-        event Action SessionUnloaded;
-
-        [Obsolete("Prefer using Managers.GetManager for global managers")]
-        T GetManager<T>() where T : class, IManager;
-
-        [Obsolete("Prefer using Managers.AddManager for global managers")]
-        bool AddManager<T>(T manager) where T : class, IManager;
 
         /// <summary>
         ///     Invoke an action on the game thread.

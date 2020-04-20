@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Torch.Extensions;
 using Torch.Utils;
 
 namespace Torch.Collections

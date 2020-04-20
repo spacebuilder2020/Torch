@@ -1,6 +1,6 @@
 using System;
 
-namespace Torch.Utils
+namespace Torch.Utils.Reflected
 {
     public abstract class ReflectedMemberAttribute : Attribute
     {

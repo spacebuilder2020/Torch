@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Torch.Utils
+namespace Torch.Utils.Reflected
 {
     /// <summary>
     ///     Instance of statefully replacing and restoring the callbacks of an event.

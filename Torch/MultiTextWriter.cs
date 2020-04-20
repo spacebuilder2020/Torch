@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Torch.Server
+namespace Torch
 {
     public class MultiTextWriter : TextWriter
     {

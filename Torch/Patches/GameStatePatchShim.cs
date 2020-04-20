@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using Sandbox;
-using Torch.API;
 using Torch.Managers.PatchManager;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 
 namespace Torch.Patches
 {

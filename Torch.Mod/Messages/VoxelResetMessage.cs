@@ -4,7 +4,7 @@ using Sandbox.ModAPI;
 using VRage.ModAPI;
 using VRage.Voxels;
 
-namespace Torch.Mod.Messages
+namespace Torch.Messages
 {
     [ProtoContract]
     public class VoxelResetMessage : MessageBase

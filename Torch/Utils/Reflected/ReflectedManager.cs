@@ -7,9 +7,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using NLog;
-using Torch.Utils.Reflected;
 
-namespace Torch.Utils
+namespace Torch.Utils.Reflected
 {
     #region MemberInfoAttributes
 

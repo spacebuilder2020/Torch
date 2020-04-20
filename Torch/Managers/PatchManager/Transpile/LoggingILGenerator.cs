@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using NLog;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
 #pragma warning disable 162 // unreachable code

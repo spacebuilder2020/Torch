@@ -1,4 +1,4 @@
-﻿namespace Torch.API
+﻿namespace Torch
 {
     /// <summary>
     ///     Represents a player on the server.

@@ -5,8 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using NLog;
-using Torch.API;
-using Torch.API.Event;
 using Torch.Managers;
 
 namespace Torch.Event

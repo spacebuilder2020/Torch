@@ -1,4 +1,4 @@
-﻿namespace Torch.API
+﻿namespace Torch
 {
     /// <summary>
     ///     Used to indicate the state of the dedicated server.

@@ -1,6 +1,6 @@
 using System;
 
-namespace Torch.Utils
+namespace Torch.Utils.Reflected
 {
     /// <summary>
     ///     Indicates that this field should contain the <see cref="System.Reflection.FieldInfo" /> instance for the given

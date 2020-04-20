@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using Torch.API.Managers;
+using Torch.Managers;
 
-namespace Torch.API.Event
+namespace Torch.Event
 {
     /// <summary>
     ///     Manager class responsible for registration of event handlers.

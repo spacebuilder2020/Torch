@@ -158,7 +158,7 @@ namespace Torch.Managers.PatchManager
                         _log.Info(msg);
                 }
 
-                if (PrintMsil || DumpTarget != null)
+                if (PrintMode != 0 || DumpTarget != null)
                 {
                     lock (_log)
                     {
@@ -192,7 +192,7 @@ namespace Torch.Managers.PatchManager
                     throw;
                 }
 
-                if (PrintMsil || DumpTarget != null)
+                if (PrintMode != 0 || DumpTarget != null)
                 {
                     lock (_log)
                     {

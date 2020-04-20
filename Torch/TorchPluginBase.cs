@@ -1,6 +1,5 @@
 ﻿using System;
-using Torch.API;
-using Torch.API.Plugins;
+using Torch.Plugins;
 
 namespace Torch
 {

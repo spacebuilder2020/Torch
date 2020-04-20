@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="Torch.UI.Views.Entities.VoxelMapView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:entities="clr-namespace:Torch.UI.ViewModels.Entities"
+             xmlns:entities1="clr-namespace:Torch.UI.Views.Entities"
+             mc:Ignorable="d">
+    <UserControl.DataContext>
+        <entities:VoxelMapViewModel />
+    </UserControl.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Expander Grid.Row="0" Header="Attached Grids">
+            <ListView ItemsSource="{Binding AttachedGrids}" Margin="3">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Expander>
+
+        <ScrollViewer Grid.Row="1" Margin="3" VerticalScrollBarVisibility="Auto">
+            <entities1:EntityControlsView DataContext="{Binding}" />
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -5,6 +5,7 @@ using System.ServiceProcess;
 using Microsoft.VisualBasic.Devices;
 using NLog;
 using NLog.Targets;
+using Torch.UI;
 using Torch.Utils;
 
 namespace Torch.Server

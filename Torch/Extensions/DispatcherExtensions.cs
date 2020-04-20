@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Threading;
 
-namespace Torch
+namespace Torch.Extensions
 {
     public static class DispatcherExtensions
     {

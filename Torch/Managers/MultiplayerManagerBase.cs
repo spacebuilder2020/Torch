@@ -5,17 +5,15 @@ using NLog;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Torch.API;
-using Torch.API.Managers;
 using Torch.Collections;
+using Torch.UI.ViewModels;
 using Torch.Utils;
-using Torch.ViewModels;
+using Torch.Utils.Reflected;
 using VRage.Game.ModAPI;
 using VRage.GameServices;
 
 namespace Torch.Managers
 {
-    /// <inheritdoc />
     public abstract class MultiplayerManagerBase : Manager, IMultiplayerManagerBase
     {
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();

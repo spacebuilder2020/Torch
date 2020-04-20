@@ -1,6 +1,6 @@
 using System;
 
-namespace Torch
+namespace Torch.Plugins
 {
     public class PluginDependency
     {

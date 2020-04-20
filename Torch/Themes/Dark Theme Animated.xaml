@@ -12,7 +12,7 @@
             Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <Style TargetType="Hyperlink" x:Name="LegalshtuffLink">
+    <Style TargetType="Hyperlink">
         <Setter Property="NavigateUri" Value="https://github.com/MahApps/MahApps.Metro/blob/develop/LICENSE" />
     </Style>
 </ResourceDictionary>

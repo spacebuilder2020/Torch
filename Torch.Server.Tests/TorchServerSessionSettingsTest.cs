@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using Torch.Server.ViewModels;
+using Torch.UI.ViewModels;
 using VRage.Game;
 using Xunit;
 

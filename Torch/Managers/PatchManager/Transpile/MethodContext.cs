@@ -8,43 +8,46 @@ using System.Reflection.Emit;
 using NLog;
 using Torch.Managers.PatchManager.MSIL;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 
 namespace Torch.Managers.PatchManager.Transpile
 {
     internal class MethodContext
     {
+        private const string INTERNAL_EXCEPTION_INFO = "System.Reflection.Emit.__ExceptionInfo, mscorlib";
+        
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
-
+#pragma warning disable 649
         [ReflectedMethod(Name = "BakeByteArray")]
         private static Func<ILGenerator, byte[]> _ilGeneratorBakeByteArray;
 
         [ReflectedMethod(Name = "GetExceptions")]
         private static Func<ILGenerator, Array> _ilGeneratorGetExceptionHandlers;
 
-        [ReflectedMethod(Name = "GetExceptionTypes", TypeName = InternalExceptionInfo)]
+        [ReflectedMethod(Name = "GetExceptionTypes", TypeName = INTERNAL_EXCEPTION_INFO)]
         private static Func<object, int[]> _exceptionHandlerGetTypes;
 
-        [ReflectedMethod(Name = "GetStartAddress", TypeName = InternalExceptionInfo)]
+        [ReflectedMethod(Name = "GetStartAddress", TypeName = INTERNAL_EXCEPTION_INFO)]
         private static Func<object, int> _exceptionHandlerGetStart;
 
-        [ReflectedMethod(Name = "GetEndAddress", TypeName = InternalExceptionInfo)]
+        [ReflectedMethod(Name = "GetEndAddress", TypeName = INTERNAL_EXCEPTION_INFO)]
         private static Func<object, int> _exceptionHandlerGetEnd;
 
-        [ReflectedMethod(Name = "GetFinallyEndAddress", TypeName = InternalExceptionInfo)]
+        [ReflectedMethod(Name = "GetFinallyEndAddress", TypeName = INTERNAL_EXCEPTION_INFO)]
         private static Func<object, int> _exceptionHandlerGetFinallyEnd;
 
-        [ReflectedMethod(Name = "GetNumberOfCatches", TypeName = InternalExceptionInfo)]
+        [ReflectedMethod(Name = "GetNumberOfCatches", TypeName = INTERNAL_EXCEPTION_INFO)]
         private static Func<object, int> _exceptionHandlerGetCatchCount;
 
-        [ReflectedMethod(Name = "GetCatchAddresses", TypeName = InternalExceptionInfo)]
+        [ReflectedMethod(Name = "GetCatchAddresses", TypeName = INTERNAL_EXCEPTION_INFO)]
         private static Func<object, int[]> _exceptionHandlerGetCatchAddrs;
 
-        [ReflectedMethod(Name = "GetCatchEndAddresses", TypeName = InternalExceptionInfo)]
+        [ReflectedMethod(Name = "GetCatchEndAddresses", TypeName = INTERNAL_EXCEPTION_INFO)]
         private static Func<object, int[]> _exceptionHandlerGetCatchEndAddrs;
 
-        [ReflectedMethod(Name = "GetFilterAddresses", TypeName = InternalExceptionInfo)]
+        [ReflectedMethod(Name = "GetFilterAddresses", TypeName = INTERNAL_EXCEPTION_INFO)]
         private static Func<object, int[]> _exceptionHandlerGetFilterAddrs;
-
+#pragma warning restore 649
         private static readonly Dictionary<short, OpCode> OpCodeLookup;
         private static readonly HashSet<short> Prefixes;
 
@@ -229,11 +232,5 @@ namespace Torch.Managers.PatchManager.Transpile
         {
             return string.Join("\n", _instructions.Select(x => $"IL_{x.Offset:X4}: {x.StackChange():+0;-#} {x}"));
         }
-
-#pragma warning disable 649
-
-        private const string InternalExceptionInfo = "System.Reflection.Emit.__ExceptionInfo, mscorlib";
-
-#pragma warning restore 649
     }
 }

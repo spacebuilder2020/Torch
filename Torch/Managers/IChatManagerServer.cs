@@ -3,7 +3,7 @@ using VRage.Collections;
 using VRage.Game;
 using VRageMath;
 
-namespace Torch.API.Managers
+namespace Torch.Managers
 {
     /// <summary>
     ///     Callback used to indicate the server has recieved a message to process and forward on to others.
@@ -32,9 +32,6 @@ namespace Torch.API.Managers
         /// <param name="message">The message to send</param>
         /// <param name="targetSteamId">Player to send the message to, or everyone by default</param>
         void SendMessageAsOther(ulong authorId, string message, ulong targetSteamId = 0);
-
-        [Obsolete("Use the other overload with a Color parameter.")]
-        void SendMessageAsOther(string author, string message, string font, ulong targetSteamId = 0);
 
         /// <summary>
         ///     Sends a scripted message with the given author and message to the given player, or all players by default.

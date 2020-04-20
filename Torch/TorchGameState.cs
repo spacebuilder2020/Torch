@@ -1,6 +1,6 @@
 ﻿using Sandbox;
 
-namespace Torch.API
+namespace Torch
 {
     /// <summary>
     ///     Represents the state of a <see cref="MySandboxGame" />

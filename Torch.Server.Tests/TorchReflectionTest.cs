@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 using Xunit;
 
 namespace Torch.Tests
 {
-#warning Disabled reflection tests because of seemingly random failures
     public class TorchReflectionTest
     {
         private static ReflectionTestManager _manager;

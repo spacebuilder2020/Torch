@@ -4,24 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using NLog;
 using Sandbox.Engine.Utils;
-using Torch.API;
 using Torch.Collections;
-using Torch.Managers;
-using Torch.Mod;
-using Torch.Server.ViewModels;
+using Torch.UI.ViewModels;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.ObjectBuilders;
 
-namespace Torch.Server.Managers
+namespace Torch.Managers
 {
     public class InstanceManager : Manager
     {
         private const string CONFIG_NAME = "SpaceEngineers-Dedicated.cfg";
         private static readonly Logger Log = LogManager.GetLogger(nameof(InstanceManager));
-
-        [Dependency]
-        private FilesystemManager _filesystemManager;
 
         public InstanceManager(ITorchBase torchInstance) : base(torchInstance) { }
 
@@ -62,10 +56,9 @@ namespace Torch.Server.Managers
                     if (!string.IsNullOrEmpty(f) && File.Exists(Path.Combine(f, "Sandbox.sbc")))
                         DedicatedConfig.Worlds.Add(new WorldViewModel(f));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Log.Error("Failed to load world at path: " + f);
-                    continue;
                 }
             }
 
@@ -93,7 +86,7 @@ namespace Torch.Server.Managers
                     DedicatedConfig.Worlds.Add(worldInfo);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Log.Error("Failed to load world at path: " + worldPath);
                 DedicatedConfig.LoadWorld = null;
@@ -253,7 +246,7 @@ namespace Torch.Server.Managers
                 FolderName = Path.GetFileName(worldPath);
                 LoadSandbox();
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException)
             {
                 Log.Error($"World view model failed to load the path: {worldPath} Please ensure this is a valid path.");
                 throw; //rethrow to be handled further up the stack

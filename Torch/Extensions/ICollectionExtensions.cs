@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using Torch.UI.ViewModels;
 
-namespace Torch
+namespace Torch.Extensions
 {
     public static class ICollectionExtensions
     {

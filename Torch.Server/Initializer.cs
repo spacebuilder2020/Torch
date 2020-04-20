@@ -10,6 +10,7 @@ using System.Threading;
 using System.Windows;
 using NLog;
 using Sandbox.Engine.Utils;
+using Torch.UI.Views;
 using VRage.FileSystem;
 
 namespace Torch.Server

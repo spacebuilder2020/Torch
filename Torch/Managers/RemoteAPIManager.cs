@@ -1,10 +1,8 @@
 using NLog;
 using Sandbox;
-using Torch.API;
-using Torch.Managers;
 using VRage.Dedicated.RemoteAPI;
 
-namespace Torch.Server.Managers
+namespace Torch.Managers
 {
     public class RemoteAPIManager : Manager
     {

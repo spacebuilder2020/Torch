@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Torch.Managers.PatchManager;
 using Torch.Managers.PatchManager.MSIL;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -91,30 +92,23 @@ namespace Torch.Tests
                 FinallyHit = false;
                 try
                 {
-                    try
-                    {
-                        // shim to prevent compiler optimization
-                        if ("test".Length > "".Length)
-                            throw new Exception();
+                    // shim to prevent compiler optimization
+                    if ("test".Length > "".Length)
+                        throw new Exception();
 
-                        return true;
-                    }
-                    catch (IOException ioe)
-                    {
-                        return false;
-                    }
-                    catch (Exception e)
-                    {
-                        return false;
-                    }
-                    finally
-                    {
-                        FinallyHit = true;
-                    }
+                    return true;
                 }
-                catch (Exception e)
+                catch (IOException)
                 {
-                    throw;
+                    return false;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+                finally
+                {
+                    FinallyHit = true;
                 }
             }
         }

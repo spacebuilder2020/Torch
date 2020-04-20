@@ -32,7 +32,6 @@ namespace Torch.Utils
 #pragma warning restore 618
             AppDomain.CurrentDomain.SetData(TorchKey, true);
             AppDomain.CurrentDomain.ExecuteAssemblyByName(entryPoint, args);
-            return;
 
             // this would be way better but HAVOK IS UNMANAGED :clang:
             // exclude application base from probing

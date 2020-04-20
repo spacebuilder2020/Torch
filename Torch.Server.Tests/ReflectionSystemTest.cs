@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 using Xunit;
 
 namespace Torch.Tests

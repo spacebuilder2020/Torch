@@ -6,7 +6,7 @@ using Sandbox.Engine.Multiplayer;
 using VRage.Network;
 using VRageMath;
 
-namespace Torch.Managers
+namespace Torch.Managers.NetworkManager
 {
     public static class NetworkManager
     {

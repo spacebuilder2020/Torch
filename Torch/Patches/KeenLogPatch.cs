@@ -5,6 +5,7 @@ using System.Threading;
 using NLog;
 using Torch.Managers.PatchManager;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 using VRage.Utils;
 
 namespace Torch.Patches
@@ -14,11 +15,13 @@ namespace Torch.Patches
     {
         private static readonly Logger _log = LogManager.GetLogger("Keen");
 
+#pragma warning disable 649
         [ReflectedMethod(Name = "GetThreadId")]
         private static Func<MyLog, int> _getThreadId;
 
         [ReflectedMethod(Name = "GetIdentByThread")]
         private static Func<MyLog, int, int> _getIndentByThread;
+#pragma warning disable 649
 
         private static readonly ThreadLocal<StringBuilder> _tmpStringBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(32));
 

@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using NLog;
-using Torch.API.Plugins;
 using Torch.Commands.Permissions;
+using Torch.Plugins;
 using VRage.Game;
 using VRage.Game.ModAPI;
 

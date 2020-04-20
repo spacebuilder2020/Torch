@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using NLog;
-using Torch.API;
 using Torch.Collections;
-using Torch.Managers;
-using Torch.Server.ViewModels.Entities;
-using Torch.Utils;
+using Torch.UI.ViewModels.Entities;
+using Torch.Utils.Reflected;
 
-namespace Torch.Server.Managers
+namespace Torch.Managers
 {
     /// <summary>
     ///     Manager that lets users bind random view models to entities in Torch's Entity Manager

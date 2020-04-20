@@ -5,7 +5,7 @@ using System.Windows;
 using System.Xml.Serialization;
 using NLog;
 
-namespace Torch.Server
+namespace Torch
 {
     // TODO: redesign this gerbage
     public class TorchConfig : CommandLine, ITorchConfig

@@ -15,7 +15,7 @@ using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using SpaceEngineers.Game;
 using SpaceEngineers.Game.GUI;
-using Torch.Utils;
+using Torch.Utils.Reflected;
 using VRage;
 using VRage.Audio;
 using VRage.FileSystem;
@@ -165,7 +165,7 @@ namespace Torch
                     var graphicsRenderer = MySandboxGame.Config.GraphicsRenderer;
                     if (graphicsRenderer == MySandboxGame.DirectX11RendererKey)
                     {
-                        renderer = new MyDX11Render(new MyRenderSettings?(MyRenderProxy.Settings));
+                        renderer = new MyDX11Render(MyRenderProxy.Settings);
                         if (!renderer.IsSupported)
                         {
                             MySandboxGame.Log.WriteLine(

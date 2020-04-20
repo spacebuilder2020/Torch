@@ -1,6 +1,4 @@
-﻿using Torch.Commands;
-
-namespace Torch.Server.Commands
+﻿namespace Torch.Commands
 {
     [Category("whitelist")]
     public class WhitelistCommands : CommandModule

@@ -6,17 +6,17 @@ using System.Text.RegularExpressions;
 using NLog;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Torch.API;
-using Torch.API.Managers;
-using Torch.API.Plugins;
 using Torch.Managers;
+using Torch.Plugins;
 
 namespace Torch.Commands
 {
     public class CommandManager : Manager
     {
+#pragma warning disable 649
         [Dependency]
         private IChatManagerServer _chatManager;
+#pragma warning restore 649
 
         private readonly Logger _log = LogManager.GetCurrentClassLogger();
 

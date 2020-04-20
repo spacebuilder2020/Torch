@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Torch.API.Plugins;
+using Torch.Plugins;
 
-namespace Torch.API.Managers
+namespace Torch.Managers
 {
     /// <summary>
     ///     API for the Torch plugin manager.

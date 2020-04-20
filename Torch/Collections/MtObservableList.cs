@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using Torch.Extensions;
 using Torch.Utils;
 
 namespace Torch.Collections

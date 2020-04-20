@@ -8,8 +8,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
-using Torch.API;
-using Torch.API.Session;
+using Torch.Session;
 using VRage;
 
 namespace Torch.Patches

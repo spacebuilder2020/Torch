@@ -43,9 +43,6 @@
         <Reference Include="Sandbox.Game, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\GameBinaries\Sandbox.Game.dll</HintPath>
         </Reference>
-        <Reference Include="Sandbox.Game.XmlSerializers, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\GameBinaries\Sandbox.Game.XmlSerializers.dll</HintPath>
-        </Reference>
         <Reference Include="Sandbox.Graphics, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\GameBinaries\Sandbox.Graphics.dll</HintPath>
         </Reference>
@@ -54,9 +51,6 @@
         </Reference>
         <Reference Include="SpaceEngineers.ObjectBuilders, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\GameBinaries\SpaceEngineers.ObjectBuilders.dll</HintPath>
-        </Reference>
-        <Reference Include="SpaceEngineers.ObjectBuilders.XmlSerializers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\GameBinaries\SpaceEngineers.ObjectBuilders.XmlSerializers.dll</HintPath>
         </Reference>
         <Reference Include="Steamworks.NET, Version=13.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\GameBinaries\Steamworks.NET.dll</HintPath>
@@ -69,8 +63,6 @@
         <Reference Include="System.Drawing" />
         <Reference Include="System.IO.Compression" />
         <Reference Include="System.IO.Compression.FileSystem" />
-        <Reference Include="System.Runtime.Serialization" />
-        <Reference Include="System.ServiceModel" />
         <Reference Include="System.Transactions" />
         <Reference Include="System.Xaml" />
         <Reference Include="System.Xml" />
@@ -83,17 +75,11 @@
         <Reference Include="VRage.Game, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\GameBinaries\VRage.Game.dll</HintPath>
         </Reference>
-        <Reference Include="VRage.Game.XmlSerializers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\GameBinaries\VRage.Game.XmlSerializers.dll</HintPath>
-        </Reference>
         <Reference Include="VRage.Library, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\GameBinaries\VRage.Library.dll</HintPath>
         </Reference>
         <Reference Include="VRage.Math, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\GameBinaries\VRage.Math.dll</HintPath>
-        </Reference>
-        <Reference Include="VRage.Math.XmlSerializers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\GameBinaries\VRage.Math.XmlSerializers.dll</HintPath>
         </Reference>
         <Reference Include="VRage.NativeWrapper, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\GameBinaries\VRage.NativeWrapper.dll</HintPath>
@@ -113,9 +99,6 @@
         <Reference Include="VRage.Steam, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\GameBinaries\VRage.Steam.dll</HintPath>
         </Reference>
-        <Reference Include="VRage.XmlSerializers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\GameBinaries\VRage.XmlSerializers.dll</HintPath>
-        </Reference>
         <Reference Include="WindowsBase" />
     </ItemGroup>
     <ItemGroup>
@@ -126,11 +109,8 @@
         <Compile Include="Collections\MtObservableEvent.cs" />
         <Compile Include="Collections\MtObservableList.cs" />
         <Compile Include="Collections\MtObservableSortedDictionary.cs" />
-        <Compile Include="Collections\RollingAverage.cs" />
         <Compile Include="Collections\SortedView.cs" />
-        <Compile Include="Collections\SystemSortedView.cs" />
         <Compile Include="Collections\TransformComparer.cs" />
-        <Compile Include="Collections\TransformEnumerator.cs" />
         <Compile Include="CommandLine.cs" />
         <Compile Include="Commands\CategoryAttribute.cs" />
         <Compile Include="Commands\Command.cs" />
@@ -141,7 +121,6 @@
         <Compile Include="Commands\CommandTree.cs" />
         <Compile Include="Commands\ConsoleCommandContext.cs" />
         <Compile Include="Commands\Permissions\PermissionAttribute.cs" />
-        <Compile Include="Commands\Permissions\PermissonsSystem.cs" />
         <Compile Include="Commands\TorchCommands.cs" />
         <Compile Include="Commands\WhitelistCommands.cs" />
         <Compile Include="ConnectionState.cs" />
@@ -156,15 +135,14 @@
         <Compile Include="Extensions\DispatcherExtensions.cs" />
         <Compile Include="Extensions\ICollectionExtensions.cs" />
         <Compile Include="Extensions\LinqExtensions.cs" />
+        <Compile Include="Extensions\MiscExtensions.cs" />
         <Compile Include="Extensions\MyPlayerCollectionExtensions.cs" />
         <Compile Include="Extensions\StringExtensions.cs" />
-        <Compile Include="FlowDocumentTarget.cs" />
+        <Compile Include="Extensions\SynchronizationExtensions.cs" />
         <Compile Include="InformationalVersion.cs" />
         <Compile Include="IPlayer.cs" />
-        <Compile Include="IServerControls.cs" />
         <Compile Include="ITorchBase.cs" />
         <Compile Include="ITorchConfig.cs" />
-        <Compile Include="ListBoxExtensions.cs" />
         <Compile Include="Managers\ChatManager\ChatManagerClient.cs" />
         <Compile Include="Managers\ChatManager\ChatManagerServer.cs" />
         <Compile Include="Managers\DependencyManager.cs" />
@@ -181,7 +159,6 @@
         <Compile Include="Managers\IMultiplayerManagerBase.cs" />
         <Compile Include="Managers\IMultiplayerManagerClient.cs" />
         <Compile Include="Managers\IMultiplayerManagerServer.cs" />
-        <Compile Include="Managers\INetworkManager.cs" />
         <Compile Include="Managers\InstanceManager.cs" />
         <Compile Include="Managers\IPluginManager.cs" />
         <Compile Include="Managers\Manager.cs" />
@@ -214,12 +191,8 @@
         <Compile Include="Managers\PatchManager\Transpile\MethodContext.cs" />
         <Compile Include="Managers\PatchManager\Transpile\MethodTranspiler.cs" />
         <Compile Include="Managers\RemoteAPIManager.cs" />
-        <Compile Include="Managers\UpdateManager.cs" />
-        <Compile Include="ModAPI\Ingame\GridExtensions.cs" />
-        <Compile Include="ModAPI\TorchAPI.cs" />
         <Compile Include="MultiTextWriter.cs" />
         <Compile Include="MySteamServiceWrapper.cs" />
-        <Compile Include="NativeMethods.cs" />
         <Compile Include="Patches\GameAnalyticsPatch.cs" />
         <Compile Include="Patches\GameStatePatchShim.cs" />
         <Compile Include="Patches\KeenLogPatch.cs" />
@@ -232,13 +205,11 @@
         <Compile Include="Persistent.cs" />
         <Compile Include="Plugins\ITorchPlugin.cs" />
         <Compile Include="Plugins\IWpfPlugin.cs" />
-        <Compile Include="Plugins\PluginAttribute.cs" />
         <Compile Include="Plugins\PluginDependency.cs" />
         <Compile Include="Plugins\PluginManager.cs" />
         <Compile Include="Plugins\PluginManifest.cs" />
         <Compile Include="Properties\Annotations.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="RichTextBoxWriter.cs" />
         <Compile Include="ServerState.cs" />
         <Compile Include="Session\GameSaveResult.cs" />
         <Compile Include="Session\ITorchSession.cs" />
@@ -251,8 +222,126 @@
         <Compile Include="TorchGameState.cs" />
         <Compile Include="TorchPluginBase.cs" />
         <Compile Include="TorchServer.cs" />
+        <Compile Include="UI\FlowDocumentTarget.cs" />
+        <Compile Include="UI\ListBoxExtensions.cs" />
+        <Compile Include="UI\RichTextBoxWriter.cs" />
+        <Compile Include="UI\ViewModels\CheckpointViewModel.cs" />
+        <Compile Include="UI\ViewModels\ConfigDedicatedViewModel.cs" />
+        <Compile Include="UI\ViewModels\Entities\Blocks\BlockViewModel.cs" />
+        <Compile Include="UI\ViewModels\Entities\Blocks\BlockViewModelGenerator.cs" />
+        <Compile Include="UI\ViewModels\Entities\Blocks\PropertyViewModel.cs" />
+        <Compile Include="UI\ViewModels\Entities\CharacterViewModel.cs" />
+        <Compile Include="UI\ViewModels\Entities\EntityControlViewModel.cs" />
+        <Compile Include="UI\ViewModels\Entities\EntityViewModel.cs" />
+        <Compile Include="UI\ViewModels\Entities\FloatingObjectViewModel.cs" />
+        <Compile Include="UI\ViewModels\Entities\GridViewModel.cs" />
+        <Compile Include="UI\ViewModels\Entities\VoxelMapViewModel.cs" />
+        <Compile Include="UI\ViewModels\EntityTreeViewModel.cs" />
+        <Compile Include="UI\ViewModels\ILazyLoad.cs" />
+        <Compile Include="UI\ViewModels\ModItemInfo.cs" />
+        <Compile Include="UI\ViewModels\ModViewModel.cs" />
+        <Compile Include="UI\ViewModels\PlayerViewModel.cs" />
+        <Compile Include="UI\ViewModels\PluginManagerViewModel.cs" />
+        <Compile Include="UI\ViewModels\PluginViewModel.cs" />
+        <Compile Include="UI\ViewModels\SessionSettingsViewModel.cs" />
+        <Compile Include="UI\ViewModels\SteamUserViewModel.cs" />
+        <Compile Include="UI\ViewModels\ViewModel.cs" />
+        <Compile Include="UI\ViewModels\WorldConfigurationViewModel.cs" />
+        <Compile Include="UI\Views\AddWorkshopItemsDialog.xaml.cs">
+          <DependentUpon>AddWorkshopItemsDialog.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\ChatControl.xaml.cs">
+          <DependentUpon>ChatControl.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\CollectionEditor.xaml.cs">
+          <DependentUpon>CollectionEditor.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\ConfigControl.xaml.cs">
+          <DependentUpon>ConfigControl.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\Converters\BooleanAndConverter.cs" />
+        <Compile Include="UI\Views\Converters\DefinitionToIdConverter.cs" />
+        <Compile Include="UI\Views\Converters\InverseBooleanConverter.cs" />
+        <Compile Include="UI\Views\Converters\ListConverter.cs" />
+        <Compile Include="UI\Views\Converters\ListConverterWorkshopId.cs" />
+        <Compile Include="UI\Views\Converters\ModToIdConverter.cs" />
+        <Compile Include="UI\Views\Converters\StringBuilderConverter.cs" />
+        <Compile Include="UI\Views\Converters\StringIdConverter.cs" />
+        <Compile Include="UI\Views\Converters\Vector3DConverter.cs" />
+        <Compile Include="UI\Views\DictionaryEditor.xaml.cs">
+          <DependentUpon>DictionaryEditor.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\DisplayAttribute.cs" />
+        <Compile Include="UI\Views\EmbeddedCollectionEditor.xaml.cs">
+          <DependentUpon>EmbeddedCollectionEditor.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\EntitiesControl.xaml.cs">
+          <DependentUpon>EntitiesControl.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\Entities\Blocks\BlockView.xaml.cs">
+          <DependentUpon>BlockView.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\Entities\Blocks\PropertyView.xaml.cs">
+          <DependentUpon>PropertyView.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\Entities\CharacterView.xaml.cs">
+          <DependentUpon>CharacterView.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\Entities\EntityControlHost.xaml.cs">
+          <DependentUpon>EntityControlHost.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\Entities\EntityControlsView.xaml.cs">
+          <DependentUpon>EntityControlsView.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\Entities\GridView.xaml.cs">
+          <DependentUpon>GridView.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\Entities\VoxelMapView.xaml.cs">
+          <DependentUpon>VoxelMapView.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\Extensions.cs" />
+        <Compile Include="UI\Views\FlagsEditor.xaml.cs">
+          <DependentUpon>FlagsEditor.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\ModListControl.xaml.cs">
+          <DependentUpon>ModListControl.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\ModsControl.xaml.cs">
+          <DependentUpon>ModsControl.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\ObjectCollectionEditor.xaml.cs">
+          <DependentUpon>ObjectCollectionEditor.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\ObjectEditor.xaml.cs">
+          <DependentUpon>ObjectEditor.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\PlayerListControl.xaml.cs">
+          <DependentUpon>PlayerListControl.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\PluginBrowser.xaml.cs">
+          <DependentUpon>PluginBrowser.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\PluginsControl.xaml.cs">
+          <DependentUpon>PluginsControl.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\PropertyGrid.xaml.cs">
+          <DependentUpon>PropertyGrid.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\RoleEditor.xaml.cs">
+          <DependentUpon>RoleEditor.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\ThemeControl.xaml.cs">
+          <DependentUpon>ThemeControl.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\TorchUI.xaml.cs">
+          <DependentUpon>TorchUI.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="UI\Views\ValidationRules\ListConverterValidationRule.cs" />
+        <Compile Include="UI\Views\ValidationRules\NumberValidationRule.cs" />
+        <Compile Include="UI\Views\WorldGeneratorDialog.xaml.cs">
+          <DependentUpon>WorldGeneratorDialog.xaml</DependentUpon>
+        </Compile>
         <Compile Include="Utils\ColorUtils.cs" />
-        <Compile Include="Utils\MiscExtensions.cs" />
         <Compile Include="Utils\Reflected\ReflectedEventReplaceAttribute.cs" />
         <Compile Include="Utils\Reflected\ReflectedEventReplacer.cs" />
         <Compile Include="Utils\Reflected\ReflectedFieldInfoAttribute.cs" />
@@ -270,129 +359,8 @@
         <Compile Include="Utils\SteamWorkshopTools\PublishedItemDetails.cs" />
         <Compile Include="Utils\SteamWorkshopTools\WebAPI.cs" />
         <Compile Include="Utils\StringUtils.cs" />
-        <Compile Include="Utils\SynchronizationExtensions.cs" />
         <Compile Include="Utils\TorchAssemblyResolver.cs" />
         <Compile Include="Utils\TorchLauncher.cs" />
-        <Compile Include="ViewModels\BlockLimitViewModel.cs" />
-        <Compile Include="ViewModels\CheckpointViewModel.cs" />
-        <Compile Include="ViewModels\ConfigDedicatedViewModel.cs" />
-        <Compile Include="ViewModels\Entities\Blocks\BlockViewModel.cs" />
-        <Compile Include="ViewModels\Entities\Blocks\BlockViewModelGenerator.cs" />
-        <Compile Include="ViewModels\Entities\Blocks\PropertyViewModel.cs" />
-        <Compile Include="ViewModels\Entities\CharacterViewModel.cs" />
-        <Compile Include="ViewModels\Entities\EntityControlViewModel.cs" />
-        <Compile Include="ViewModels\Entities\EntityViewModel.cs" />
-        <Compile Include="ViewModels\Entities\FloatingObjectViewModel.cs" />
-        <Compile Include="ViewModels\Entities\GridViewModel.cs" />
-        <Compile Include="ViewModels\Entities\VoxelMapViewModel.cs" />
-        <Compile Include="ViewModels\EntityTreeViewModel.cs" />
-        <Compile Include="ViewModels\ILazyLoad.cs" />
-        <Compile Include="ViewModels\ModItemInfo.cs" />
-        <Compile Include="ViewModels\ModViewModel.cs" />
-        <Compile Include="ViewModels\PlayerViewModel.cs" />
-        <Compile Include="ViewModels\PluginManagerViewModel.cs" />
-        <Compile Include="ViewModels\PluginViewModel.cs" />
-        <Compile Include="ViewModels\SessionSettingsViewModel.cs" />
-        <Compile Include="ViewModels\SteamUserViewModel.cs" />
-        <Compile Include="ViewModels\ViewModel.cs" />
-        <Compile Include="ViewModels\WorldConfigurationViewModel.cs" />
-        <Compile Include="Views\AddWorkshopItemsDialog.xaml.cs">
-          <DependentUpon>AddWorkshopItemsDialog.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\ChatControl.xaml.cs">
-          <DependentUpon>ChatControl.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\CollectionEditor.xaml.cs">
-          <DependentUpon>CollectionEditor.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\ConfigControl.xaml.cs">
-          <DependentUpon>ConfigControl.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\Converters\BooleanAndConverter.cs" />
-        <Compile Include="Views\Converters\DefinitionToIdConverter.cs" />
-        <Compile Include="Views\Converters\InverseBooleanConverter.cs" />
-        <Compile Include="Views\Converters\ListConverter.cs" />
-        <Compile Include="Views\Converters\ListConverterWorkshopId.cs" />
-        <Compile Include="Views\Converters\ModToIdConverter.cs" />
-        <Compile Include="Views\Converters\StringBuilderConverter.cs" />
-        <Compile Include="Views\Converters\StringIdConverter.cs" />
-        <Compile Include="Views\Converters\Vector3DConverter.cs" />
-        <Compile Include="Views\DictionaryEditor.xaml.cs">
-          <DependentUpon>DictionaryEditor.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\DisplayAttribute.cs" />
-        <Compile Include="Views\EmbeddedCollectionEditor.xaml.cs">
-          <DependentUpon>EmbeddedCollectionEditor.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\EntitiesControl.xaml.cs">
-          <DependentUpon>EntitiesControl.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\Entities\Blocks\BlockView.xaml.cs">
-          <DependentUpon>BlockView.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\Entities\Blocks\PropertyView.xaml.cs">
-          <DependentUpon>PropertyView.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\Entities\CharacterView.xaml.cs">
-          <DependentUpon>CharacterView.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\Entities\EntityControlHost.xaml.cs">
-          <DependentUpon>EntityControlHost.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\Entities\EntityControlsView.xaml.cs">
-          <DependentUpon>EntityControlsView.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\Entities\GridView.xaml.cs">
-          <DependentUpon>GridView.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\Entities\VoxelMapView.xaml.cs">
-          <DependentUpon>VoxelMapView.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\Extensions.cs" />
-        <Compile Include="Views\FlagsEditor.xaml.cs">
-          <DependentUpon>FlagsEditor.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\ModListControl.xaml.cs">
-          <DependentUpon>ModListControl.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\ModsControl.xaml.cs">
-          <DependentUpon>ModsControl.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\ObjectCollectionEditor.xaml.cs">
-          <DependentUpon>ObjectCollectionEditor.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\ObjectEditor.xaml.cs">
-          <DependentUpon>ObjectEditor.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\PlayerListControl.xaml.cs">
-          <DependentUpon>PlayerListControl.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\PluginBrowser.xaml.cs">
-          <DependentUpon>PluginBrowser.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\PluginsControl.xaml.cs">
-          <DependentUpon>PluginsControl.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\PropertyGrid.xaml.cs">
-          <DependentUpon>PropertyGrid.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\RoleEditor.xaml.cs">
-          <DependentUpon>RoleEditor.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\SessionSettingsView.xaml.cs">
-          <DependentUpon>SessionSettingsView.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\ThemeControl.xaml.cs">
-          <DependentUpon>ThemeControl.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\TorchUI.xaml.cs">
-          <DependentUpon>TorchUI.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="Views\ValidationRules\ListConverterValidationRule.cs" />
-        <Compile Include="Views\ValidationRules\NumberValidationRule.cs" />
-        <Compile Include="Views\WorldGeneratorDialog.xaml.cs">
-          <DependentUpon>WorldGeneratorDialog.xaml</DependentUpon>
-        </Compile>
         <Compile Include="VRageGame.cs" />
     </ItemGroup>
     <ItemGroup>
@@ -408,91 +376,88 @@
       <Page Include="Themes\Light Theme.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\AddWorkshopItemsDialog.xaml">
+      <Page Include="UI\Views\AddWorkshopItemsDialog.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\ChatControl.xaml">
+      <Page Include="UI\Views\ChatControl.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\CollectionEditor.xaml">
+      <Page Include="UI\Views\CollectionEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\ConfigControl.xaml">
+      <Page Include="UI\Views\ConfigControl.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\DictionaryEditor.xaml">
+      <Page Include="UI\Views\DictionaryEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\EmbeddedCollectionEditor.xaml">
+      <Page Include="UI\Views\EmbeddedCollectionEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\EntitiesControl.xaml">
+      <Page Include="UI\Views\EntitiesControl.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\Entities\Blocks\BlockView.xaml">
+      <Page Include="UI\Views\Entities\Blocks\BlockView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\Entities\Blocks\PropertyView.xaml">
+      <Page Include="UI\Views\Entities\Blocks\PropertyView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\Entities\CharacterView.xaml">
+      <Page Include="UI\Views\Entities\CharacterView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\Entities\EntityControlHost.xaml">
+      <Page Include="UI\Views\Entities\EntityControlHost.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\Entities\EntityControlsView.xaml">
+      <Page Include="UI\Views\Entities\EntityControlsView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\Entities\GridView.xaml">
+      <Page Include="UI\Views\Entities\GridView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\Entities\VoxelMapView.xaml">
+      <Page Include="UI\Views\Entities\VoxelMapView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\FlagsEditor.xaml">
+      <Page Include="UI\Views\FlagsEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\ModListControl.xaml">
+      <Page Include="UI\Views\ModListControl.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\ModsControl.xaml">
+      <Page Include="UI\Views\ModsControl.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\ObjectCollectionEditor.xaml">
+      <Page Include="UI\Views\ObjectCollectionEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\ObjectEditor.xaml">
+      <Page Include="UI\Views\ObjectEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\PlayerListControl.xaml">
+      <Page Include="UI\Views\PlayerListControl.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\PluginBrowser.xaml">
+      <Page Include="UI\Views\PluginBrowser.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\PluginsControl.xaml">
+      <Page Include="UI\Views\PluginsControl.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\PropertyGrid.xaml">
+      <Page Include="UI\Views\PropertyGrid.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\Resources.xaml">
+      <Page Include="UI\Views\Resources.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\RoleEditor.xaml">
+      <Page Include="UI\Views\RoleEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\SessionSettingsView.xaml">
+      <Page Include="UI\Views\ThemeControl.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\ThemeControl.xaml">
+      <Page Include="UI\Views\TorchUI.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Include="Views\TorchUI.xaml">
-        <Generator>MSBuild:Compile</Generator>
-      </Page>
-      <Page Include="Views\WorldGeneratorDialog.xaml">
+      <Page Include="UI\Views\WorldGeneratorDialog.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
     </ItemGroup>

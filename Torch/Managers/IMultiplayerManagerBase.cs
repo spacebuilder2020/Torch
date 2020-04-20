@@ -1,7 +1,7 @@
 ﻿using System;
 using VRage.Game.ModAPI;
 
-namespace Torch.API.Managers
+namespace Torch.Managers
 {
     /// <summary>
     ///     API for multiplayer related functions common to servers and clients.

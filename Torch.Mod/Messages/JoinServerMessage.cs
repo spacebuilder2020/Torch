@@ -1,7 +1,7 @@
 ﻿using ProtoBuf;
 using Sandbox.ModAPI;
 
-namespace Torch.Mod.Messages
+namespace Torch.Messages
 {
     [ProtoContract]
     public class JoinServerMessage : MessageBase

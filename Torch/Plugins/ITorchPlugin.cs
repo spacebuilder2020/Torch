@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Torch.API.Plugins
+namespace Torch.Plugins
 {
     public interface ITorchPlugin : IDisposable
     {

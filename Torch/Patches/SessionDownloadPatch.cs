@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Reflection;
 using Sandbox.Game.World;
-using Torch.API.Managers;
-using Torch.API.Session;
+using Torch.Managers;
 using Torch.Managers.PatchManager;
+using Torch.Session;
 using VRage.Game;
 
 namespace Torch.Patches

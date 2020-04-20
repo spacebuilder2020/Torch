@@ -10,21 +10,17 @@ using NLog;
 using Sandbox;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Torch.API;
-using Torch.API.Managers;
-using Torch.API.Session;
 using Torch.Commands;
-using Torch.Mod;
-using Torch.Mod.Messages;
-using Torch.Server.Commands;
-using Torch.Server.Managers;
+using Torch.Managers;
+using Torch.Messages;
+using Torch.Session;
 using Torch.Utils;
 using VRage;
 using Timer = System.Timers.Timer;
 
 #pragma warning disable 618
 
-namespace Torch.Server
+namespace Torch
 {
     public class TorchServer : TorchBase, ITorchServer
     {
@@ -46,18 +42,14 @@ namespace Torch.Server
         public TorchServer(TorchConfig config = null)
         {
             DedicatedInstance = new InstanceManager(this);
-            AddManager(DedicatedInstance);
-            AddManager(new EntityControlManager(this));
-            AddManager(new RemoteAPIManager(this));
+            Managers.AddManager(DedicatedInstance);
+            Managers.AddManager(new EntityControlManager(this));
+            Managers.AddManager(new RemoteAPIManager(this));
             Config = config ?? new TorchConfig();
 
             var sessionManager = Managers.GetManager<ITorchSessionManager>();
             sessionManager.AddFactory(x => new MultiplayerManagerDedicated(this));
-
-            // Needs to be done at some point after MyVRageWindows.Init
-            // where the debug listeners are registered
-            if (!((TorchConfig)Config).EnableAsserts)
-                MyDebug.Listeners.Clear();
+            
             _simUpdateTimer.Elapsed += SimUpdateElapsed;
             _simUpdateTimer.Start();
         }
@@ -121,7 +113,7 @@ namespace Torch.Server
             Sandbox.Engine.Platform.Game.IsDedicated = true;
             base.Init();
             Managers.GetManager<ITorchSessionManager>().SessionStateChanged += OnSessionStateChanged;
-            GetManager<InstanceManager>().LoadInstance(Config.InstancePath);
+            Managers.GetManager<InstanceManager>().LoadInstance(Config.InstancePath);
             CanRun = true;
             Initialized?.Invoke(this);
             Log.Info($"Initialized server '{Config.InstanceName}' at '{Config.InstancePath}'");

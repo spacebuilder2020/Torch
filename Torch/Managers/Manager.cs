@@ -1,12 +1,7 @@
 ﻿using System;
-using Torch.API;
-using Torch.API.Managers;
 
 namespace Torch.Managers
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public class ManagerAttribute : Attribute { }
-
     public abstract class Manager : IManager
     {
         protected Manager(ITorchBase torchInstance)

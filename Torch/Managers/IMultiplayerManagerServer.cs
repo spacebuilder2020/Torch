@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using VRage.Game.ModAPI;
 
-namespace Torch.API.Managers
+namespace Torch.Managers
 {
     /// <summary>
     ///     API for multiplayer functions that exist on servers and lobbies

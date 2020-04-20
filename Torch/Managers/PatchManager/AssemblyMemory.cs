@@ -4,6 +4,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 
 namespace Torch.Managers.PatchManager
 {

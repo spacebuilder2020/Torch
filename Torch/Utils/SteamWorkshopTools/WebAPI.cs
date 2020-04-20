@@ -159,45 +159,6 @@ namespace Torch.Utils.SteamWorkshopTools
             }
         }
 
-        [Obsolete("Space Engineers has transitioned to Steam's UGC api, therefore this method might not always work!")]
-        public async Task DownloadPublishedFile(PublishedItemDetails fileDetails, string dir, string name = null)
-        {
-            var fullPath = Path.Combine(dir, name);
-            if (name == null)
-                name = fileDetails.FileName;
-            var expectedSize = fileDetails.FileSize == 0 ? -1 : fileDetails.FileSize;
-
-            using (var client = new WebClient())
-            {
-                try
-                {
-                    var downloadTask = client.DownloadFileTaskAsync(fileDetails.FileUrl, Path.Combine(dir, name));
-                    var start = DateTime.Now;
-                    for (var i = 0; i < 30; i++)
-                    {
-                        await Task.Delay(1000);
-                        if (downloadTask.IsCompleted)
-                            break;
-                    }
-
-                    if (!downloadTask.IsCompleted)
-                    {
-                        client.CancelAsync();
-                        throw new Exception("Timeout while attempting to downloading published workshop item!");
-                    }
-
-                    //var text = await client.DownloadStringTaskAsync(url);
-                    //File.WriteAllText(fullPath, text);
-                }
-                catch (Exception e)
-                {
-                    Log.Error("Failed to download workshop item! /n" +
-                              $"{e.Message} - url: {fileDetails.FileUrl}, path: {Path.Combine(dir, name)}");
-                    throw e;
-                }
-            }
-        }
-
         private static void PrintKeyValue(KeyValue data)
         {
             var dataSet = new Stack<Printable>();

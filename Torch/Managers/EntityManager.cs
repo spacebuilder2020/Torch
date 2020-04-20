@@ -2,7 +2,6 @@
 using System.Linq;
 using NLog;
 using Sandbox.Game.Entities;
-using Torch.API;
 using VRage.Game.ModAPI;
 using VRage.Groups;
 using VRage.ObjectBuilders;

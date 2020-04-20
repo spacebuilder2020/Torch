@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using NLog;
 using Sandbox.Game.World;
-using Torch.API;
-using Torch.API.Session;
 using Torch.Managers;
-using Torch.Mod;
 using VRage.Game;
 
 namespace Torch.Session

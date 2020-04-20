@@ -9,26 +9,20 @@ using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
-using Torch.API;
-using Torch.API.Managers;
-using Torch.Managers;
-using Torch.Utils;
+using Torch.Utils.Reflected;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.GameServices;
 using VRage.Network;
 using VRage.Steam;
 
-namespace Torch.Server.Managers
+namespace Torch.Managers
 {
     public class MultiplayerManagerDedicated : MultiplayerManagerBase, IMultiplayerManagerServer
     {
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
 
         private readonly Dictionary<ulong, ulong> _gameOwnerIds = new Dictionary<ulong, ulong>();
-
-        [Dependency]
-        private InstanceManager _instanceManager;
 
         /// <inheritdoc />
         public MultiplayerManagerDedicated(ITorchBase torch) : base(torch) { }
@@ -139,9 +133,7 @@ namespace Torch.Server.Managers
 
         [ReflectedGetter(Name = "m_waitingForGroup")]
         private static Func<MyDedicatedServerBase, HashSet<ulong>> _waitingForGroup;
-#pragma warning restore 649
 
-#pragma warning disable 649
         [ReflectedEventReplace(typeof(MySteamGameServer), nameof(MySteamGameServer.ValidateAuthTicketResponse),
             typeof(MyDedicatedServerBase), "GameServer_ValidateAuthTicketResponse")]
         private static Func<ReflectedEventReplacer> _gameServerValidateAuthTicketFactory;

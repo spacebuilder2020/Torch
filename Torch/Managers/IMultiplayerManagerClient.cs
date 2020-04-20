@@ -1,4 +1,4 @@
-﻿namespace Torch.API.Managers
+﻿namespace Torch.Managers
 {
     public interface IMultiplayerManagerClient : IMultiplayerManagerBase { }
 }

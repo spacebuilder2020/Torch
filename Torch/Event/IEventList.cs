@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Torch.API.Event;
 
 namespace Torch.Event
 {

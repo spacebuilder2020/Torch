@@ -2,9 +2,8 @@
 using System.Reflection;
 using NLog;
 using Sandbox.Game.World;
-using Torch.API.Managers;
+using Torch.Managers;
 using Torch.Managers.PatchManager;
-using Torch.Server.Managers;
 using VRage.Game.ModAPI;
 
 namespace Torch.Patches

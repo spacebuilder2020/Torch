@@ -1,4 +1,4 @@
-﻿namespace Torch.API.Session
+﻿namespace Torch.Session
 {
     /// <summary>
     ///     Represents the state of a <see cref="ITorchSession" />

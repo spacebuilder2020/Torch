@@ -1,4 +1,4 @@
-﻿namespace Torch.API.Event
+﻿namespace Torch.Event
 {
     public interface IEvent
     {

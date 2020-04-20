@@ -1,8 +1,7 @@
 ﻿using Sandbox.Engine.Multiplayer;
-using Torch.API.Managers;
 using Torch.Managers.PatchManager;
 
-namespace Torch.Server.Managers
+namespace Torch.Managers
 {
     [PatchShim]
     internal static class MultiplayerManagerDedicatedPatchShim

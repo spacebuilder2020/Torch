@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 
-namespace Torch
+namespace Torch.Plugins
 {
     public class PluginManifest
     {
@@ -16,12 +16,6 @@ namespace Torch
         ///     A unique identifier for the plugin.
         /// </summary>
         public Guid Guid { get; set; }
-
-        /// <summary>
-        ///     A GitHub repository in the format of Author/Repository to retrieve plugin updates.
-        /// </summary>
-        [Obsolete("Updates no longer check git. Updates are hosted only on torchapi.net")]
-        public string Repository { get; set; }
 
         /// <summary>
         ///     The plugin version. This must include a string in the format of #[.#[.#]] for update checking purposes.

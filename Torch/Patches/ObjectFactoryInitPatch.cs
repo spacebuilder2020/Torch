@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Sandbox;
 using Sandbox.Game.Entities;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 using VRage.Game.Common;
 using VRage.Game.Components;
 using VRage.Game.Entity;
@@ -106,7 +107,8 @@ namespace Torch.Patches
         #endregion
 
         #region MyComponentTypeFactory Adders
-
+        
+#pragma warning disable 649
         [ReflectedGetter(Name = "m_idToType", Type = typeof(MyComponentTypeFactory))]
         private static Func<Dictionary<MyStringId, Type>> _componentTypeFactoryIdToType;
 
@@ -115,6 +117,7 @@ namespace Torch.Patches
 
         [ReflectedGetter(Name = "m_typeToContainerComponentType", Type = typeof(MyComponentTypeFactory))]
         private static Func<Dictionary<Type, Type>> _componentTypeFactoryContainerComponentType;
+#pragma warning restore 649
 
         private static void ComponentTypeFactory_RegisterFromAssemblySafe(Assembly assembly)
         {

@@ -7,10 +7,9 @@ using Sandbox.Engine.Networking;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Torch.API;
-using Torch.API.Managers;
 using Torch.Managers.PatchManager;
 using Torch.Utils;
+using Torch.Utils.Reflected;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Network;
@@ -72,7 +71,7 @@ namespace Torch.Managers.ChatManager
         {
             if (targetSteamId == Sync.MyId)
             {
-                RaiseMessageRecieved(new TorchChatMessage(authorId, message, ChatChannel.Global, 0));
+                RaiseMessageRecieved(new TorchChatMessage(authorId, message, ChatChannel.Global, 0, default));
                 return;
             }
 
@@ -95,7 +94,7 @@ namespace Torch.Managers.ChatManager
         {
             if (targetSteamId == Sync.MyId)
             {
-                RaiseMessageRecieved(new TorchChatMessage(author, message, font));
+                RaiseMessageRecieved(new TorchChatMessage(author, message, color, font));
                 return;
             }
 
@@ -118,15 +117,6 @@ namespace Torch.Managers.ChatManager
             MyMultiplayerBase.SendScriptedChatMessage(ref scripted);
         }
 
-        /// <summary>
-        ///     Backwards compatibility
-        /// </summary>
-        [Obsolete("Use the other overload with a Color parameter.")]
-        public void SendMessageAsOther(string author, string message, string font, ulong targetSteamId = 0)
-        {
-            SendMessageAsOther(author, message, ColorUtils.TranslateColor(font), targetSteamId, font);
-        }
-
         /// <inheritdoc />
         protected override bool OfflineMessageProcessor(TorchChatMessage msg)
         {
@@ -140,7 +130,7 @@ namespace Torch.Managers.ChatManager
 
         internal void RaiseMessageRecieved(ChatMsg message, ref bool consumed)
         {
-            var torchMsg = new TorchChatMessage(GetMemberName(message.Author), message.Author, message.Text, (ChatChannel)message.Channel, message.TargetId);
+            var torchMsg = new TorchChatMessage(GetMemberName(message.Author), message.Author, message.Text, (ChatChannel)message.Channel, message.TargetId, default);
             if (_muted.Contains(message.Author))
             {
                 consumed = true;

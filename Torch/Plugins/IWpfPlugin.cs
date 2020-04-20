@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace Torch.API.Plugins
+namespace Torch.Plugins
 {
     public interface IWpfPlugin : ITorchPlugin
     {

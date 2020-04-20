@@ -41,8 +41,6 @@
                             <TabPanel x:Name="HeaderPanel2"
                                       Panel.ZIndex="1"
                                       KeyboardNavigation.TabIndex="1"
-                                      Grid.Column="0"
-                                      Grid.Row="0"
                                       Margin="2,2,2,0"
                                       IsItemsHost="true" />
                         </ScrollViewer>
@@ -87,7 +85,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Hyperlink" x:Name="LegalshtuffLink">
+    <Style TargetType="Hyperlink">
         <Setter Property="NavigateUri" Value="https://github.com/MahApps/MahApps.Metro/blob/develop/LICENSE" />
     </Style>
 </ResourceDictionary>

@@ -2,13 +2,13 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Sandbox.ModAPI;
-using Torch.Mod.Messages;
+using Torch.Messages;
 using VRage;
 using VRage.Collections;
 using VRage.Game.ModAPI;
 using VRage.Utils;
 
-namespace Torch.Mod
+namespace Torch
 {
     public static class ModCommunication
     {
