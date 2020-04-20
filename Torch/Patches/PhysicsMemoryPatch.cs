@@ -7,7 +7,8 @@ using Sandbox;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.World;
 using Torch.Managers.PatchManager;
-using Torch.Messages;
+using Torch.Mod;
+using Torch.Mod.Messages;
 using VRage.Game;
 
 namespace Torch.Patches

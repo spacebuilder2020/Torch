@@ -2,7 +2,7 @@
 using ProtoBuf;
 using Sandbox.ModAPI;
 
-namespace Torch.Messages
+namespace Torch.Mod.Messages
 {
     /// Dialogs are structured as follows
     /// 

@@ -2,7 +2,7 @@
 using ProtoBuf;
 using Sandbox.ModAPI;
 
-namespace Torch.Messages
+namespace Torch.Mod.Messages
 {
     [ProtoContract]
     public class NotificationMessage : MessageBase

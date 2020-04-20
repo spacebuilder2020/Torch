@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NLog;
 using Sandbox.Engine.Utils;
 using Torch.Collections;
+using Torch.Mod;
 using Torch.UI.ViewModels;
 using VRage.FileSystem;
 using VRage.Game;

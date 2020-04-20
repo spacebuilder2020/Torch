@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace Torch.Messages
+namespace Torch.Mod.Messages
 {
     #region Includes
 

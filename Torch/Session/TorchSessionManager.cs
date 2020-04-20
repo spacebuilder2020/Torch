@@ -4,6 +4,7 @@ using System.ComponentModel;
 using NLog;
 using Sandbox.Game.World;
 using Torch.Managers;
+using Torch.Mod;
 using VRage.Game;
 
 namespace Torch.Session
