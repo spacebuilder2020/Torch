@@ -8,11 +8,10 @@ using Newtonsoft.Json.Linq;
 namespace TorchSetup.Actions
 {
     [Verb("queryplugins", HelpText = "Search for plugins on the Torch website.")]
-    public class QueryPlugins : VerbBase
+    internal class QueryPluginsAction : ActionBase
     {
         private static readonly WebClient _webClient = new WebClient();
         
-        /// <inheritdoc />
         public override async Task ExecuteAsync()
         {
             var json = JObject.Parse(_webClient.DownloadString("https://torchapi.net/api/plugins"));

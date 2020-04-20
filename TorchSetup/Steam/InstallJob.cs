@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ProtoBuf;
 using SteamKit2;
@@ -14,16 +15,21 @@ namespace TorchSetup.Steam
     {
         private readonly Dictionary<string, FileParts> _fileParts = new Dictionary<string,FileParts>();
         private readonly ConcurrentStack<ChunkWorkItem> _neededChunks = new ConcurrentStack<ChunkWorkItem>();
+        private long _finishedChunks;
+        private long _totalChunks;
         private readonly List<string> _filesToDelete = new List<string>();
         private uint _appId;
         private uint _depotId;
         private string _basePath;
         private LocalFileCache _cache;
-
         private SteamDownloader _downloader;
 
-        public async Task Execute(SteamDownloader downloader, int workerCount = 8)
+        public float ProgressRatio => Interlocked.Read(ref _finishedChunks) / (float)_totalChunks;
+
+        public async Task Execute(SteamDownloader downloader, int workerCount = 8, Action<string> stateCallback = null)
         {
+            _totalChunks = _neededChunks.Count;
+            
             // Stage 1: Remove files
             foreach (var file in _filesToDelete)
             {
@@ -79,7 +85,10 @@ namespace TorchSetup.Steam
                     chunk = await client.DownloadDepotChunkAsync(_depotId, workItem.ChunkData, server, cdnAuthToken, depotKey).ConfigureAwait(false);
 
                     if (depotKey != null || CryptoHelper.AdlerHash(chunk.Data).SequenceEqual(chunk.ChunkInfo.Checksum))
+                    {
                         await _fileParts[workItem.FileName].SubmitAsync(chunk).ConfigureAwait(false);
+                        Interlocked.Increment(ref _finishedChunks);
+                    }
                     else
                     {
                         _neededChunks.Push(workItem);

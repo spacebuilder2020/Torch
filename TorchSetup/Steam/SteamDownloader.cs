@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using ProtoBuf;
 using SteamKit2;
 using static SteamKit2.SteamClient;
@@ -79,7 +80,7 @@ namespace TorchSetup.Steam
 
         private void CallbacksOnCallbackReceived(ICallbackMsg obj)
         {
-            Console.WriteLine(obj.GetType());
+            //Console.WriteLine(obj.GetType());
             switch (obj)
             {
                 case DisconnectedCallback discon:
@@ -169,7 +170,7 @@ namespace TorchSetup.Steam
         
         #endregion
         
-        public async Task InstallAsync(uint appId, uint depotId, string branch, string installPath)
+        public async Task InstallAsync(uint appId, uint depotId, string branch, string installPath, int workerCount)
         {
             FileStream lockFile;
             LocalFileCache localCache;
@@ -201,9 +202,14 @@ namespace TorchSetup.Steam
             var manifest = await GetManifestAsync(appId, depotId, branch);
 
             var job = InstallJob.Upgrade(appId, depotId, installPath, localCache, manifest);
-            await job.Execute(this, _cdnPool.Servers.Count * 4);
-            
+            var timer = new Timer(3000);
+            timer.AutoReset = true;
+            timer.Elapsed += (sender, args) => Console.WriteLine($"Progress: {job.ProgressRatio:0.00%}");
+            timer.Start();
+            await job.Execute(this, workerCount);
+
             lockFile.Dispose();
+            timer.Dispose();
         }
     }
 }

@@ -1,6 +1,6 @@
 namespace TorchSetup
 {
-    public class UpdateInfo
+    internal class UpdateConfig
     {
         public string Branch { get; set; } = "master";
 

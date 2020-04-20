@@ -9,6 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using CommandLine;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 using SteamKit2;
 using TorchSetup.Actions;
 using TorchSetup.Steam;
@@ -18,43 +21,31 @@ namespace TorchSetup
     /// <summary>
     /// Installer and configurator for Torch servers.
     /// </summary>
-    public static class Program
+    internal static class Program
     {
-        public static bool IsGUI { get; set; }
+        private static bool IsGUI { get; set; }
+        private static Logger Log;
 
-        private static async Task TestSteam()
-        {
-            var downloader = new SteamDownloader(SteamConfiguration.Create(x => { }));
-            await downloader.LoginAsync();
-            await downloader.InstallAsync(298740, 298741, "public", "C:\\test_install\\SEDS");
-            await downloader.LogoutAsync();
-        }
-        
         [STAThread]
         // Not async main because of WPF's STAThread requirement
         public static void Main(string[] args)
         {
-            if (args.Length == 0)
+            var verbs = new[] {typeof(InstallAction), typeof(UpdateAction), typeof(QueryPluginsAction)};
+            Parser.Default.ParseArguments(args, verbs).WithParsed(o =>
             {
-                IsGUI = true;
-                Console.WriteLine("Starting in GUI mode...");
-                new MainWindow().ShowDialog();
-            }
-            else
-            {
-                var verbs = typeof(Program).Assembly.GetTypes()
-                                           .Where(x => x.GetCustomAttribute<VerbAttribute>() != null)
-                                           .ToArray();
-
-                Parser.Default.ParseArguments(args, verbs)
-                      .WithParsed(HandleParsed);
-            }
+                var action = (ActionBase)o;
+                ConfigureLogging(action.QuietMode);
+                AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+                Log.Debug($"Current dir: {Directory.GetCurrentDirectory()}");
+                Log.Debug($"Args: {string.Join(" ", args)}");
+                action.ExecuteAsync().Wait();
+            });
         }
 
-        private static void HandleParsed(object obj)
+        private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
-            if (obj is VerbBase action)
-                action.ExecuteAsync().Wait();
+            Log.Fatal("TorchSetup encountered a fatal error.");
+            Log.Fatal(e.ExceptionObject);
         }
 
         public static bool Confirm(string message)
@@ -68,9 +59,38 @@ namespace TorchSetup
             {
                 Console.Write(message);
                 Console.Write(" (y/N) ");
-                var input = Console.ReadLine().FirstOrDefault();
-                return input == 'y' || input == 'Y';
+                var input = Console.ReadLine();
+                return input.Equals("y", StringComparison.OrdinalIgnoreCase);
             }
+        }
+        
+        /// <summary>
+        /// Sets up NLog to write >= Info to console and >= Debug to "setup.log"
+        /// </summary>
+        /// <param name="quietMode">If true, disables logging to console.</param>
+        private static void ConfigureLogging(bool quietMode)
+        {
+            var layout = "${time} ${level}| ${message}";
+            var config = new LoggingConfiguration();
+            var logFile = new FileTarget("logfile")
+            {
+                FileName = "setup.log", 
+                Layout = layout, 
+                ReplaceFileContentsOnEachWrite = true
+            };
+            config.AddRule(LogLevel.Debug, LogLevel.Fatal, logFile);
+
+            if (!quietMode)
+            {
+                var logConsole = new ColoredConsoleTarget("logconsole")
+                {
+                    Layout = layout
+                };
+                config.AddRule(LogLevel.Info, LogLevel.Fatal, logConsole);   
+            }
+
+            LogManager.Configuration = config;
+            Log = LogManager.GetCurrentClassLogger();
         }
     }
 }

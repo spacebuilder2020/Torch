@@ -30,7 +30,7 @@ using static SteamKit2.SteamApps;
         {
             _cellId = cellId;
             Servers = (await ContentServerDirectoryService.LoadAsync(_client.Configuration, _cellId, CancellationToken.None)
-                                                          .ConfigureAwait(false)).ToList();
+                                                          .ConfigureAwait(false)).OrderBy(x => x.WeightedLoad).ToList();
             CDNClient.RequestTimeout = TimeSpan.FromSeconds(10);
             ServicePointManager.DefaultConnectionLimit = Math.Max(ServicePointManager.DefaultConnectionLimit, 100);
             Console.WriteLine($"Got {Servers.Count} CDN servers.");
@@ -57,6 +57,7 @@ using static SteamKit2.SteamApps;
         private int cur = 0;
         public CDNClient.Server GetBestServer()
         {
+            return Servers[0];
             cur++;
             return Servers[cur % Servers.Count];
         }

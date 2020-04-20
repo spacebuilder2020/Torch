@@ -5,7 +5,7 @@ namespace TorchSetup
     /// <summary>
     ///     Version in the form v#.#.#.#-branch
     /// </summary>
-    public class InformationalVersion
+    internal class InformationalVersion
     {
         public Version Version { get; set; }
         public string Branch { get; set; }

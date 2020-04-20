@@ -4,15 +4,15 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using NLog;
+//using NLog;
 
 namespace TorchSetup.WebRequests
 {
-    public class PluginQuery
+    internal class PluginQuery
     {
         private const string ALL_QUERY = "https://torchapi.net/api/plugins";
         private const string PLUGIN_QUERY = "https://torchapi.net/api/plugins/{0}";
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        //private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private static PluginQuery _instance;
         private readonly HttpClient _client;
@@ -29,7 +29,7 @@ namespace TorchSetup.WebRequests
             var h = await _client.GetAsync(ALL_QUERY);
             if (!h.IsSuccessStatusCode)
             {
-                Log.Error($"Plugin query returned response {h.StatusCode}");
+                //Log.Error($"Plugin query returned response {h.StatusCode}");
                 return null;
             }
 
@@ -42,7 +42,7 @@ namespace TorchSetup.WebRequests
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to deserialize plugin query response!");
+                //Log.Error(ex, "Failed to deserialize plugin query response!");
                 return null;
             }
 
@@ -59,7 +59,7 @@ namespace TorchSetup.WebRequests
             var h = await _client.GetAsync(string.Format(PLUGIN_QUERY, guid));
             if (!h.IsSuccessStatusCode)
             {
-                Log.Error($"Plugin query returned response {h.StatusCode}");
+                //Log.Error($"Plugin query returned response {h.StatusCode}");
                 return null;
             }
 
@@ -72,7 +72,7 @@ namespace TorchSetup.WebRequests
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to deserialize plugin query response!");
+                //Log.Error(ex, "Failed to deserialize plugin query response!");
                 return null;
             }
 
@@ -104,14 +104,14 @@ namespace TorchSetup.WebRequests
                 var response = JsonConvert.DeserializeObject<PluginFullItem>(res);
                 if (response.Versions.Length == 0)
                 {
-                    Log.Error($"Selected plugin {item.Name} does not have any versions to download!");
+                    //Log.Error($"Selected plugin {item.Name} does not have any versions to download!");
                     return false;
                 }
 
                 var version = response.Versions.FirstOrDefault(v => v.Version == response.LatestVersion);
                 if (version == null)
                 {
-                    Log.Error($"Could not find latest version for selected plugin {item.Name}");
+                    //Log.Error($"Could not find latest version for selected plugin {item.Name}");
                     return false;
                 }
 
@@ -128,7 +128,7 @@ namespace TorchSetup.WebRequests
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to download plugin!");
+                //Log.Error(ex, "Failed to download plugin!");
             }
 
             return true;

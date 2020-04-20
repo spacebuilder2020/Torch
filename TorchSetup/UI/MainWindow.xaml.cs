@@ -1,4 +1,4 @@
-﻿namespace TorchSetup
+﻿namespace TorchSetup.UI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

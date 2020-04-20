@@ -1,20 +1,18 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using NLog;
 
 namespace TorchSetup.WebRequests
 {
-    public class JenkinsQuery
+    internal class JenkinsQuery
     {
         private const string BRANCH_QUERY = "https://build.torchapi.net/job/Torch/job/Torch/job/{0}/" + API_PATH;
         private const string ARTIFACT_PATH = "artifact/bin/torch-server.zip";
         private const string API_PATH = "api/json";
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        //private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private static JenkinsQuery _instance;
         private readonly HttpClient _client;
@@ -31,9 +29,9 @@ namespace TorchSetup.WebRequests
             var h = await _client.GetAsync(string.Format(BRANCH_QUERY, branch));
             if (!h.IsSuccessStatusCode)
             {
-                Log.Error($"Branch query failed with code {h.StatusCode}");
-                if (h.StatusCode == HttpStatusCode.NotFound)
-                    Log.Error("This likely means you're trying to update a branch that is not public on Jenkins. Sorry :(");
+               //Log.Error($"Branch query failed with code {h.StatusCode}");
+               //if (h.StatusCode == HttpStatusCode.NotFound)
+               //    Log.Error("This likely means you're trying to update a branch that is not public on Jenkins. Sorry :(");
                 return null;
             }
 
@@ -46,14 +44,14 @@ namespace TorchSetup.WebRequests
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to deserialize branch response!");
+                //Log.Error(ex, "Failed to deserialize branch response!");
                 return null;
             }
 
             h = await _client.GetAsync($"{response.LastStableBuild.URL}{API_PATH}");
             if (!h.IsSuccessStatusCode)
             {
-                Log.Error($"Job query failed with code {h.StatusCode}");
+                //Log.Error($"Job query failed with code {h.StatusCode}");
                 return null;
             }
 
@@ -66,7 +64,7 @@ namespace TorchSetup.WebRequests
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to deserialize job response!");
+                //Log.Error(ex, "Failed to deserialize job response!");
                 return null;
             }
 
@@ -78,7 +76,7 @@ namespace TorchSetup.WebRequests
             var h = await _client.GetAsync(job.URL + ARTIFACT_PATH);
             if (!h.IsSuccessStatusCode)
             {
-                Log.Error($"Job download failed with code {h.StatusCode}");
+                //Log.Error($"Job download failed with code {h.StatusCode}");
                 return false;
             }
 
@@ -93,7 +91,7 @@ namespace TorchSetup.WebRequests
         }
     }
 
-    public class BranchResponse
+    internal class BranchResponse
     {
         public Build LastBuild;
         public Build LastStableBuild;
@@ -101,13 +99,13 @@ namespace TorchSetup.WebRequests
         public string URL;
     }
 
-    public class Build
+    internal class Build
     {
         public int Number;
         public string URL;
     }
 
-    public class Job
+    internal class Job
     {
         private InformationalVersion _version;
         public bool Building;
