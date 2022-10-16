@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using NLog;
 using Sandbox;
 using Sandbox.Engine.Networking;
+using Sandbox.Game;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Torch.API;

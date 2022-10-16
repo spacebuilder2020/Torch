@@ -43,6 +43,9 @@ namespace Torch.Server
         private int _fontSize = 16;
         private UGCServiceType _ugcServiceType = UGCServiceType.Steam;
         private TorchBranchType _torchBranch = TorchBranchType.master;
+        private bool _sendLogsToKeen;
+        private bool _deleteMiniDumps = true;
+        private string _loginToken;
 
 
         /// <inheritdoc />
@@ -173,6 +176,19 @@ public string LastUsedTheme { get; set; } = "Torch Theme";
         [Arg("asserts", "Enable Keen's assert logging.")]
         [Display(Name = "Enable Asserts", Description = "Enable Keen's assert logging.", GroupName = "Server")]
         public bool EnableAsserts { get => _enableAsserts; set => Set(value, ref _enableAsserts); }
+        
+        [Arg("sendlogstokeen", "On crash, send debug data and logs to Keen.")]
+        [Display(Name = "Send Logs To Keen", Description = "On crash, send debug data and logs to Keen.", GroupName = "Logging")]
+        public bool SendLogsToKeen { get => _sendLogsToKeen; set => Set(value, ref _sendLogsToKeen); }
+        
+        [Arg("delteminidumps", "Delete mini dumps after they are created")]
+        [Display(Name = "Delete Mini Dumps", Description = "Delete mini dumps after they are created", GroupName = "Logging")]
+        public bool DeleteMiniDumps { get => _deleteMiniDumps; set => Set(value, ref _deleteMiniDumps); }
+
+        [Arg("logintoken", "Steam GSLT")]
+        [Display(Name = "Login Token", Description = "Steam GSLT (can be used if you have dynamic ip)", GroupName = "Server")]
+        public string LoginToken { get => _loginToken; set => Set(value, ref _loginToken); }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
